@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable import/order */
 "use client";
 
 import { useState, useTransition } from "react";
@@ -119,7 +121,7 @@ export const Quiz = ({
       startTransition(async () => {
         const token = (await getToken()) as string;
         upsertChallengeProgress(token, challenge.id, userId as string)
-          .then((response) => {
+          .then((response ) => {
             if (response?.error === "hearts") {
               openHeartsModal();
               return;
@@ -142,7 +144,7 @@ export const Quiz = ({
         const token = (await getToken()) as string;
         reduceHearts(token, challenge.id, userId as string)
           .then((response) => {
-            if (response?.error === "hearts") {
+            if (response?.error  === "hearts") {
               openHeartsModal();
               return;
             }

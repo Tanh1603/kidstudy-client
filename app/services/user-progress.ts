@@ -67,13 +67,14 @@ const reduceHearts = async (
   try {
     const response = await api.put(
       `/user/user-progress/reduce-hearts?challengeId=${challengeId}&userId=${userId}`,
+      {},
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-    return response.data;
+    return response.data as string;
   } catch (error) {
     console.error(error);
     throw error;
@@ -84,13 +85,14 @@ const refillHearts = async (token: string, userId: string) => {
   try {
     const response = await api.put(
       `/user/user-progress/refill-hearts?userId=${userId}`,
+      {},
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-    return response.data;
+    return response.data as string;
   } catch (error) {
     console.error(error);
     throw error;

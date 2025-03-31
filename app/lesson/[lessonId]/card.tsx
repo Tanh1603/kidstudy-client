@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import Image from "next/image";
 import { useAudio, useKey } from "react-use";
@@ -19,6 +19,9 @@ type CardProps = {
   type: (typeof challenges.$inferSelect)["type"];
 };
 
+
+const defaultImage = "/boy.svg";
+
 export const Card = ({
   text,
   imageSrc,
@@ -32,6 +35,7 @@ export const Card = ({
 }: CardProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [audio, _, controls] = useAudio({ src: audioSrc || "" });
+  const [src, setSrc] = useState(imageSrc || defaultImage);
 
   const handleClick = useCallback(() => {
     if (disabled) return;
@@ -61,7 +65,7 @@ export const Card = ({
       {audio}
       {imageSrc && (
         <div className="relative mb-4 aspect-square max-h-[80px] w-full lg:max-h-[150px]">
-          <Image src={imageSrc} fill alt={text} />
+          <Image src={src} fill alt={text} onError={() => setSrc(defaultImage)} />
         </div>
       )}
 
