@@ -79,9 +79,6 @@ const LearnPage = () => {
   if (!userProgress || !firstIncompleteLesson) {
     return;
   }
-
-  // const isPro = !!userSubscription?.isActive;
-
   return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
       <StickyWrapper>

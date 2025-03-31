@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 export const siteConfig: Metadata = {
-  title: "Lingo",
+  title: "KidStudy",
+  icons: "beeicon.svg",
   description:
     "Interactive platform for language learning with lessons, quizzes, and progress tracking.",
   keywords: [

@@ -26,7 +26,7 @@ export const Header = () => {
 
   return (
     <>
-      <Banner hide={hideBanner} setHide={setHideBanner} />
+      {/* <Banner hide={hideBanner} setHide={setHideBanner} /> */}
 
       <header
         className={cn(
@@ -69,12 +69,12 @@ export const Header = () => {
                 rel="noreferrer noopener"
                 className={isSignedIn ? "pt-1.5" : "pt-3"}
               >
-                <Image
+                {/* <Image
                   src="/github.svg"
                   alt="Source Code"
                   height={20}
                   width={20}
-                />
+                /> */}
               </Link>
             </ClerkLoaded>
           </div>

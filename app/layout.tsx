@@ -27,10 +27,10 @@ export default function RootLayout({
     <ClerkProvider
       appearance={{
         layout: {
-          logoImageUrl: "/favicon.ico",
+          logoImageUrl: "/beeicon.svg",
         },
         variables: {
-          colorPrimary: "#22C55E",
+          colorPrimary:"#FBBF24",
         },
       }}
     >
