@@ -1,6 +1,6 @@
+import api from "./api";
 import LessonDTO from "../models/Lesson";
 import FirstIncompleteLessonDTO from "../models/UnitProgressDTO";
-import api from "./api";
 
 const getLessonPercentage = async (
   token: string,
@@ -16,7 +16,6 @@ const getLessonPercentage = async (
         },
       }
     );
-    console.log(response);
 
     return response.data as unknown as number;
   } catch (error) {
@@ -45,4 +44,25 @@ const getFirstIncompleteLesson = async (
   }
 };
 
-export { getLessonPercentage, getFirstIncompleteLesson };
+const getUserLessonById = async (
+  token: string,
+  lessonId: number,
+  userId: string
+): Promise<LessonDTO> => {
+  try {
+    const response = await api.get<LessonDTO>(
+      `/user/lessons/${lessonId}?userId=${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export { getLessonPercentage, getFirstIncompleteLesson, getUserLessonById };

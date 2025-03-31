@@ -8,10 +8,11 @@ import Confetti from "react-confetti";
 import { useAudio, useWindowSize, useMount } from "react-use";
 import { toast } from "sonner";
 
-import { upsertChallengeProgress } from "@/actions/challenge-progress";
-import { reduceHearts } from "@/actions/user-progress";
+// import { upsertChallengeProgress } from "@/actions/challenge-progress";
+// import { reduceHearts } from "@/actions/user-progress";
+import ChallengeDTO from "@/app/models/ChallengeDTO";
 import { MAX_HEARTS } from "@/constants";
-import { challengeOptions, challenges, userSubscription } from "@/db/schema";
+// import { userSubscription } from "@/db/schema";
 import { useHeartsModal } from "@/store/use-hearts-modal";
 import { usePracticeModal } from "@/store/use-practice-modal";
 
@@ -20,20 +21,19 @@ import { Footer } from "./footer";
 import { Header } from "./header";
 import { QuestionBubble } from "./question-bubble";
 import { ResultCard } from "./result-card";
-
+import { reduceHearts } from "@/app/services/user-progress";
+import { upsertChallengeProgress } from "@/app/services/challenge-service";
+import { useAuth } from "@clerk/nextjs";
 type QuizProps = {
   initialPercentage: number;
   initialHearts: number;
   initialLessonId: number;
-  initialLessonChallenges: (typeof challenges.$inferSelect & {
-    completed: boolean;
-    challengeOptions: (typeof challengeOptions.$inferSelect)[];
-  })[];
-  userSubscription:
-    | (typeof userSubscription.$inferSelect & {
-        isActive: boolean;
-      })
-    | null;
+  initialLessonChallenges: ChallengeDTO[];
+  // userSubscription:
+  //   | (typeof userSubscription.$inferSelect & {
+  //       isActive: boolean;
+  //     })
+  //   | null;
 };
 
 export const Quiz = ({
@@ -41,8 +41,9 @@ export const Quiz = ({
   initialHearts,
   initialLessonId,
   initialLessonChallenges,
-  userSubscription,
+  // userSubscription,
 }: QuizProps) => {
+  const { userId, getToken } = useAuth();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [correctAudio, _c, correctControls] = useAudio({ src: "/correct.wav" });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -115,8 +116,9 @@ export const Quiz = ({
     if (!correctOption) return;
 
     if (correctOption.id === selectedOption) {
-      startTransition(() => {
-        upsertChallengeProgress(challenge.id)
+      startTransition(async () => {
+        const token = (await getToken()) as string;
+        upsertChallengeProgress(token, challenge.id, userId as string)
           .then((response) => {
             if (response?.error === "hearts") {
               openHeartsModal();
@@ -135,8 +137,10 @@ export const Quiz = ({
           .catch(() => toast.error("Something went wrong. Please try again."));
       });
     } else {
-      startTransition(() => {
-        reduceHearts(challenge.id)
+      startTransition(async () => {
+
+        const token = (await getToken()) as string;
+        reduceHearts(token, challenge.id, userId as string)
           .then((response) => {
             if (response?.error === "hearts") {
               openHeartsModal();
@@ -145,7 +149,6 @@ export const Quiz = ({
 
             void incorrectControls.play();
             setStatus("wrong");
-
             if (!response?.error) setHearts((prev) => Math.max(prev - 1, 0));
           })
           .catch(() => toast.error("Something went wrong. Please try again."));
@@ -189,7 +192,8 @@ export const Quiz = ({
             <ResultCard variant="points" value={challenges.length * 10} />
             <ResultCard
               variant="hearts"
-              value={userSubscription?.isActive ? Infinity : hearts}
+              // value={userSubscription?.isActive ? Infinity : hearts}
+              value={hearts}
             />
           </div>
         </div>
@@ -215,7 +219,8 @@ export const Quiz = ({
       <Header
         hearts={hearts}
         percentage={percentage}
-        hasActiveSubscription={!!userSubscription?.isActive}
+        // hasActiveSubscription={!!userSubscription?.isActive}
+        hasActiveSubscription={false}
       />
 
       <div className="flex-1">
@@ -236,7 +241,7 @@ export const Quiz = ({
                 status={status}
                 selectedOption={selectedOption}
                 disabled={pending}
-                type={challenge.type}
+                type={challenge.type as "ASSIST" | "SELECT"}
               />
             </div>
           </div>

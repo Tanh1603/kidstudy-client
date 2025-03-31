@@ -15,7 +15,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { links } from "@/config";
 import { cn } from "@/lib/utils";
 
 import Banner from "./banner";
@@ -63,20 +62,6 @@ export const Header = () => {
                   </Button>
                 </SignInButton>
               </SignedOut>
-
-              <Link
-                href={links.sourceCode}
-                target="_blank"
-                rel="noreferrer noopener"
-                className={isSignedIn ? "pt-1.5" : "pt-3"}
-              >
-                <Image
-                  src="/github.svg"
-                  alt="Source Code"
-                  height={20}
-                  width={20}
-                />
-              </Link>
             </ClerkLoaded>
           </div>
         </div>

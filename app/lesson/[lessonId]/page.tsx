@@ -1,27 +1,49 @@
-import { redirect } from "next/navigation";
+"use client";
+import { useEffect, useState } from "react";
 
-import { getLesson, getUserProgress, getUserSubscription } from "@/db/queries";
+import { useAuth } from "@clerk/nextjs";
+import { useParams } from "next/navigation";
 
-import { Quiz } from "../quiz";
+import { Quiz } from "./quiz";
+import LessonDTO from "../../models/Lesson";
+import UserProgressDTO from "../../models/UserProgressDTO";
+import { getUserLessonById } from "../../services/lesson-service";
+import { getUserProgress } from "../../services/user-progress";
 
-type LessonIdPageProps = {
-  params: {
-    lessonId: number;
-  };
-};
+const LessonPage = () => {
+  const { userId, getToken } = useAuth();
+  const [lesson, setLesson] = useState<LessonDTO | null>(null);
+  const { lessonId } = useParams();
+  const [userProgress, setUserProgress] = useState<UserProgressDTO | null>(
+    null
+  );
+  // const [userSubscription, setUserSubscription] = useState<UserSubscriptionDTO | null>(null);
 
-const LessonIdPage = async ({ params }: LessonIdPageProps) => {
-  const lessonData = getLesson(params.lessonId);
-  const userProgressData = getUserProgress();
-  const userSubscriptionData = getUserSubscription();
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = await getToken();
+      const lessonData = await getUserLessonById(
+        token as string,
+        lessonId as unknown as number,
+        userId as string
+      );
+      const userProgressData = await getUserProgress(
+        token as string,
+        userId as string
+      );
+      // const userSubscriptionData = await getUserSubscription();
 
-  const [lesson, userProgress, userSubscription] = await Promise.all([
-    lessonData,
-    userProgressData,
-    userSubscriptionData,
-  ]);
+      setLesson(lessonData);
+      setUserProgress(userProgressData);
+      // setUserSubscription(userSubscriptionData);
+    };
 
-  if (!lesson || !userProgress) return redirect("/learn");
+    if (userId) {
+      void fetchData();
+    }
+  }, [getToken, lessonId, userId]);
+
+  if (!lesson || !userProgress) return <div>Loading...</div>;
 
   const initialPercentage =
     (lesson.challenges.filter((challenge) => challenge.completed).length /
@@ -34,9 +56,10 @@ const LessonIdPage = async ({ params }: LessonIdPageProps) => {
       initialLessonChallenges={lesson.challenges}
       initialHearts={userProgress.hearts}
       initialPercentage={initialPercentage}
-      userSubscription={userSubscription}
+      // userSubscription={userSubscription}
+      // userSubscription={false}
     />
   );
 };
 
-export default LessonIdPage;
+export default LessonPage;

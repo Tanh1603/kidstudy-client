@@ -76,6 +76,8 @@ const ShopPage = () => {
           </p>
 
           <Items
+            userProgress={userProgress}
+            setUserProgress={setUserProgress}
             hearts={userProgress.hearts}
             points={userProgress.points}
             // hasActiveSubscription={isPro}

@@ -1,4 +1,4 @@
-import LessonDTO from "./Lesson";
+import LessonDTO from "./Lesson"
 
 type FirstIncompleteLessonDTO = {
   activeLesson: LessonDTO;

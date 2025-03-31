@@ -1,3 +1,4 @@
+"use client";
 import { NotebookText } from "lucide-react";
 import Link from "next/link";
 
@@ -6,9 +7,10 @@ import { Button } from "@/components/ui/button";
 type UnitBannerProps = {
   title: string;
   description: string;
+  lessonId: number;
 };
 
-export const UnitBanner = ({ title, description }: UnitBannerProps) => {
+export const UnitBanner = ({ title, description, lessonId }: UnitBannerProps) => {
   return (
     <div className="flex w-full items-center justify-between rounded-xl bg-green-500 p-5 text-white">
       <div className="space-y-2.5">
@@ -16,7 +18,7 @@ export const UnitBanner = ({ title, description }: UnitBannerProps) => {
         <p className="text-lg">{description}</p>
       </div>
 
-      <Link href="/lesson">
+      <Link href={`/lesson/${lessonId}`}>
         <Button
           size="lg"
           variant="secondary"

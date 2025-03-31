@@ -1,3 +1,4 @@
+"use client";
 import LessonDTO from "@/app/models/Lesson";
 // import { lessons, units } from "@/db/schema";
 
@@ -30,7 +31,6 @@ type UnitProps = {
   activeLessonPercentage: number;
 };
 
-
 export const Unit = ({
   title,
   description,
@@ -40,7 +40,11 @@ export const Unit = ({
 }: UnitProps) => {
   return (
     <>
-      <UnitBanner title={title} description={description} />
+      <UnitBanner
+        lessonId={activeLesson.id}
+        title={title}
+        description={description}
+      />
 
       <div className="relative flex flex-col items-center">
         {lessons.map((lesson, i) => {

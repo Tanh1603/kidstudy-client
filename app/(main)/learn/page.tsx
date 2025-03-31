@@ -4,9 +4,14 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 
 import UnitDTO from "@/app/models/UnitDTO";
-import UnitProgressDTO from "@/app/models/UnitProgressDTO";
+import FirstIncompleteLessonDTO from "@/app/models/UnitProgressDTO";
 import UserProgressDTO from "@/app/models/UserProgressDTO";
-
+import {
+  getLessonPercentage,
+  getFirstIncompleteLesson,
+} from "@/app/services/lesson-service";
+import { getUnits } from "@/app/services/unit-service";
+import { getUserProgress } from "@/app/services/user-progress";
 import { FeedWrapper } from "@/components/feed-wrapper";
 // import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
@@ -15,14 +20,6 @@ import { UserProgress } from "@/components/user-progress";
 
 import Loading from "./loading";
 import { Unit } from "./unit";
-import { getUserProgress } from "@/app/services/user-progress";
-import {
-  getLessonPercentage,
-  getFirstIncompleteLesson,
-} from "@/app/services/lesson-service";
-import { getUnits } from "@/app/services/unit-service";
-import { getUnitProgress } from "@/app/services/unit-service";
-import FirstIncompleteLessonDTO from "@/app/models/UnitProgressDTO";
 
 const LearnPage = () => {
   const { userId, getToken } = useAuth();
@@ -71,7 +68,7 @@ const LearnPage = () => {
     if (userId) {
       void fetchData();
     }
-  }, [userId]);
+  }, [getToken, userId]);
 
   if (isLoading) {
     return <Loading />;

@@ -1,6 +1,6 @@
+import api from "./api";
 import UnitDTO from "../models/UnitDTO";
 import UnitProgressDTO from "../models/UnitProgressDTO";
-import api from "./api";
 
 const getUnitProgress = async (
   token: string,

@@ -7,4 +7,7 @@ type UserProgressDTO = {
   userImageSrc: string;
 };
 
+type UserProgressDTOCreate = Omit<UserProgressDTO, "id">;
+
 export default UserProgressDTO;
+export type { UserProgressDTOCreate };
