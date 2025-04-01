@@ -1,7 +1,13 @@
 import { authMiddleware } from "@clerk/nextjs";
+import { NextResponse } from "next/server";
 
 export default authMiddleware({
-  publicRoutes: ["/", "/api/webhooks/stripe"],
+  publicRoutes: ["/", "/api/webhooks/stripe", "/auth"],
+  afterAuth: (auth, req) => {
+    if (auth.userId) {
+      NextResponse.redirect(new URL("/auth", req.url));
+    }
+  },
 });
 
 export const config = {

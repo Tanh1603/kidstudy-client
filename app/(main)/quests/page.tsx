@@ -39,17 +39,6 @@ const QuestsPage = () => {
 
   if (!userProgress) return null;
   if (loading) return <Loading />;
-  // const userProgressData = getUserProgress();
-  // const userSubscriptionData = getUserSubscription();
-
-  // const [userProgress, userSubscription] = await Promise.all([
-  //   userProgressData,
-  //   userSubscriptionData,
-  // ]);
-
-  // if (!userProgress || !userProgress.activeCourse) redirect("/courses");
-
-  // const isPro = !!userSubscription?.isActive;
 
   return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
@@ -67,7 +56,14 @@ const QuestsPage = () => {
 
       <FeedWrapper>
         <div className="flex w-full flex-col items-center">
-          <Image src="/quests.svg" alt="Quests" placeholder="empty" priority height={90} width={90} />
+          <Image
+            src="/quests.svg"
+            alt="Quests"
+            placeholder="empty"
+            priority
+            height={90}
+            width={90}
+          />
 
           <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
             Quests

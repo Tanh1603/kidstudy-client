@@ -24,7 +24,6 @@ export default function AuthCallback() {
       if (!user?.id) return router.push("/");
 
       const role = user?.publicMetadata?.role;
-      console.log(role);
 
       if (role === "admin") {
         router.replace("/admin");
@@ -33,7 +32,6 @@ export default function AuthCallback() {
 
       const token = (await getToken()) as string;
       const userProgress = await getUserProgress(token, user?.id);
-      console.log(userProgress);
 
       if (!userProgress) {
         try {

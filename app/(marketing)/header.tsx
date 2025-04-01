@@ -8,7 +8,6 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
-  useAuth,
 } from "@clerk/nextjs";
 import { Loader } from "lucide-react";
 import Image from "next/image";
@@ -20,7 +19,6 @@ import { cn } from "@/lib/utils";
 import Banner from "./banner";
 
 export const Header = () => {
-  const { isSignedIn } = useAuth();
   const [hideBanner, setHideBanner] = useState(true);
 
   return (
@@ -34,11 +32,14 @@ export const Header = () => {
         )}
       >
         <div className="mx-auto flex h-full items-center justify-between lg:max-w-screen-lg">
-          <Link href="/" className="flex items-center gap-x-3 pb-7 pl-4 pt-8">
-            <Image src="/mascot.svg" alt="Mascot" height={40} width={40} />
+          <Link
+            href="/"
+            className="flex items-center justify-center gap-x-3 pb-7 pl-4 pt-8"
+          >
+            <Image src="/bee.png" alt="Mascot" height={40} width={40} />
 
-            <h1 className="text-2xl font-extrabold tracking-wide text-green-600">
-              Lingo
+            <h1 className="text-2xl font-extrabold tracking-wide text-yellow-600">
+              KidStudy
             </h1>
           </Link>
 
@@ -54,8 +55,8 @@ export const Header = () => {
               <SignedOut>
                 <SignInButton
                   mode="modal"
-                  afterSignInUrl="/learn"
-                  afterSignUpUrl="/learn"
+                  afterSignInUrl="/auth"
+                  afterSignUpUrl="/auth"
                 >
                   <Button size="lg" variant="ghost">
                     Login
