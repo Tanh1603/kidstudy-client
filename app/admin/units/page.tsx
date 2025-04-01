@@ -5,6 +5,32 @@ import { getUnits } from "@/app/services/admin/units";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { TableComponent } from "@/components/table";
+import { ColumnDef } from "@tanstack/react-table";
+import { Button } from "@/components/ui/button";
+import { ArrowUpDown } from "lucide-react";
+import { SortableHeader } from "../column-helpers";
+
+const columns: ColumnDef<UnitDTO>[] = [
+  {
+    accessorKey: "id",
+    header: ({ column }) => <SortableHeader column={column} title="id" />,
+  },
+  {
+    accessorKey: "title",
+    header: ({ column }) => <SortableHeader column={column} title="title" />,
+  },
+  {
+    accessorKey: "description",
+    header: ({ column }) => (
+      <SortableHeader column={column} title="description" />
+    ),
+  },
+  {
+    accessorKey: "order",
+    header: ({ column }) => <SortableHeader column={column} title="order" />,
+  },
+];
+
 const UnitsPage = () => {
   const { getToken } = useAuth();
   const [units, setUnits] = useState<UnitDTO[]>([]);
@@ -21,17 +47,7 @@ const UnitsPage = () => {
     void fetchUnits();
   }, [getToken]);
 
-  return (
-    <TableComponent
-      headers={["id", "title", "description", "order"]}
-      data={units.map((unit) => ({
-        id: unit.id.toString(),
-        title: unit.title,
-        description: unit.description,
-        order: unit.order,
-      }))}
-    />
-  );
+  return <TableComponent data={units} columns={columns} />;
 };
 
 export default UnitsPage;

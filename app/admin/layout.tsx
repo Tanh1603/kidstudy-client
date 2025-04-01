@@ -19,7 +19,7 @@ const data = [
     iconSrc: "/challenge.jpg",
   },
   {
-    label: "Challenge Options",
+    label: "Options",
     href: "/admin/challenge-options",
     iconSrc: "/option.png",
   },
@@ -35,11 +35,10 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
       <MobileHeader sidebarItems={data} link={link} />
       <Sidebar className="hidden lg:flex" sidebarItems={data} />
       <main className="h-full pt-[50px] lg:pl-[256px] lg:pt-0">
-        <div className="mx-auto h-full max-w-[1056px] pt-6">{children}</div>
+        <div className="mx-auto h-full max-w-full p-2">{children}</div>
       </main>
     </>
   );
 };
 
 export default AdminLayout;
-

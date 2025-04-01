@@ -35,6 +35,10 @@ export default function RootLayout({
       }}
     >
       <html lang="en">
+        <head>
+          <link rel="icon" href="/bee.png" />
+          <title>KidStudy</title>
+        </head>
         <body className={font.className}>
           <Toaster theme="light" richColors closeButton />
           <ExitModal />

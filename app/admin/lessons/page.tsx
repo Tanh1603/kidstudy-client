@@ -6,8 +6,28 @@ import { useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { getLessons } from "@/app/services/admin/lessons";
 import { TableComponent } from "@/components/table";
-
-const LessonsPage = () => { 
+import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
+import { SortableHeader } from "../column-helpers";
+const columns: ColumnDef<LessonDTO>[] = [
+  {
+    accessorKey: "id",
+    header: ({ column }) => <SortableHeader column={column} title="id" />,
+  },
+  {
+    accessorKey: "title",
+    header: ({ column }) => <SortableHeader column={column} title="title" />,
+  },
+  {
+    accessorKey: "unitId",
+    header: ({ column }) => <SortableHeader column={column} title="unitId" />,
+  },
+  {
+    accessorKey: "order",
+    header: ({ column }) => <SortableHeader column={column} title="order" />,
+  },
+];
+const LessonsPage = () => {
   const { getToken } = useAuth();
   const [lessons, setLessons] = useState<LessonDTO[]>([]);
 
@@ -19,16 +39,11 @@ const LessonsPage = () => {
       }
       const lessons = await getLessons(token);
       setLessons(lessons);
-        };
+    };
     void fetchLessons();
   }, [getToken]);
 
-  return <TableComponent headers={["id", "title", "unitId", "order"]} data={lessons.map((lesson) => ({
-    id: lesson.id.toString(),
-    title: lesson.title,
-    unitId: lesson.unitId.toString(),
-    order: lesson.order,
-  }))} />;
+  return <TableComponent data={lessons} columns={columns} />;
 };
 
 export default LessonsPage;
