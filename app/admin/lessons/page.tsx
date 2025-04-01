@@ -1,14 +1,15 @@
 /* eslint-disable import/order */
 "use client";
 import LessonDTO from "@/app/models/Lesson";
-import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { getLessons } from "@/app/services/admin/lessons";
 import { TableComponent } from "@/components/table";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
 import { SortableHeader } from "../column-helpers";
+import { ActionCellHelper } from "../dropdown-helper";
+import { useLessons } from "./context";
+import UpsertLessonModal from "./upsert";
 const columns: ColumnDef<LessonDTO>[] = [
   {
     accessorKey: "id",
@@ -26,24 +27,27 @@ const columns: ColumnDef<LessonDTO>[] = [
     accessorKey: "order",
     header: ({ column }) => <SortableHeader column={column} title="order" />,
   },
+  {
+    id: "actions",
+    cell: ({ row }) => <ActionCellHelper row={row} type="lesson" />,
+  },
 ];
 const LessonsPage = () => {
-  const { getToken } = useAuth();
-  const [lessons, setLessons] = useState<LessonDTO[]>([]);
+  const { lessons, setIsLessonModalOpen, isLessonModalOpen } = useLessons();
 
-  useEffect(() => {
-    const fetchLessons = async () => {
-      const token = await getToken();
-      if (!token) {
-        return;
-      }
-      const lessons = await getLessons(token);
-      setLessons(lessons);
-    };
-    void fetchLessons();
-  }, [getToken]);
-
-  return <TableComponent data={lessons} columns={columns} />;
+  return (
+    <>
+      <TableComponent
+        data={lessons}
+        columns={columns}
+        onOpenModal={() => setIsLessonModalOpen(true)}
+      />
+      <UpsertLessonModal
+        isOpen={isLessonModalOpen}
+        onCloseModal={() => setIsLessonModalOpen(false)}
+      />
+    </>
+  );
 };
 
 export default LessonsPage;

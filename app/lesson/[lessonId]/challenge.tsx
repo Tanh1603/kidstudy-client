@@ -1,15 +1,15 @@
-import { challengeOptions, challenges } from "@/db/schema";
 import { cn } from "@/lib/utils";
 
 import { Card } from "./card";
+import ChallengeOptionDTO from "@/app/models/ChallengeOptionDTO";
 
 type ChallengeProps = {
-  options: (typeof challengeOptions.$inferSelect)[];
+  options: ChallengeOptionDTO[];
   onSelect: (id: number) => void;
   status: "correct" | "wrong" | "none";
   selectedOption?: number;
   disabled?: boolean;
-  type: (typeof challenges.$inferSelect)["type"];
+  type: "SELECT" | "FILL_IN" | "ASSIST";
 };
 
 export const Challenge = ({

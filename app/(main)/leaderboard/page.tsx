@@ -1,5 +1,12 @@
 "use client";
+import { useState } from "react";
+import { useEffect } from "react";
+
+import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
+
+import UserProgressDTO from "@/app/models/UserProgressDTO";
+import { getLeaderboard, getUserProgress } from "@/app/services/user-progress";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
@@ -7,11 +14,10 @@ import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { UserProgress } from "@/components/user-progress";
-import { useState } from "react";
-import { useEffect } from "react";
-import { getLeaderboard, getUserProgress } from "@/app/services/user-progress";
-import { useAuth } from "@clerk/nextjs";
-import UserProgressDTO from "@/app/models/UserProgressDTO";
+
+
+
+
 import Loading from "./loading";
 const LeaderboardPage = () => {
   const { userId, getToken } = useAuth();

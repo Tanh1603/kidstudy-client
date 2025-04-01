@@ -2,16 +2,16 @@
 
 import { useTransition } from "react";
 
+import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { toast } from "sonner";
 
 // import { refillHearts } from "@/actions/user-progress";
 // import { createStripeUrl } from "@/actions/user-subscription";
+import UserProgressDTO from "@/app/models/UserProgressDTO";
+import { refillHearts } from "@/app/services/user-progress";
 import { Button } from "@/components/ui/button";
 import { MAX_HEARTS, POINTS_TO_REFILL } from "@/constants";
-import { useAuth } from "@clerk/nextjs";
-import { refillHearts } from "@/app/services/user-progress";
-import UserProgressDTO from "@/app/models/UserProgressDTO";
 type ItemsProps = {
   hearts: number;
   points: number;

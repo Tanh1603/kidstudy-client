@@ -1,15 +1,18 @@
 "use client";
+import { useEffect, useState } from "react";
+
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
+
+import UserProgressDTO from "@/app/models/UserProgressDTO";
+import { getUserProgress } from "@/app/services/user-progress";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { Promo } from "@/components/promo";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Progress } from "@/components/ui/progress";
 import { UserProgress } from "@/components/user-progress";
 import { QUESTS } from "@/constants";
-import UserProgressDTO from "@/app/models/UserProgressDTO";
-import { useEffect, useState } from "react";
-import { getUserProgress } from "@/app/services/user-progress";
+
 import Loading from "./loading";
 
 const QuestsPage = () => {

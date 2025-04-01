@@ -8,12 +8,22 @@ import ChallengeDTO from "@/app/models/ChallengeDTO";
 import { getChallenges } from "@/app/services/admin/challenges";
 import { TableComponent } from "@/components/table";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
 import { SortableHeader } from "../column-helpers";
+import { ActionCellHelper } from "../dropdown-helper";
+import { useChallenges } from "./context";
+import UpsertChallengeModal from "./upsert";
 const columns: ColumnDef<ChallengeDTO>[] = [
   {
     accessorKey: "id",
     header: ({ column }) => <SortableHeader column={column} title="id" />,
+  },
+  {
+    accessorKey: "lessonId",
+    header: ({ column }) => <SortableHeader column={column} title="lesson" />,
+  },
+  {
+    accessorKey: "lessonId",
+    header: ({ column }) => <SortableHeader column={column} title="lessonId" />,
   },
   {
     accessorKey: "type",
@@ -32,24 +42,28 @@ const columns: ColumnDef<ChallengeDTO>[] = [
     accessorKey: "order",
     header: ({ column }) => <SortableHeader column={column} title="order" />,
   },
+  {
+    id: "actions",
+    cell: ({ row }) => <ActionCellHelper row={row} type="challenge" />,
+  },
 ];
 const ChallengesPage = () => {
-  const { getToken } = useAuth();
-  const [challenges, setChallenges] = useState<ChallengeDTO[]>([]);
+  const { challenges, isChallengeModalOpen, setIsChallengeModalOpen } =
+    useChallenges();
 
-  useEffect(() => {
-    const fetchChallenges = async () => {
-      const token = await getToken();
-      if (!token) {
-        return;
-      }
-      const challenges = await getChallenges(token);
-      setChallenges(challenges);
-    };
-    void fetchChallenges();
-  }, [getToken]);
-
-  return <TableComponent data={challenges} columns={columns} />;
+  return (
+    <>
+      <TableComponent
+        data={challenges}
+        columns={columns}
+        onOpenModal={() => setIsChallengeModalOpen(true)}
+      />
+      <UpsertChallengeModal
+        isOpen={isChallengeModalOpen}
+        onCloseModal={() => setIsChallengeModalOpen(false)}
+      />
+    </>
+  );
 };
 
 export default ChallengesPage;

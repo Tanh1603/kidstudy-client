@@ -5,8 +5,10 @@ type LessonDTO = {
   title: string;
   unitId: number;
   order: number;
-  challenges: ChallengeDTO[];   
+  challenges: ChallengeDTO[];
   completed: boolean;
 };
 
+type LessonDTOCreate = Omit<LessonDTO, "id" | "completed" | "challenges">;
+export type { LessonDTOCreate };
 export default LessonDTO;

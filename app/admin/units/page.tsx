@@ -2,14 +2,14 @@
 "use client";
 import UnitDTO from "@/app/models/UnitDTO";
 import { getUnits } from "@/app/services/admin/units";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { TableComponent } from "@/components/table";
 import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
 import { SortableHeader } from "../column-helpers";
-
+import { ActionCellHelper } from "../dropdown-helper";
+import { useUnits } from "./context";
+import UpsertUnitModal from "./upsert";
 const columns: ColumnDef<UnitDTO>[] = [
   {
     accessorKey: "id",
@@ -29,11 +29,16 @@ const columns: ColumnDef<UnitDTO>[] = [
     accessorKey: "order",
     header: ({ column }) => <SortableHeader column={column} title="order" />,
   },
+  {
+    id: "actions",
+    cell: ({ row }) => <ActionCellHelper row={row} type="unit" />,
+  },
 ];
 
 const UnitsPage = () => {
   const { getToken } = useAuth();
-  const [units, setUnits] = useState<UnitDTO[]>([]);
+  const { units, setUnits, isUnitModalOpen, setIsUnitModalOpen, setCurrentUnit } =
+    useUnits();
 
   useEffect(() => {
     const fetchUnits = async () => {
@@ -45,9 +50,24 @@ const UnitsPage = () => {
       setUnits(units);
     };
     void fetchUnits();
-  }, [getToken]);
+  }, [getToken, setUnits]);
 
-  return <TableComponent data={units} columns={columns} />;
+  return (
+    <>
+      <TableComponent
+        data={units}
+        columns={columns}
+        onOpenModal={() => setIsUnitModalOpen(true)}
+      />
+      <UpsertUnitModal
+        isOpen={isUnitModalOpen}
+        onCloseModal={() => {
+          setIsUnitModalOpen(false);
+          setCurrentUnit(null);
+        }}
+      />
+    </>
+  );
 };
 
 export default UnitsPage;

@@ -3,7 +3,6 @@ import { useCallback, useState } from "react";
 import Image from "next/image";
 import { useAudio, useKey } from "react-use";
 
-import { challenges } from "@/db/schema";
 import { cn } from "@/lib/utils";
 
 type CardProps = {
@@ -16,7 +15,7 @@ type CardProps = {
   onClick: () => void;
   status?: "correct" | "wrong" | "none";
   disabled?: boolean;
-  type: (typeof challenges.$inferSelect)["type"];
+  type: "SELECT" | "FILL_IN" | "ASSIST";
 };
 
 

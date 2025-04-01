@@ -1,16 +1,19 @@
 "use client";
+import { useEffect, useState } from "react";
+
+import { currentUser, useAuth } from "@clerk/nextjs";
 import Image from "next/image";
+
+import UserProgressDTO from "@/app/models/UserProgressDTO";
+import { getUserProgress } from "@/app/services/user-progress";
 import { FeedWrapper } from "@/components/feed-wrapper";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";
 
 import { Items } from "./items";
-import { currentUser, useAuth } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
-import UserProgressDTO from "@/app/models/UserProgressDTO";
 import Loading from "./loading";
-import { getUserProgress } from "@/app/services/user-progress";
+
 
 const ShopPage = () => {
   const { userId, getToken } = useAuth();

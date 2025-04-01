@@ -7,8 +7,10 @@ import { useState } from "react";
 import { getChallengeOptions } from "@/app/services/admin/challenge-options";
 import { TableComponent } from "@/components/table";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
 import { SortableHeader } from "../column-helpers";
+import { ActionCellHelper } from "../dropdown-helper";
+import { useChallengeOptions } from "./context";
+import UpsertChallengeOptionModal from "./upsert";
 const columns: ColumnDef<ChallengeOptionDTO>[] = [
   {
     accessorKey: "id",
@@ -36,27 +38,32 @@ const columns: ColumnDef<ChallengeOptionDTO>[] = [
     accessorKey: "audioSrc",
     header: ({ column }) => <SortableHeader column={column} title="audioSrc" />,
   },
+  {
+    id: "actions",
+    cell: ({ row }) => <ActionCellHelper row={row} type="challengeOption" />,
+  },
 ];
 
 const ChallengeOptionsPage = () => {
-  const { getToken } = useAuth();
-  const [challengeOptions, setChallengeOptions] = useState<
-    ChallengeOptionDTO[]
-  >([]);
+  const {
+    challengeOptions,
+    isChallengeOptionModalOpen,
+    setIsChallengeOptionModalOpen,
+  } = useChallengeOptions();
 
-  useEffect(() => {
-    const fetchChallengeOptions = async () => {
-      const token = await getToken();
-      if (!token) {
-        return;
-      }
-      const challengeOptions = await getChallengeOptions(token);
-      setChallengeOptions(challengeOptions);
-    };
-    void fetchChallengeOptions();
-  }, [getToken]);
-
-  return <TableComponent data={challengeOptions} columns={columns} />;
+  return (
+    <>
+      <TableComponent
+        data={challengeOptions}
+        columns={columns}
+        onOpenModal={() => setIsChallengeOptionModalOpen(true)}
+      />
+      <UpsertChallengeOptionModal
+        isOpen={isChallengeOptionModalOpen}
+        onCloseModal={() => setIsChallengeOptionModalOpen(false)}
+      />
+    </>
+  );
 };
 
 export default ChallengeOptionsPage;

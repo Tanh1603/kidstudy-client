@@ -7,4 +7,6 @@ type ChallengeOptionDTO = {
   audioSrc: string;
 };
 
+type ChallengeOptionDTOCreate = Omit<ChallengeOptionDTO, "id">;
+export type { ChallengeOptionDTOCreate };
 export default ChallengeOptionDTO;

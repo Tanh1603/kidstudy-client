@@ -5,7 +5,7 @@ type UnitDTO = {
   title: string;
   description: string;
   order: number;
-  lessons: LessonDTO[]; 
+  lessons: LessonDTO[];
 };
-
+export type UnitDTOCreate = Omit<UnitDTO, "id" | "lessons">;
 export default UnitDTO;

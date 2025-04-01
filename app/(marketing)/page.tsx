@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import {
   ClerkLoaded,
   ClerkLoading,
@@ -12,9 +14,8 @@ import {
 import { Loader } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 
 export default function MarketingPage() {

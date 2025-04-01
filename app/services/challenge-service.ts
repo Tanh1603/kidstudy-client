@@ -1,4 +1,5 @@
 import { date } from "drizzle-orm/mysql-core";
+
 import api from "./api";
 
 const upsertChallengeProgress = async (
