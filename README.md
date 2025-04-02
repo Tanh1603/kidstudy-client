@@ -1,7 +1,7 @@
 # Website tiện ích cho trẻ em, giúp trẻ học tiếng anh: KIDSTUDY
 
 ## Nhóm 14
-|STT|Họ và tên|MSSV|Chức vụ|
+|STT|Họ và tên|MSSV|Vai trò|
 |---|---------|----|-------|
 |1|Nguyễn Lê Tuấn Anh|23520064|Nhóm trưởng|
 |2|Trần Khánh Toàn|23521610|Thành viên|
@@ -15,7 +15,8 @@
 ![Screenshot 2025-04-02 095319](https://github.com/user-attachments/assets/ea14da5e-2f9f-41f1-9cb4-f217ada1760c)
 
 ## Seminar
-[Seminar.pptx](https://github.com/user-attachments/files/19562005/Seminar.pptx)
+[Seminar.pptx](https://github.com/user-attachments/files/19564142/Seminar.pptx)
+
 
 
 ## UI
