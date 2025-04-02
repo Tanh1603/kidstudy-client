@@ -1,4 +1,4 @@
-# Website tiện ích cho trẻ em, giúp trẻ học tiếng anh
+# Website tiện ích cho trẻ em, giúp trẻ học tiếng anh: KIDSTUDY
 
 ## Nhóm 14
 |STT|Họ và tên|MSSV|Chức vụ|
@@ -16,4 +16,15 @@
 
 ## Seminar
 [Seminar.pptx](https://github.com/user-attachments/files/19560670/Seminar.pptx)
+
+## UI
+### Landing page
+![Screenshot 2025-04-02 112632](https://github.com/user-attachments/assets/476b01f5-4cd5-4a96-92d6-8758713ea1c9)
+
+### Learn
+![Screenshot 2025-04-02 112727](https://github.com/user-attachments/assets/d7d6601d-deb2-4a39-b027-934fa4963ac2)
+
+### Admin
+![Screenshot 2025-04-02 112805](https://github.com/user-attachments/assets/1ef990e6-f7e0-4b68-8264-72d89ddf9a5e)
+
 
