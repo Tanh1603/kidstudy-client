@@ -71,9 +71,9 @@ const QuestsPage = () => {
           <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
             Quests
           </h1>
-          <p className="mb-6 text-center text-lg text-muted-foreground">
+          {/* <p className="mb-6 text-center text-lg text-muted-foreground">
             Complete quests by earning points.
-          </p>
+          </p> */}
 
           <ul className="w-full">
             {QUESTS.map((quest) => {

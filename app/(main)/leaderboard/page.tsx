@@ -86,9 +86,9 @@ const LeaderboardPage = () => {
           <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
             Leaderboard
           </h1>
-          <p className="mb-6 text-center text-lg text-muted-foreground">
+          {/* <p className="mb-6 text-center text-lg text-muted-foreground">
             See where you stand among other learners in the community.
-          </p>
+          </p> */}
 
           <Separator className="mb-4 h-0.5 rounded-full" />
           {leaderboard ? (
@@ -97,9 +97,9 @@ const LeaderboardPage = () => {
                 key={userProgress.userId}
                 className="flex w-full items-center rounded-xl p-2 px-4 hover:bg-gray-200/50"
               >
-                <p className="mr-4 font-bold text-lime-700">{i + 1}</p>
+                <p className="mr-4 font-bold text-yellow-700">{i + 1}</p>
 
-                <Avatar className="ml-3 mr-6 h-12 w-12 border bg-green-500">
+                <Avatar className="ml-3 mr-6 h-12 w-12 border bg-yellow-500">
                   <AvatarImage
                     src={userProgress.userImageSrc}
                     className="object-cover"
@@ -115,7 +115,7 @@ const LeaderboardPage = () => {
               </div>
             ))
           ) : (
-            <div>Không có dữ liệu</div>
+            <div>No data</div>
           )}
         </div>
       </FeedWrapper>

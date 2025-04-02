@@ -16,19 +16,19 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-import Banner from "./banner";
+//import Banner from "./banner";
 
 export const Header = () => {
-  const [hideBanner, setHideBanner] = useState(true);
+  // const [hideBanner, setHideBanner] = useState(true);
 
   return (
     <>
-      <Banner hide={hideBanner} setHide={setHideBanner} />
+      {/* <Banner hide={hideBanner} setHide={setHideBanner} /> */}
 
       <header
         className={cn(
-          "h-20 w-full border-b-2 border-slate-200 px-4",
-          !hideBanner ? "mt-20 sm:mt-16 lg:mt-10" : "mt-0"
+          "h-20 w-full border-b-2 border-slate-300 px-4 bg-yellow-100",
+          //!hideBanner ? "mt-20 sm:mt-16 lg:mt-10" : "mt-0"
         )}
       >
         <div className="mx-auto flex h-full items-center justify-between lg:max-w-screen-lg">
@@ -39,7 +39,7 @@ export const Header = () => {
             <Image src="/bee.png" alt="Mascot" height={40} width={40} />
 
             <h1 className="text-2xl font-extrabold tracking-wide text-yellow-600">
-              KidStudy
+              KIDSTUDY
             </h1>
           </Link>
 
@@ -58,7 +58,7 @@ export const Header = () => {
                   afterSignInUrl="/auth"
                   afterSignUpUrl="/auth"
                 >
-                  <Button size="lg" variant="ghost">
+                  <Button size="lg" variant="login">
                     Login
                   </Button>
                 </SignInButton>
