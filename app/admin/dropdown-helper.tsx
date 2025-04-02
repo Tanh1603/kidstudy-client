@@ -19,9 +19,10 @@ import { useChallenges } from "./challenges/context";
 import ChallengeDTO from "../models/ChallengeDTO";
 import ChallengeOptionDTO from "../models/ChallengeOptionDTO";
 import { useChallengeOptions } from "./challenge-options/context";
+import { toast } from "sonner";
 export const ActionCellHelper = ({ row, type }: { row: any; type: string }) => {
-  const { setIsUnitModalOpen, setCurrentUnit } = useUnits();
-  const { setIsLessonModalOpen, setCurrentLesson } = useLessons();
+  const { setIsUnitModalOpen, setCurrentUnit, deleteUnit } = useUnits();
+  const { setIsLessonModalOpen, setCurrentLesson, deleteLesson } = useLessons();
   const { setIsChallengeModalOpen, setCurrentChallenge } = useChallenges();
   const { setIsChallengeOptionModalOpen, setCurrentChallengeOption } =
     useChallengeOptions();
@@ -41,6 +42,27 @@ export const ActionCellHelper = ({ row, type }: { row: any; type: string }) => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      if (type === "unit") {
+        await deleteUnit((row?.original as UnitDTO).id);
+        toast.success("Unit deleted successfully");
+      } else if (type === "lesson") {
+        await deleteLesson((row?.original as LessonDTO).id);
+        toast.success("Lesson deleted successfully");
+      } else if (type === "challenge") {
+        // await deleteChallenge((row?.original as ChallengeDTO).id);
+        toast.success("Challenge deleted successfully");
+      } else if (type === "challengeOption") {
+        // await deleteChallengeOption((row?.original as ChallengeOptionDTO).id);
+        toast.success("Challenge option deleted successfully");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error deleting unit");
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -53,7 +75,10 @@ export const ActionCellHelper = ({ row, type }: { row: any; type: string }) => {
         <DropdownMenuItem onClick={handleSubmit} className="cursor-pointer">
           Edit
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer active:bg-red-500">
+        <DropdownMenuItem
+          className="cursor-pointer active:bg-red-500"
+          onClick={() => void handleDelete()}
+        >
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>

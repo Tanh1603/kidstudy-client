@@ -103,7 +103,11 @@ const UpsertChallengeOptionModal = ({
   return isOpen ? (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-[800px] rounded-md bg-white p-6">
-        <h2 className="mb-4 text-xl font-bold">Add New Challenge</h2>
+        <h2 className="mb-4 text-xl font-bold">
+          {currentChallengeOption
+            ? "Edit Challenge Option"
+            : "Add New Challenge Option"}
+        </h2>
         <div className="space-y-4">
           <div>
             <Label
@@ -185,7 +189,7 @@ const UpsertChallengeOptionModal = ({
               />
             </div>
             <Input
-                className="w-fit"
+              className="w-fit"
               id="imageSrc"
               name="imageSrc"
               type="file"

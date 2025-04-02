@@ -3,7 +3,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import UnitDTO, { UnitDTOCreate } from "@/app/models/UnitDTO";
 import { useAuth } from "@clerk/nextjs";
-import { getUnits } from "@/app/services/admin/units";
+import {
+  createUnit,
+  getUnits,
+  updateUnitById,
+  deleteUnitById,
+} from "@/app/services/admin/units";
 
 interface UnitContextType {
   units: UnitDTO[];
@@ -12,9 +17,9 @@ interface UnitContextType {
   currentUnit: UnitDTO | null;
   setCurrentUnit: (unit: UnitDTO | null) => void;
   setIsUnitModalOpen: (isUnitModalOpen: boolean) => void;
-  addUnit: (unit: UnitDTOCreate) => void;
-  updateUnit: (unit: UnitDTO) => void;
-  deleteUnit: (id: number) => void;
+  addUnit: (unit: UnitDTOCreate) => Promise<void>;
+  updateUnit: (unit: UnitDTO) => Promise<void>;
+  deleteUnit: (id: number) => Promise<void>;
 }
 
 const UnitContext = createContext<UnitContextType>({
@@ -24,9 +29,9 @@ const UnitContext = createContext<UnitContextType>({
   currentUnit: null,
   setCurrentUnit: () => {},
   setIsUnitModalOpen: () => {},
-  addUnit: () => {},
-  updateUnit: () => {},
-  deleteUnit: () => {},
+  addUnit: async () => {},
+  updateUnit: async () => {},
+  deleteUnit: async () => {},
 });
 
 export const UnitProvider = ({ children }: { children: React.ReactNode }) => {
@@ -35,9 +40,6 @@ export const UnitProvider = ({ children }: { children: React.ReactNode }) => {
   const [units, setUnits] = useState<UnitDTO[]>([]);
   const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
   const [currentUnit, setCurrentUnit] = useState<UnitDTO | null>(null);
-  const addUnit = (unit: UnitDTOCreate) => {
-    setUnits([...units, unit as UnitDTO]);
-  };
 
   useEffect(() => {
     const fetchUnits = async () => {
@@ -49,12 +51,25 @@ export const UnitProvider = ({ children }: { children: React.ReactNode }) => {
     void fetchUnits();
   }, [getToken]);
 
-  const updateUnit = (unit: UnitDTO) => {
-    setUnits(units.map((u) => (u.id === unit.id ? unit : u)));
+  const addUnit = async (unit: UnitDTOCreate) => {
+    const token = await getToken();
+    if (!token) return;
+    const newUnit = await createUnit(token, unit);
+    setUnits((prevUnits) => [...prevUnits, newUnit]);
   };
 
-  const deleteUnit = (id: number) => {
-    setUnits(units.filter((u) => u.id !== id));
+  const updateUnit = async (unit: UnitDTO) => {
+    const token = await getToken();
+    if (!token) return;
+    const updatedUnit = await updateUnitById(token, unit);
+    setUnits(units.map((u) => (u.id === unit.id ? updatedUnit : u)));
+  };
+
+  const deleteUnit = async (unitId: number) => {
+    const token = await getToken();
+    if (!token) return;
+    await deleteUnitById(token, unitId);
+    setUnits((prevUnits) => prevUnits.filter((u) => u.id !== unitId));
   };
 
   return (

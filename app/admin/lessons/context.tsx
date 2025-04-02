@@ -1,8 +1,14 @@
 /* eslint-disable import/order */
 "use client";
 import LessonDTO, { LessonDTOCreate } from "@/app/models/Lesson";
-import { getLessons } from "@/app/services/admin/lessons";
+import {
+  createLesson,
+  deleteLessonById,
+  getLessons,
+  updateLessonById,
+} from "@/app/services/admin/lessons";
 import { useAuth } from "@clerk/nextjs";
+import { useUnits } from "../units/context";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface LessonContextType {
@@ -12,9 +18,9 @@ interface LessonContextType {
   currentLesson: LessonDTO | null;
   setCurrentLesson: (lesson: LessonDTO | null) => void;
   setIsLessonModalOpen: (isLessonModalOpen: boolean) => void;
-  addLesson: (lesson: LessonDTOCreate) => void;
-  updateLesson: (lesson: LessonDTO) => void;
-  deleteLesson: (id: number) => void;
+  addLesson: (lesson: LessonDTOCreate) => Promise<void>;
+  updateLesson: (lesson: LessonDTO) => Promise<void>;
+  deleteLesson: (id: number) => Promise<void>;
 }
 const LessonContext = createContext<LessonContextType>({
   lessons: [],
@@ -23,13 +29,14 @@ const LessonContext = createContext<LessonContextType>({
   currentLesson: null,
   setCurrentLesson: () => {},
   setIsLessonModalOpen: () => {},
-  addLesson: () => {},
-  updateLesson: () => {},
-  deleteLesson: () => {},
+  addLesson: async () => {},
+  updateLesson: async () => {},
+  deleteLesson: async () => {},
 });
 
 export const LessonProvider = ({ children }: { children: React.ReactNode }) => {
   const { getToken } = useAuth();
+  const { units } = useUnits();
   const [lessons, setLessons] = useState<LessonDTO[]>([]);
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
   const [currentLesson, setCurrentLesson] = useState<LessonDTO | null>(null);
@@ -44,16 +51,32 @@ export const LessonProvider = ({ children }: { children: React.ReactNode }) => {
       setLessons(lessons);
     };
     void fetchLessons();
-  }, [getToken, setLessons]);
-  const addLesson = (lesson: LessonDTOCreate) => {
-    setLessons([...lessons, lesson as LessonDTO]);
+  }, [getToken, units.length]);
+
+  const addLesson = async (lesson: LessonDTOCreate) => {
+    const token = await getToken();
+    if (!token) {
+      return;
+    }
+    const newLesson = await createLesson(token, lesson);
+    setLessons([...lessons, newLesson]);
   };
 
-  const updateLesson = (lesson: LessonDTO) => {
-    setLessons(lessons.map((l) => (l.id === lesson.id ? lesson : l)));
+  const updateLesson = async (lesson: LessonDTO) => {
+    const token = await getToken();
+    if (!token) {
+      return;
+    }
+    const updatedLesson = await updateLessonById(token, lesson);
+    setLessons(lessons.map((l) => (l.id === lesson.id ? updatedLesson : l)));
   };
 
-  const deleteLesson = (id: number) => {
+  const deleteLesson = async (id: number) => {
+    const token = await getToken();
+    if (!token) {
+      return;
+    }
+    await deleteLessonById(token, id);
     setLessons(lessons.filter((l) => l.id !== id));
   };
 

@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 const UpsertLessonModal = ({
   isOpen,
   onCloseModal,
@@ -22,7 +23,8 @@ const UpsertLessonModal = ({
   isOpen: boolean;
   onCloseModal: () => void;
 }): React.ReactElement => {
-  const { addLesson, currentLesson } = useLessons();
+  const { addLesson, updateLesson, currentLesson, setCurrentLesson } =
+    useLessons();
   const { units } = useUnits();
   const [lesson, setLesson] = useState<LessonDTOCreate>({
     title: "",
@@ -44,8 +46,21 @@ const UpsertLessonModal = ({
     }));
   };
 
-  const handleSubmit = () => {
-    addLesson(lesson);
+  const handleSubmit = async () => {
+    if (currentLesson) {
+      await updateLesson({
+        id: currentLesson.id,
+        title: lesson.title,
+        unitId: lesson.unitId,
+        order: lesson.order,
+        challenges: currentLesson.challenges,
+        completed: currentLesson.completed,
+      });
+      toast.success("Lesson updated successfully");
+    } else {
+      await addLesson(lesson);
+      toast.success("Lesson created successfully");
+    }
     onCloseModal();
     setLesson({
       title: "",
@@ -64,7 +79,9 @@ const UpsertLessonModal = ({
   return isOpen ? (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-[400px] rounded-md bg-white p-6">
-        <h2 className="mb-4 text-xl font-bold">Add New Lesson</h2>
+        <h2 className="mb-4 text-xl font-bold">
+          {currentLesson ? "Edit Lesson" : "Add New Lesson"}
+        </h2>
         <div className="space-y-4">
           <div>
             <Label
@@ -117,7 +134,7 @@ const UpsertLessonModal = ({
               id="order"
               name="order"
               type="number"
-              min={0}
+              min={1}
               value={lesson.order}
               onChange={handleChange}
               className="mt-2 w-full border p-2"
@@ -134,14 +151,15 @@ const UpsertLessonModal = ({
               setLesson({
                 title: "",
                 unitId: 0,
-                order: 0,
+                order: 1,
               });
+              setCurrentLesson(null);
             }}
           >
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            Add Lesson
+          <Button variant="primary" onClick={() => void handleSubmit()}>
+            Submit
           </Button>
         </div>
       </div>

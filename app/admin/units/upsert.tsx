@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUnits } from "./context";
+import { toast } from "sonner";
 const UpsertUnitModal = ({
   isOpen,
   onCloseModal,
@@ -14,7 +15,7 @@ const UpsertUnitModal = ({
   isOpen: boolean;
   onCloseModal: () => void;
 }): React.ReactElement => {
-  const { addUnit, currentUnit } = useUnits();
+  const { addUnit, updateUnit, currentUnit, setCurrentUnit } = useUnits();
   const [unit, setUnit] = useState<UnitDTOCreate>({
     title: "",
     description: "",
@@ -35,20 +36,39 @@ const UpsertUnitModal = ({
     }));
   };
 
-  const handleSubmit = () => {
-    addUnit(unit);
-    onCloseModal();
-    setUnit({
-      title: "",
-      description: "",
-      order: 0,
-    });
+  const handleSubmit = async () => {
+    try {
+      if (currentUnit) {
+        await updateUnit({
+          id: currentUnit.id,
+          title: unit.title,
+          description: unit.description,
+          order: unit.order,
+          lessons: currentUnit.lessons,
+        });
+        toast.success("Unit updated successfully");
+      } else {
+        await addUnit(unit);
+        toast.success("Unit created successfully");
+      }
+      setUnit({
+        title: "",
+        description: "",
+        order: 0,
+      });
+      onCloseModal();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error creating unit");
+    }
   };
 
   return isOpen ? (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-[400px] rounded-md bg-white p-6">
-        <h2 className="mb-4 text-xl font-bold">Add New Unit</h2>
+        <h2 className="mb-4 text-xl font-bold">
+          {currentUnit ? "Edit Unit" : "Add New Unit"}
+        </h2>
         <div className="space-y-4">
           <div>
             <Label
@@ -95,7 +115,7 @@ const UpsertUnitModal = ({
               id="order"
               name="order"
               type="number"
-              min={0}
+              min={1}
               value={unit.order}
               onChange={handleChange}
               className="mt-2 w-full border p-2"
@@ -112,14 +132,15 @@ const UpsertUnitModal = ({
               setUnit({
                 title: "",
                 description: "",
-                order: 0,
+                order: 1,
               });
+              setCurrentUnit(null);
             }}
           >
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSubmit}>
-            Add Unit
+          <Button variant="primary" onClick={() => void handleSubmit()}>
+            Submit
           </Button>
         </div>
       </div>

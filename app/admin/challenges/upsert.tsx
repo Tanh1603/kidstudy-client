@@ -77,7 +77,9 @@ const UpsertChallengeModal = ({
   return isOpen ? (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-[800px] rounded-md bg-white p-6">
-        <h2 className="mb-4 text-xl font-bold">Add New Challenge</h2>
+        <h2 className="mb-4 text-xl font-bold">
+          {currentChallenge ? "Edit Challenge" : "Add New Challenge"}   
+        </h2>
         <div className="space-y-4">
           <div>
             <Label
@@ -200,7 +202,7 @@ const UpsertChallengeModal = ({
             Cancel
           </Button>
           <Button variant="primary" onClick={handleSubmit}>
-            Add Challenge
+            Submit
           </Button>
         </div>
       </div>
