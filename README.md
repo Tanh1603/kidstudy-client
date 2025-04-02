@@ -15,7 +15,8 @@
 ![Screenshot 2025-04-02 095319](https://github.com/user-attachments/assets/ea14da5e-2f9f-41f1-9cb4-f217ada1760c)
 
 ## Seminar
-[Seminar.pptx](https://github.com/user-attachments/files/19560670/Seminar.pptx)
+[Seminar.pptx](https://github.com/user-attachments/files/19562005/Seminar.pptx)
+
 
 ## UI
 ### Landing page
