@@ -13,7 +13,7 @@ import "./globals.css";
 const font = Nunito({ subsets: ["latin"] });
 
 export const viewport: Viewport = {
-  themeColor: "#22C55E",
+  themeColor: "#FBBF24",
 };
 
 export const metadata: Metadata = siteConfig;
@@ -30,14 +30,14 @@ export default function RootLayout({
           logoImageUrl: "/bee.png",
         },
         variables: {
-          colorPrimary: "#22C55E",
+          colorPrimary: "#FBBF24",
         },
       }}
     >
       <html lang="en">
         <head>
           <link rel="icon" href="/bee.png" />
-          <title>KidStudy</title>
+          <title>KIDSTUDY</title>
         </head>
         <body className={font.className}>
           <Toaster theme="light" richColors closeButton />
