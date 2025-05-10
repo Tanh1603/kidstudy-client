@@ -1,15 +1,13 @@
 /* eslint-disable import/order */
 "use client";
 import LessonDTO from "@/app/models/Lesson";
-import { useAuth } from "@clerk/nextjs";
-import { useEffect } from "react";
-import { getLessons } from "@/app/services/admin/lessons";
 import { TableComponent } from "@/components/table";
 import { ColumnDef } from "@tanstack/react-table";
 import { SortableHeader } from "../column-helpers";
 import { ActionCellHelper } from "../dropdown-helper";
-import { useLessons } from "./context";
-import UpsertLessonModal from "./upsert";
+import { useGetLesson } from "@/hooks/use-lesson-hook";
+import Loading from "@/components/loading";
+import { useAdminModal } from "@/store/use-admin-store";
 const columns: ColumnDef<LessonDTO>[] = [
   {
     accessorKey: "id",
@@ -33,20 +31,17 @@ const columns: ColumnDef<LessonDTO>[] = [
   },
 ];
 const LessonsPage = () => {
-  const { lessons, setIsLessonModalOpen, isLessonModalOpen } = useLessons();
+  const { data, isLoading } = useGetLesson();
+  const { onOpen } = useAdminModal();
+
+  if (isLoading) return <Loading />;
 
   return (
-    <>
-      <TableComponent
-        data={lessons}
-        columns={columns}
-        onOpenModal={() => setIsLessonModalOpen(true)}
-      />
-      <UpsertLessonModal
-        isOpen={isLessonModalOpen}
-        onCloseModal={() => setIsLessonModalOpen(false)}
-      />
-    </>
+    <TableComponent
+      data={data ?? []}
+      columns={columns}
+      onOpenModal={() => onOpen("lesson", "create")}
+    />
   );
 };
 

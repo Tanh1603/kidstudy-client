@@ -11,50 +11,81 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useUnits } from "./units/context";
-import { useLessons } from "./lessons/context";
-import UnitDTO from "../models/UnitDTO";
-import LessonDTO from "../models/Lesson";
-import { useChallenges } from "./challenges/context";
-import ChallengeDTO from "../models/ChallengeDTO";
-import ChallengeOptionDTO from "../models/ChallengeOptionDTO";
-import { useChallengeOptions } from "./challenge-options/context";
+// import { useUnits } from "./units/context";
+import UnitDTO, { UnitForm } from "../models/UnitDTO";
+import LessonDTO, { LessonForm } from "../models/Lesson";
+import ChallengeDTO, { ChallengeForm } from "../models/ChallengeDTO";
+// import ChallengeOptionDTO from "../models/ChallengeOptionDTO";
 import { toast } from "sonner";
+import { useAdminModal } from "@/store/use-admin-store";
+import { useDeleteUnit } from "@/hooks/use-unit-hook";
+import { useDeleteLesson } from "@/hooks/use-lesson-hook";
+import { useDeleteChallenge } from "@/hooks/use-challenge-hook";
+import { useAuth } from "@clerk/nextjs";
+import { deleteFile } from "../services/uploadFile";
 export const ActionCellHelper = ({ row, type }: { row: any; type: string }) => {
-  const { setIsUnitModalOpen, setCurrentUnit, deleteUnit } = useUnits();
-  const { setIsLessonModalOpen, setCurrentLesson, deleteLesson } = useLessons();
-  const { setIsChallengeModalOpen, setCurrentChallenge } = useChallenges();
-  const { setIsChallengeOptionModalOpen, setCurrentChallengeOption } =
-    useChallengeOptions();
+  const { onOpen } = useAdminModal();
+  const deleteUnit = useDeleteUnit();
+  const deleteLesson = useDeleteLesson();
+  const deleteChallenge = useDeleteChallenge();
+  const { getToken } = useAuth();
   const handleSubmit = () => {
     if (type === "unit") {
-      setIsUnitModalOpen(true);
-      setCurrentUnit(row?.original as UnitDTO);
+      onOpen("unit", "update", row?.original as UnitForm);
     } else if (type === "lesson") {
-      setIsLessonModalOpen(true);
-      setCurrentLesson(row?.original as LessonDTO);
+      onOpen("lesson", "update", row?.original as LessonForm);
+      console.log(row?.original);
     } else if (type === "challenge") {
-      setIsChallengeModalOpen(true);
-      setCurrentChallenge(row?.original as ChallengeDTO);
+      onOpen("challenge", "update", row?.original as ChallengeForm);
     } else if (type === "challengeOption") {
-      setIsChallengeOptionModalOpen(true);
-      setCurrentChallengeOption(row?.original as ChallengeOptionDTO);
+      // setIsChallengeOptionModalOpen(true);
+      // setCurrentChallengeOption(row?.original as ChallengeOptionDTO);
     }
   };
 
   const handleDelete = async () => {
     try {
+      const token = (await getToken()) as string;
       if (type === "unit") {
-        await deleteUnit((row?.original as UnitDTO).id);
-        toast.success("Unit deleted successfully");
+        const id = (row?.original as UnitDTO).id;
+        if (!id) {
+          toast.error("Error id");
+          return;
+        }
+        await deleteUnit.mutateAsync(id);
       } else if (type === "lesson") {
-        await deleteLesson((row?.original as LessonDTO).id);
-        toast.success("Lesson deleted successfully");
+        const lesson = row?.original as LessonDTO;
+        if (!lesson.id) {
+          toast.error("Error id");
+          return;
+        }
+        await deleteLesson.mutateAsync(lesson.id);
+        const lessonPromises: Promise<any>[] = [];
+        lesson.challenges.map((challenge) => {
+          if (challenge.audioSrc)
+            lessonPromises.push(deleteFile(challenge.audioSrc, token));
+          if (challenge.imageSrc)
+            lessonPromises.push(deleteFile(challenge.imageSrc, token));
+        });
+
+        await Promise.all(lessonPromises);
       } else if (type === "challenge") {
-        // await deleteChallenge((row?.original as ChallengeDTO).id);
-        toast.success("Challenge deleted successfully");
+        const challenge = row?.original as ChallengeDTO;
+        if (!challenge.id) {
+          toast.error("Error id");
+          return;
+        }
+        const promises: Promise<any>[] = [];
+        await deleteChallenge.mutateAsync(challenge.id);
+        if (challenge.audioSrc) {
+          promises.push(deleteFile(challenge.audioSrc, token));
+        }
+        if (challenge.imageSrc) {
+          promises.push(deleteFile(challenge.imageSrc, token));
+        }
+
+        await Promise.all(promises);
       } else if (type === "challengeOption") {
-        // await deleteChallengeOption((row?.original as ChallengeOptionDTO).id);
         toast.success("Challenge option deleted successfully");
       }
     } catch (error) {
@@ -81,6 +112,17 @@ export const ActionCellHelper = ({ row, type }: { row: any; type: string }) => {
         >
           Delete
         </DropdownMenuItem>
+        {type === "challenge" && (
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => {
+              const data = row?.original as ChallengeDTO;
+              onOpen("challenge-options", "create", data.id);
+            }}
+          >
+            Options
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

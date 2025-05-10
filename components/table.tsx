@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 "use client";
 
 import { useState } from "react";
@@ -36,13 +37,17 @@ import { Input } from "./ui/input";
 interface TableComponentProps<TData, TValue> {
   data: TData[];
   columns: ColumnDef<TData, TValue>[];
-  onOpenModal: () => void;
+  onOpenModal?: () => void;
+  addBtnStatus?: boolean;
+  onTableRowClick?: (row: TData) => void;
 }
 
 export function TableComponent<TData, TValue>({
   data,
   columns,
   onOpenModal,
+  addBtnStatus = true,
+  onTableRowClick,
 }: TableComponentProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState<string>("");
@@ -75,13 +80,15 @@ export function TableComponent<TData, TValue>({
         />
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="primary"
-            className="w-[100px]"
-            onClick={onOpenModal}
-          >
-            Add
-          </Button>
+          {addBtnStatus && (
+            <Button
+              variant="primary"
+              className="w-[100px]"
+              onClick={onOpenModal}
+            >
+              Add
+            </Button>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -112,53 +119,54 @@ export function TableComponent<TData, TValue>({
         </div>
       </div>
 
-      <div className="flex-1 rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
+      <Table className="rounded-md border">
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead
+                  key={header.id}
+                  className="border-r border-gray-200 bg-gray-50 font-medium"
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length > 0 ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    onClick={() => {
+                      if (onTableRowClick) onTableRowClick(cell?.row?.original);
+                    }}
+                    className="cursor-pointer border-r border-gray-200 p-1 text-center"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length > 0 ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="cursor-pointer">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className=" h-screen text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
 
-      <div className="px-2 py-4">
+      <div className="mt-auto py-4">
         <DataTablePagination table={table} />
       </div>
     </div>

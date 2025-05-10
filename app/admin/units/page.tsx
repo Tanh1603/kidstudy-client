@@ -1,15 +1,13 @@
 /* eslint-disable import/order */
 "use client";
 import UnitDTO from "@/app/models/UnitDTO";
-import { getUnits } from "@/app/services/admin/units";
-import { useEffect } from "react";
-import { useAuth } from "@clerk/nextjs";
 import { TableComponent } from "@/components/table";
 import { ColumnDef } from "@tanstack/react-table";
 import { SortableHeader } from "../column-helpers";
 import { ActionCellHelper } from "../dropdown-helper";
-import { useUnits } from "./context";
-import UpsertUnitModal from "./upsert";
+import { useAdminModal } from "@/store/use-admin-store";
+import { useUnit } from "@/hooks/use-unit-hook";
+import Loading from "@/components/loading";
 const columns: ColumnDef<UnitDTO>[] = [
   {
     accessorKey: "id",
@@ -36,37 +34,17 @@ const columns: ColumnDef<UnitDTO>[] = [
 ];
 
 const UnitsPage = () => {
-  const { getToken } = useAuth();
-  const { units, setUnits, isUnitModalOpen, setIsUnitModalOpen, setCurrentUnit } =
-    useUnits();
+  const { data, isLoading } = useUnit();
+  const { onOpen } = useAdminModal();
 
-  useEffect(() => {
-    const fetchUnits = async () => {
-      const token = await getToken();
-      if (!token) {
-        return;
-      }
-      const units = await getUnits(token);
-      setUnits(units);
-    };
-    void fetchUnits();
-  }, [getToken, setUnits]);
+  if (isLoading) return <Loading />;
 
   return (
-    <>
-      <TableComponent
-        data={units}
-        columns={columns}
-        onOpenModal={() => setIsUnitModalOpen(true)}
-      />
-      <UpsertUnitModal
-        isOpen={isUnitModalOpen}
-        onCloseModal={() => {
-          setIsUnitModalOpen(false);
-          setCurrentUnit(null);
-        }}
-      />
-    </>
+    <TableComponent
+      data={data ?? []}
+      columns={columns}
+      onOpenModal={() => onOpen("unit", "create")}
+    />
   );
 };
 

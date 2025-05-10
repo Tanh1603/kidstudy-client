@@ -1,17 +1,17 @@
 /* eslint-disable import/order */
 "use client";
-import { useState } from "react";
 
-import { useAuth } from "@clerk/nextjs";
-import { useEffect } from "react";
 import ChallengeDTO from "@/app/models/ChallengeDTO";
-import { getChallenges } from "@/app/services/admin/challenges";
 import { TableComponent } from "@/components/table";
 import { ColumnDef } from "@tanstack/react-table";
 import { SortableHeader } from "../column-helpers";
 import { ActionCellHelper } from "../dropdown-helper";
-import { useChallenges } from "./context";
-import UpsertChallengeModal from "./upsert";
+import { useAdminModal } from "@/store/use-admin-store";
+import Loading from "@/components/loading";
+import { useGetChallenge } from "@/hooks/use-challenge-hook";
+import React from "react";
+import UrlCell from "../url-cell";
+
 const columns: ColumnDef<ChallengeDTO>[] = [
   {
     accessorKey: "id",
@@ -22,20 +22,16 @@ const columns: ColumnDef<ChallengeDTO>[] = [
     header: ({ column }) => <SortableHeader column={column} title="lesson" />,
   },
   {
-    accessorKey: "lessonId",
-    header: ({ column }) => <SortableHeader column={column} title="lessonId" />,
-  },
-  {
     accessorKey: "type",
     header: ({ column }) => <SortableHeader column={column} title="type" />,
   },
   {
-    accessorKey: "question",
-    header: ({ column }) => <SortableHeader column={column} title="question" />,
+    accessorKey: "audioSrc",
+    cell: ({ row }) => <UrlCell value={row.original.audioSrc ?? null} />,
   },
   {
-    accessorKey: "audioSrc",
-    header: ({ column }) => <SortableHeader column={column} title="audioSrc" />,
+    accessorKey: "imageSrc",
+    cell: ({ row }) => <UrlCell value={row.original.imageSrc ?? null} />,
   },
 
   {
@@ -48,21 +44,17 @@ const columns: ColumnDef<ChallengeDTO>[] = [
   },
 ];
 const ChallengesPage = () => {
-  const { challenges, isChallengeModalOpen, setIsChallengeModalOpen } =
-    useChallenges();
+  const { data: challenges = [], isLoading } = useGetChallenge();
+  const { onOpen } = useAdminModal();
+
+  if (isLoading) return <Loading />;
 
   return (
-    <>
-      <TableComponent
-        data={challenges}
-        columns={columns}
-        onOpenModal={() => setIsChallengeModalOpen(true)}
-      />
-      <UpsertChallengeModal
-        isOpen={isChallengeModalOpen}
-        onCloseModal={() => setIsChallengeModalOpen(false)}
-      />
-    </>
+    <TableComponent
+      data={challenges}
+      columns={columns}
+      onOpenModal={() => onOpen("challenge", "create")}
+    />
   );
 };
 

@@ -1,5 +1,5 @@
 /* eslint-disable import/order */
-import LessonDTO, { LessonDTOCreate } from "@/app/models/Lesson";
+import LessonDTO, { LessonForm } from "@/app/models/Lesson";
 import api from "../api";
 const getLessons = async (token: string) => {
   try {
@@ -15,7 +15,7 @@ const getLessons = async (token: string) => {
   }
 };
 
-const createLesson = async (token: string, lesson: LessonDTOCreate) => {
+const createLesson = async (token: string, lesson: LessonForm) => {
   try {
     const response = await api.post("/admin/lessons", lesson, {
       headers: {
@@ -29,7 +29,7 @@ const createLesson = async (token: string, lesson: LessonDTOCreate) => {
   }
 };
 
-const updateLessonById = async (token: string, lesson: LessonDTO) => {
+const updateLessonById = async (token: string, lesson: LessonForm) => {
   try {
     const response = await api.put(`/admin/lessons/${lesson.id}`, lesson, {
       headers: {

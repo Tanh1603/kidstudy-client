@@ -1,12 +1,13 @@
-type ChallengeOptionDTO = {
-  id: number;
-  challengeId: number;
-  text: string;
-  correct: boolean;
-  imageSrc: string;
-  audioSrc: string;
-};
+import { z } from "zod";
 
-type ChallengeOptionDTOCreate = Omit<ChallengeOptionDTO, "id">;
-export type { ChallengeOptionDTOCreate };
+export const challengeOptionsSchema = z.object({
+  id: z.number().optional(),
+  challengeId: z.number().nonnegative(),
+  text: z.string().min(1, "Text is required"),
+  correct: z.boolean(),
+  imageSrc: z.string().optional().nullable(),
+  audioSrc: z.string().optional().nullable(),
+});
+type ChallengeOptionDTO = z.infer<typeof challengeOptionsSchema>;
+
 export default ChallengeOptionDTO;
