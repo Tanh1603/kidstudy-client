@@ -3,7 +3,7 @@ export const words = [
   {
     id: 1,
     word: "CAT",
-    image: "/kidstudy-client/data/cat.png",
+    image: "/cat.png",
     letters: ["C", "T", "A"],
   },
   {
