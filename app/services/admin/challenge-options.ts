@@ -1,6 +1,6 @@
 /* eslint-disable import/order */
 import api from "../api";
-import ChallengeOptionDTO from "@/app/models/ChallengeOptionDTO";
+import ChallengeOptionDTO, { ChallengeOptionForm } from "@/app/models/ChallengeOptionDTO";
 
 const getChallengeOptionsByChallengeId = async (
   token: string,
@@ -23,7 +23,7 @@ const getChallengeOptionsByChallengeId = async (
 };
 
 const createChallengeOptions = async (
-  options: ChallengeOptionDTO,
+  options: ChallengeOptionForm,
   token: string
 ) => {
   try {
@@ -42,7 +42,7 @@ const createChallengeOptions = async (
 };
 
 const updateChallengeOptions = async (
-  options: ChallengeOptionDTO,
+  options: ChallengeOptionForm,
   token: string
 ) => {
   try {

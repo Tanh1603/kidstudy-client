@@ -10,7 +10,6 @@ import { useAdminModal } from "@/store/use-admin-store";
 import Loading from "@/components/loading";
 import { useGetChallenge } from "@/hooks/use-challenge-hook";
 import React from "react";
-import UrlCell from "../url-cell";
 
 const columns: ColumnDef<ChallengeDTO>[] = [
   {
@@ -24,14 +23,6 @@ const columns: ColumnDef<ChallengeDTO>[] = [
   {
     accessorKey: "type",
     header: ({ column }) => <SortableHeader column={column} title="type" />,
-  },
-  {
-    accessorKey: "audioSrc",
-    cell: ({ row }) => <UrlCell value={row.original.audioSrc ?? null} />,
-  },
-  {
-    accessorKey: "imageSrc",
-    cell: ({ row }) => <UrlCell value={row.original.imageSrc ?? null} />,
   },
 
   {

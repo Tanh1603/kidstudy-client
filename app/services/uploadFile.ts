@@ -11,6 +11,7 @@ const uploadFile = async (token: string, file: File) => {
         Authorization: `Bearer ${token}`,
       },
     });
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return response.data?.url as string;
   } catch (error) {
     console.error(error);

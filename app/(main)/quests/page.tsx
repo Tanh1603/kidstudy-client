@@ -37,7 +37,7 @@ const QuestsPage = () => {
         setLoading(false);
       }
     };
-    fetchUserProgress();
+    void fetchUserProgress();
   }, [userId, getToken]);
 
   if (!userProgress) return null;

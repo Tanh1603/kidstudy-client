@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-import { currentUser, useAuth } from "@clerk/nextjs";
+import {  useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 
 import UserProgressDTO from "@/app/models/UserProgressDTO";
@@ -36,7 +36,7 @@ const ShopPage = () => {
         setLoading(false);
       }
     };
-    fetchUserProgress();
+    void fetchUserProgress();
   }, [userId, getToken]);
 
   if (!userProgress) return null;

@@ -59,11 +59,18 @@ const getLeaderboard = async (
   return response.data;
 };
 
+type HeartsResponse = {
+  error?: string;
+  message?: string;
+  success?: boolean;
+};
+
+
 const reduceHearts = async (
   token: string,
   challengeId: number,
   userId: string
-) => {
+): Promise<HeartsResponse> => {
   try {
     const response = await api.put(
       `/user/user-progress/reduce-hearts?challengeId=${challengeId}&userId=${userId}`,
@@ -74,14 +81,14 @@ const reduceHearts = async (
         },
       }
     );
-    return response.data as string;
+    return response.data as HeartsResponse;
   } catch (error) {
     console.error(error);
     throw error;
   }
 };
 
-const refillHearts = async (token: string, userId: string) => {
+const refillHearts = async (token: string, userId: string):Promise<HeartsResponse> => {
   try {
     const response = await api.put(
       `/user/user-progress/refill-hearts?userId=${userId}`,
@@ -92,7 +99,7 @@ const refillHearts = async (token: string, userId: string) => {
         },
       }
     );
-    return response.data as string;
+    return response.data as HeartsResponse;
   } catch (error) {
     console.error(error);
     throw error;

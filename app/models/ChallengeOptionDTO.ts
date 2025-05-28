@@ -5,9 +5,19 @@ export const challengeOptionsSchema = z.object({
   challengeId: z.number().nonnegative(),
   text: z.string().min(1, "Text is required"),
   correct: z.boolean(),
-  imageSrc: z.string().optional().nullable(),
-  audioSrc: z.string().optional().nullable(),
+  imageSrc: z.string().optional(),
+  audioSrc: z.string().optional(),
 });
-type ChallengeOptionDTO = z.infer<typeof challengeOptionsSchema>;
+
+export type ChallengeOptionForm = z.infer<typeof challengeOptionsSchema>;
+
+type ChallengeOptionDTO = {
+  id: number;
+  challengeId: number;
+  text: string;
+  correct: boolean;
+  imageSrc: string;
+  audioSrc: string;
+};
 
 export default ChallengeOptionDTO;

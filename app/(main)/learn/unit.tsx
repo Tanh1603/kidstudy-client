@@ -1,25 +1,8 @@
 "use client";
+// eslint-disable-next-line import/order
 import LessonDTO from "@/app/models/Lesson";
-// import { lessons, units } from "@/db/schema";
-
 import { LessonButton } from "./lesson-button";
 import { UnitBanner } from "./unit-banner";
-
-// type UnitProps = {
-//   id: number;
-//   order: number;
-//   title: string;
-//   description: string;
-//   lessons: (typeof lessons.$inferSelect & {
-//     completed: boolean;
-//   })[];
-//   activeLesson:
-//     | (typeof lessons.$inferSelect & {
-//         unit: typeof units.$inferSelect;
-//       })
-//     | undefined;
-//   activeLessonPercentage: number;
-// };
 
 type UnitProps = {
   id: number;

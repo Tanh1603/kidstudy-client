@@ -3,6 +3,7 @@
 import { SortableHeader } from "@/app/admin/column-helpers";
 import UrlCell from "@/app/admin/url-cell";
 import ChallengeOptionDTO, {
+  ChallengeOptionForm,
   challengeOptionsSchema,
 } from "@/app/models/ChallengeOptionDTO";
 import { deleteFile, uploadFile } from "@/app/services/uploadFile";
@@ -37,7 +38,7 @@ import { useAuth } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { Trash } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -51,6 +52,9 @@ const ChallengeOptionFormModal = () => {
   );
   const [currentOption, setCurrentOption] =
     useState<ChallengeOptionDTO | null>();
+
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const audioInputRef = useRef<HTMLInputElement | null>(null);
 
   const [created, setCreated] = useState(true);
   const { data: options = [], isLoading } = useGetChallengeOptionsByChallengeId(
@@ -129,15 +133,14 @@ const ChallengeOptionFormModal = () => {
   ];
 
   const { getToken } = useAuth();
-  const form = useForm<ChallengeOptionDTO>({
+  const form = useForm<ChallengeOptionForm>({
     resolver: zodResolver(challengeOptionsSchema),
     defaultValues: currentOption
       ? currentOption
       : {
           challengeId: 0,
           text: "",
-          audioSrc: null,
-          imageSrc: null,
+          correct: false,
         },
   });
 
@@ -149,15 +152,13 @@ const ChallengeOptionFormModal = () => {
       form.reset({
         challengeId: 0,
         text: "",
-        audioSrc: null,
-        imageSrc: null,
         correct: false,
       });
       setCreated(true);
     }
   }, [currentOption, form]);
 
-  const onSubmit = async (values: ChallengeOptionDTO) => {
+  const onSubmit = async (values: ChallengeOptionForm) => {
     try {
       setLoading(true);
       const token = (await getToken()) as string;
@@ -166,32 +167,35 @@ const ChallengeOptionFormModal = () => {
       let audioSrc = currentOption?.audioSrc;
       const promises: Promise<unknown>[] = [];
 
+      if (!selectedAudio || !selectedImage) {
+        toast.error("ImageSrc or AudioSrc not empty");
+        return;
+      }
+
       if (!created) {
-        if (imgSrc && selectedImage === null) {
+        if (imgSrc) {
           promises.push(deleteFile(imgSrc, token));
-          imgSrc = null;
+          imgSrc = undefined;
         }
-        if (audioSrc && selectedAudio === null) {
+        if (audioSrc) {
           promises.push(deleteFile(audioSrc, token));
-          audioSrc = null;
+          audioSrc = undefined;
         }
       }
 
-      if (selectedImage) {
-        promises.push(
-          uploadFile(token, selectedImage).then((res) => {
-            imgSrc = res;
-          })
-        );
-      }
+      promises.push(
+        uploadFile(token, selectedImage).then((res) => {
+          imgSrc = res;
+          form.setValue("imageSrc", res);
+        })
+      );
 
-      if (selectedAudio) {
-        promises.push(
-          uploadFile(token, selectedAudio).then((res) => {
-            audioSrc = res;
-          })
-        );
-      }
+      promises.push(
+        uploadFile(token, selectedAudio).then((res) => {
+          audioSrc = res;
+          form.setValue("audioSrc", res);
+        })
+      );
 
       await Promise.all(promises);
 
@@ -200,14 +204,14 @@ const ChallengeOptionFormModal = () => {
           ...values,
           challengeId: data as number,
           imageSrc: imgSrc,
-          audioSrc,
+          audioSrc: audioSrc || "",
         });
       } else {
         await update.mutateAsync({
           ...values,
           challengeId: data as number,
-          imageSrc: imgSrc,
-          audioSrc,
+          imageSrc: imgSrc || "",
+          audioSrc: audioSrc || "",
         });
       }
     } catch (error) {
@@ -219,6 +223,12 @@ const ChallengeOptionFormModal = () => {
       setCreated(true);
       setSelectedImage(undefined);
       setSelectedAudio(undefined);
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
+      if (audioInputRef.current) {
+        audioInputRef.current.value = "";
+      }
     }
   };
 
@@ -292,6 +302,7 @@ const ChallengeOptionFormModal = () => {
                             <Input
                               type="file"
                               accept="audio/*,video/*"
+                              ref={audioInputRef}
                               onClick={(e) => {
                                 e.currentTarget.value = "";
                                 setSelectedAudio(null);
@@ -325,6 +336,7 @@ const ChallengeOptionFormModal = () => {
                             <Input
                               type="file"
                               accept="image/*"
+                              ref={imageInputRef}
                               onClick={(e) => {
                                 e.currentTarget.value = "";
                                 setSelectedImage(null);

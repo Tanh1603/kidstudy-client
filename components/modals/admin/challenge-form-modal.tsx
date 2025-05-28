@@ -31,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import ChallengeDTO, {
+import {
   ChallengeForm,
   challengeSchema,
   challengeType,
@@ -40,24 +40,12 @@ import {
   useCreateChallenge,
   useUpdateChallenge,
 } from "@/hooks/use-challenge-hook";
-import { useAuth } from "@clerk/nextjs";
-import { deleteFile, uploadFile } from "@/app/services/uploadFile";
-import Image from "next/image";
 
 export const ChallengeFormModal = () => {
   const { isOpen, onClose, action, data, type } = useAdminModal();
   const { data: lessons = [] } = useGetLesson();
   const create = useCreateChallenge();
   const update = useUpdateChallenge();
-  const { getToken } = useAuth();
-
-  const currentChallenge = data as ChallengeDTO;
-
-  const [selectedAudio, setSelectedAudio] = useState<File | null>();
-  const [audioURL, setAudioURL] = useState<string | null>();
-
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imageURL, setImageURL] = useState<string | null>(null);
 
   const form = useForm<ChallengeForm>({
     resolver: zodResolver(challengeSchema),
@@ -65,7 +53,6 @@ export const ChallengeFormModal = () => {
       ? (data as ChallengeForm)
       : {
           question: "",
-          audioSrc: "",
           lessonId: 0,
           type: "SELECT",
           order: 1,
@@ -81,7 +68,6 @@ export const ChallengeFormModal = () => {
           ? (data as ChallengeForm)
           : {
               question: "",
-              audioSrc: "",
               lessonId: 0,
               type: "SELECT",
               order: 1,
@@ -90,89 +76,20 @@ export const ChallengeFormModal = () => {
     }
   }, [isOpen, data, form]);
 
-  useEffect(() => {
-    if (selectedAudio) {
-      const objectUrl = URL.createObjectURL(selectedAudio);
-      setAudioURL(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    } else {
-      setAudioURL(null);
-    }
-  }, [selectedAudio]);
-
-  useEffect(() => {
-    if (selectedImage) {
-      const objectUrl = URL.createObjectURL(selectedImage);
-      setImageURL(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    } else {
-      setImageURL(null);
-    }
-  }, [selectedImage]);
-
-  useEffect(() => {
-    if (currentChallenge && action === "update") {
-      setAudioURL(currentChallenge.audioSrc || null);
-      setImageURL(currentChallenge.imageSrc || null);
-    }
-  }, [action, currentChallenge]);
-
   const onSubmit = async (values: ChallengeForm) => {
     try {
       setLoading(true);
-      const token = (await getToken()) as string;
-
-      let audioSrc = currentChallenge?.audioSrc;
-      let imageSrc = currentChallenge?.imageSrc;
-
-      const promises: Promise<unknown>[] = [];
-
-      if (action === "update") {
-        if (audioSrc) {
-          promises.push(deleteFile(audioSrc, token));
-          audioSrc = null;
-        }
-        if (imageSrc) {
-          promises.push(deleteFile(imageSrc, token));
-          imageSrc = null;
-        }
-      }
-
-      if (selectedAudio) {
-        const audioPromise = uploadFile(token, selectedAudio).then((res) => {
-          audioSrc = res;
-        });
-        promises.push(audioPromise);
-      }
-
-      if (selectedImage) {
-        const imagePromise = uploadFile(token, selectedImage).then((res) => {
-          imageSrc = res;
-        });
-        promises.push(imagePromise);
-      }
-
-      await Promise.all(promises);
-
       if (action === "create") {
         await create.mutateAsync({
           ...values,
-          audioSrc,
-          imageSrc,
         });
       } else {
         await update.mutateAsync({
           ...values,
-          audioSrc,
-          imageSrc,
         });
       }
 
       onClose();
-      setSelectedAudio(null);
-      setSelectedImage(null);
-      setImageURL(null);
-      setAudioURL(null);
     } catch (error) {
       console.error(error);
       toast.error("Error");
@@ -186,10 +103,6 @@ export const ChallengeFormModal = () => {
       open={isOpen && type === "challenge"}
       onOpenChange={() => {
         onClose();
-        setSelectedAudio(null);
-        setSelectedImage(null);
-        setImageURL(null);
-        setAudioURL(null);
       }}
     >
       <DialogContent
@@ -288,82 +201,6 @@ export const ChallengeFormModal = () => {
               )}
             ></FormField>
 
-            <FormField
-              control={form.control}
-              name="audioSrc"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Audio / Video</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center justify-center gap-4">
-                      <Input
-                        type="file"
-                        accept="audio/*,video/*"
-                        onClick={(e) => {
-                          e.currentTarget.value = "";
-                          setSelectedAudio(null);
-                          setAudioURL(null);
-                        }}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          setSelectedAudio(file || null);
-                          if (!file || e.target.files?.length === 0) {
-                            setAudioURL(null);
-                          }
-                        }}
-                      />
-                      {audioURL && (
-                        <audio controls src={audioURL}>
-                          Your browser does not support the audio element.
-                        </audio>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="imageSrc"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Image</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center justify-center gap-4">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onClick={(e) => {
-                          e.currentTarget.value = "";
-                          setSelectedImage(null);
-                          setImageURL(null);
-                        }}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          setSelectedImage(file || null);
-                          if (!file || e.target.files?.length === 0) {
-                            setImageURL(null);
-                          }
-                        }}
-                      />
-                      {imageURL && (
-                        <div className="relative h-[60px] w-[60px]">
-                          <Image
-                            src={imageURL}
-                            fill
-                            objectFit="contain"
-                            alt="image"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}

@@ -9,7 +9,11 @@ export const lessonSchema = z.object({
   order: z.number().min(1, "Order must be ≥ 1"),
 });
 
-export type LessonDTO = z.infer<typeof lessonSchema> & {
+export type LessonDTO = {
+  id: number;
+  title: string;
+  unitId: number;
+  order: number;
   challenges: ChallengeDTO[];
   completed: boolean;
 };

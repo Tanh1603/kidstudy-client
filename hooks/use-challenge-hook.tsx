@@ -3,7 +3,7 @@
 "use client";
 
 import ChallengeDTO, { ChallengeForm } from "@/app/models/ChallengeDTO";
-import ChallengeOptionDTO from "@/app/models/ChallengeOptionDTO";
+import ChallengeOptionDTO, { ChallengeOptionForm } from "@/app/models/ChallengeOptionDTO";
 import {
   createChallengeOptions,
   deleteChallengeOptions,
@@ -133,7 +133,7 @@ const useCreateChallengeOption = (challengeId: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (create: ChallengeOptionDTO) => {
+    mutationFn: async (create: ChallengeOptionForm) => {
       const token = (await getToken()) as string;
       if (!token) {
         throw new Error("Token is required");
@@ -156,7 +156,7 @@ const useUpdateChallengeOption = (challengeId: number) => {
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (update: ChallengeOptionDTO) => {
+    mutationFn: async (update: ChallengeOptionForm) => {
       const token = await getToken();
       if (!token) {
         throw new Error("Token is required");

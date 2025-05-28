@@ -8,7 +8,7 @@ import Image from "next/image";
 import UserProgressDTO from "@/app/models/UserProgressDTO";
 import { getLeaderboard, getUserProgress } from "@/app/services/user-progress";
 import { FeedWrapper } from "@/components/feed-wrapper";
-import { Promo } from "@/components/promo";
+// import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
@@ -44,7 +44,7 @@ const LeaderboardPage = () => {
         setLoading(false);
       }
     };
-    fetchLeaderboard();
+    void fetchLeaderboard();
   }, [userId, getToken]);
 
   if (loading) return <Loading />;

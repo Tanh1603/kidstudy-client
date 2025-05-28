@@ -12,7 +12,7 @@ import {
   getUserProgress,
   upsertUserProgress,
 } from "@/app/services/user-progress";
-import { MAX_HEARTS } from "@/constants";
+import { MAX_HEARTS, INITIAL_POINT_HEARTS } from "@/constants";
 export default function AuthCallback() {
   const router = useRouter();
   const { getToken } = useAuth();
@@ -38,7 +38,7 @@ export default function AuthCallback() {
           const newUserProgress: UserProgressDTOCreate = {
             userId: user?.id,
             hearts: MAX_HEARTS,
-            points: 0,
+            points: INITIAL_POINT_HEARTS,
             userName:
               user?.fullName ||
               user?.username ||

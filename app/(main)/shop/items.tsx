@@ -6,8 +6,6 @@ import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import { toast } from "sonner";
 
-// import { refillHearts } from "@/actions/user-progress";
-// import { createStripeUrl } from "@/actions/user-subscription";
 import UserProgressDTO from "@/app/models/UserProgressDTO";
 import { refillHearts } from "@/app/services/user-progress";
 import { Button } from "@/components/ui/button";
@@ -23,7 +21,7 @@ type ItemsProps = {
 export const Items = ({
   hearts,
   points,
-  hasActiveSubscription,
+  // hasActiveSubscription,
   userProgress,
   setUserProgress,
 }: ItemsProps) => {
@@ -35,8 +33,8 @@ export const Items = ({
 
     startTransition(async () => {
       const token = (await getToken()) as string;
-      refillHearts(token, userId as string).catch((error) =>
-        toast.error(error.message)
+      refillHearts(token, userId as string).catch((error: Error) =>
+        toast.error(error?.message || "An error occurred")
       );
       setUserProgress({
         ...userProgress,
