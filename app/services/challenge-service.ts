@@ -1,4 +1,3 @@
-import { date } from "drizzle-orm/mysql-core";
 
 import api from "./api";
 
@@ -18,6 +17,7 @@ const upsertChallengeProgress = async (
       }
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return response.data;
   } catch (error) {
     console.error(error);
