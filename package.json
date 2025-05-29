@@ -93,7 +93,11 @@
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.41.0",
     "lucide-react": "^0.359.0",
+<<<<<<< Updated upstream
     "motion": "^12.12.2",
+=======
+    "motion": "^12.14.0",
+>>>>>>> Stashed changes
     "next": "14.2.21",
     "next-themes": "^0.3.0",
     "ra-data-simple-rest": "^4.16.12",
