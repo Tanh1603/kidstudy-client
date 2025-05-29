@@ -18,20 +18,20 @@ const buttonVariants = cva(
           "bg-neutral-200 text-primary-foreground hover:bg-neutral-200/90 border-neutral-400 border-b-4 active:border-b-0",
 
         primary:
-          "bg-sky-400 text-primary-foreground hover:bg-sky-400/90 border-sky-500 border-b-4 active:border-b-0",
-        primaryOutline: "bg-white text-sky-500 hover:bg-slate-100",
+          "bg-yellow-400 text-primary-foreground hover:bg-yellow-400/90 border-yellow-500 border-b-4 active:border-b-0",
+        primaryOutline: "bg-white text-yellow-500 hover:bg-slate-100",
 
         secondary:
-          "bg-yellow-600 text-primary-foreground hover:bg-yellow-600/90 border-yellow-600 border-b-4 active:border-b-0",
-        secondaryOutline: "bg-white text-yellow-600 hover:bg-slate-100",
+          "bg-yellow-500 text-primary-foreground hover:bg-yellow-500/90 border-yellow-600 border-b-4 active:border-b-0",
+        secondaryOutline: "bg-white text-yellow-500 hover:bg-slate-100",
 
         danger:
           "bg-rose-500 text-primary-foreground hover:bg-rose-500/90 border-rose-600 border-b-4 active:border-b-0",
         dangerOutline: "bg-white text-rose-500 hover:bg-slate-100",
 
         super:
-          "bg-indigo-500 text-primary-foreground hover:bg-indigo-500/90 border-indigo-600 border-b-4 active:border-b-0",
-        superOutline: "bg-white text-indigo-500 hover:bg-slate-100",
+          "bg-blue-500 text-primary-foreground hover:bg-blue-500/90 border-blue-600 border-b-4 active:border-b-0",
+        superOutline: "bg-white text-blue-500 hover:bg-slate-100",
 
         ghost:
           "bg-transparent text-slate-500 border-transparent border-0 hover:bg-slate-100",
@@ -40,6 +40,8 @@ const buttonVariants = cva(
           "bg-transparent text-slate-500 border-2 border-transparent hover:bg-slate-100 transition-none",
         sidebarOutline:
           "bg-sky-500/15 text-sky-500 border-sky-300 border-2 hover:bg-sky-500/20 transition-none",
+        login:
+          "bg-yellow-400 text-slate-500  hover:bg-yellow-400/90 border-yellow-500 border-b-4 active:border-b-0, text-white",
       },
       size: {
         default: "h-11 px-4 py-2",

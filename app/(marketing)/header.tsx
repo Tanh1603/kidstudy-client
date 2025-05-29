@@ -32,7 +32,7 @@ export const Header = () => {
             <Image src="/bee.png" alt="Mascot" height={40} width={40} />
 
             <h1 className="text-2xl font-extrabold tracking-wide text-yellow-600">
-              KidStudy
+              KIDSTUDY
             </h1>
           </Link>
 
@@ -51,7 +51,7 @@ export const Header = () => {
                   afterSignInUrl="/auth"
                   afterSignUpUrl="/auth"
                 >
-                  <Button size="lg" variant="ghost">
+                  <Button size="lg" variant="login">
                     Login
                   </Button>
                 </SignInButton>

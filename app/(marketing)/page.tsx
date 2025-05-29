@@ -22,8 +22,8 @@ export default function MarketingPage() {
       </div>
 
       <div className="flex flex-col items-center gap-y-8">
-        <h1 className="max-w-[480px] text-center text-xl font-bold text-neutral-600 lg:text-3xl">
-          Learn, practice and master new languages with Lingo.
+        <h1 className="max-w-[480px] text-center text-xl font-bold text-black lg:text-3xl">
+          Learn, practice and master English with Kidstudy!
         </h1>
 
         <div className="flex w-full max-w-[330px] flex-col items-center gap-y-3">
@@ -38,7 +38,7 @@ export default function MarketingPage() {
                 afterSignInUrl="/auth"
                 afterSignUpUrl="/auth"
               >
-                <Button size="lg" variant="secondary" className="w-full">
+                <Button size="lg" variant="login" className="w-full">
                   Get Started
                 </Button>
               </SignUpButton>

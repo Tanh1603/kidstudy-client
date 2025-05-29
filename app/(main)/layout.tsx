@@ -24,6 +24,11 @@ const data = [
     href: "/shop",
     iconSrc: "/shop.svg",
   },
+  {
+    label: "Mini games",
+    href: "/mini-games",
+    iconSrc: "/mini-games.svg"
+  }
 ];
 
 const link = {

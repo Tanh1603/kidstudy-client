@@ -39,4 +39,13 @@ export const siteConfig: Metadata = {
     "html",
     "css",
   ] as Array<string>,
+  authors: {
+    name: "Kidstudy",
+    url: "https://github.com/Tanh1603/kidstudy-client",
+  },
+} as const;
+
+export const links = {
+  sourceCode: "https://github.com/Tanh1603/kidstudy-client",
+  //email: "",
 } as const;
