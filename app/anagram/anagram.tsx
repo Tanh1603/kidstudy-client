@@ -3,38 +3,38 @@ import { shuffleArray } from "@/lib/utils";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import ProgressBar from "@/components/progressbar";
 import { Header } from "./header";
-import { AlertTriangle, Lightbulb } from "lucide-react"; // IMPORTANT: Using your specified icons
+import { AlertTriangle, Lightbulb } from "lucide-react";
 import GameEndScreen from "./game-end-screen";
+
 type WordData = {
   id: number;
   word: string;
   image: string;
-  letters: string[];
+  letters: string;
 };
 
-const words = [
+const words: WordData[] = [
   {
     id: 1,
     word: "CAT",
     image: "/cat.png",
-    letters: ["C", "T", "A"],
+    letters: "CTA",
   },
   {
     id: 2,
     word: "PARK",
     image: "/park.png",
-    letters: ["P", "A", "K", "R"],
+    letters: "PAKR",
   },
   {
     id: 3,
     word: "DOG",
     image: "/dog.png",
-    letters: ["D", "G", "O"],
+    letters: "DGO",
   },
-  // Add more words...
 ];
+
 
 const typedWords: WordData[] = words;
 const MAX_INCORRECT_ATTEMPTS = 5;
@@ -56,7 +56,8 @@ const Game = () => {
 
   useEffect(() => {
     if (!isGameOver && !hasWon) {
-      const initialLetters = currentWord.letters.map((letter, index) => ({
+      //array of letter
+      const initialLetters = currentWord.letters.split('').map((letter, index) => ({
         letter,
         originalIndex: index,
         id: `${currentWord.id}-${index}-${letter}`,
@@ -115,14 +116,14 @@ const Game = () => {
   }, [userAnswerLetters, currentWord.word, currentWordIndex, typedWords.length]);
 
   const handleReset = useCallback(() => {
-    const initialLetters = currentWord.letters.map((letter, index) => ({
+    const initialLetters = currentWord.letters.split('').map((letter, index) => ({
       letter,
       originalIndex: index,
       id: `${currentWord.id}-${index}-${letter}`,
     }));
     setUserAnswerLetters(shuffleArray(initialLetters));
     setStatus("none");
-  }, [currentWord.letters, currentWord.word, currentWord.id]);
+  }, [currentWord.letters, currentWord.id]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -162,14 +163,10 @@ const Game = () => {
             currentWordIndex={currentWordIndex}
             totalWords={typedWords.length}
           />
-          {/* This is the main container for the game content */}
           <div className="flex flex-col md:flex-row w-full items-center justify-center gap-10">
 
-            {/* Score section - order it first on mobile (flex-col) and last on desktop (md:order-last) */}
-            {/* THIS IS THE CORRECTED CONTAINER FOR TIMER, SCORE, AND ATTEMPTS */}
             <div className="flex flex-col items-center gap-4 order-first md:order-last">
 
-                {/* Timer Background Image Container */}
                 <div className="relative w-[200px] h-[100px] md:w-[200px] md:h-[100px] mb-4 overflow-hidden rounded-lg">
                     <Image
                         src="/animation/timer-background.png"
@@ -184,12 +181,10 @@ const Game = () => {
                     </div>
                 </div>
 
-                {/* "Score:" Label Displayed Above the Scoreboard */}
                 <div className="text-3xl font-bold font-mono text-yellow-400 text-game-display mb-2">
                     Score
                 </div>
 
-                {/* Score Board Image Container - Now only shows the score number */}
                 <div className="relative w-[300px] h-[100px] md:w-[200px] md:h-[100px] mb-4 overflow-hidden rounded-lg">
                     <Image
                         src="/animation/score-board.jpg"
@@ -198,12 +193,11 @@ const Game = () => {
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-4xl font-bold font-mono text-white text-game-display">
-                          {score} {/* Only the number here */}
+                          {score}
                         </div>
                     </div>
                 </div>
 
-                {/*Attempts left*/}
                 {(() => {
                     const attemptsLeft = 5 - incorrect;
                     let containerClasses = "flex items-center justify-center px-4 py-2 rounded-xl font-bold transition-colors duration-300 transform scale-100";
@@ -211,19 +205,18 @@ const Game = () => {
                     let icon = null;
 
                     if (attemptsLeft <= 0) {
-                        // This case might be handled by isGameOver, but for safety
                         containerClasses += " bg-gray-200 border-gray-400 text-gray-600 border-2";
-                        icon = <Lightbulb className="mr-2 h-5 w-5 text-gray-500" />; // Or a 'disabled' icon
-                    } else if (attemptsLeft <= 2) { // 1 or 2 attempts left
+                        icon = <Lightbulb className="mr-2 h-5 w-5 text-gray-500" />;
+                    } else if (attemptsLeft <= 2) {
                         containerClasses += " bg-red-100 border-red-400 text-red-700 border-2";
                         icon = <AlertTriangle className="mr-2 h-5 w-5 text-red-600" />;
-                        if (attemptsLeft === 1) { // Add a pulsating effect for the very last attempt
-                            containerClasses += " animate-pulse-fast"; // Custom animation, see CSS below
+                        if (attemptsLeft === 1) {
+                            containerClasses += " animate-pulse-fast";
                         }
-                    } else if (attemptsLeft <= 4) { // 3 or 4 attempts left
+                    } else if (attemptsLeft <= 4) {
                         containerClasses += " bg-yellow-50 border-yellow-300 text-yellow-700 border-2";
                         icon = <AlertTriangle className="mr-2 h-5 w-5 text-yellow-600" />;
-                    } else { // 5 attempts left (initial state)
+                    } else {
                         containerClasses += " bg-green-50 border-green-200 text-green-600 border-2"; // Or blue-50, etc.
                         icon = <Lightbulb className="mr-2 h-5 w-5 text-green-500" />; // Or a 'check' icon
                     }
@@ -241,10 +234,9 @@ const Game = () => {
                         </motion.div>
                     );
                 })()}
-            </div> {/* End of the main score section container */}
+            </div>
 
 
-            {/* Picture and Letter section - order it second on mobile, first on desktop (NO CHANGE) */}
             <div className="flex flex-col items-center order-last md:order-first">
               <div className="mb-10">
                 <Image
