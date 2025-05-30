@@ -131,11 +131,14 @@ useEffect(() => {
           <Image
             src="/chat.svg"
             alt="Leaderboard"
-            height={60}
-            width={60}
+            height={40}
+            width={40}
           />
-          <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Chat</h1>
+        <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
+              Chat
+            </h1>
+        <div className="max-w-xl mx-auto p-4">
+        <Separator className="mb-4 h-0.5 rounded-full" />
         <div
           className="border rounded p-4 mb-4 h-[400px] overflow-auto bg-gray-50"
           ref={chatContainerRef} // 🔹 Tham chiếu khung chat

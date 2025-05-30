@@ -12,6 +12,7 @@ import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";
 import { UserProgress1 } from "@/components/friend-progres";
+import { Separator } from "@/components/ui/separator";
 
 
 
@@ -127,15 +128,17 @@ export default function UserProfile() {
       </StickyWrapper>
         <FeedWrapper>
           <div className="flex w-full flex-col items-center">
+            
             <Image src="/friend.svg" alt="Shop" height={120} width={120} />
-  
             <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
               Friend
             </h1>
             <p className="mb-6 text-center text-lg text-muted-foreground">
               Let make new friend.
             </p>
+
             <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
+
               <h1 className="text-xl font-bold mb-4">Bạn bè</h1>
               <h2 className="mt-4">Gửi lời mời kết bạn</h2>
               <input
@@ -158,7 +161,7 @@ export default function UserProfile() {
                 <ul className="mt-2">
                   {friends.map((friend) => (
                     <li key={friend.sender_id} className="border p-2 rounded mb-2 flex items-center justify-between">
-                      <span>{friend.sender_id}</span>
+                      <span className="font-bold">{friend.sender_id}</span>
                       <UserProgress1
                                 //activeCourse={userProgress.activeCourse}
                                 hearts={userProgress.hearts}
@@ -179,7 +182,8 @@ export default function UserProfile() {
                 <ul className="mt-2">
                   {friendRequests.map((request) => (
                     <li key={request.id} className="border p-2 rounded mb-2">
-                      {request.sender_id}
+                      <span className="font-bold">{request.sender_id}</span>
+
                       <button
                         className="ml-4 bg-green-500 text-white px-2 py-1 rounded"
                         onClick={() => handleAccept(request.id)}
