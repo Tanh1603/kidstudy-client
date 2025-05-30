@@ -1,5 +1,5 @@
 // components/game-end-screen.tsx
-import React from 'react'; 
+import React from 'react';
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
