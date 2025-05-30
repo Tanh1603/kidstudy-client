@@ -11,17 +11,22 @@ const data = [
   {
     label: "Units",
     href: "/admin/units",
-    iconSrc: "/unit.png",
+    iconSrc: "/target.svg",
   },
   {
     label: "Lessons",
     href: "/admin/lessons",
-    iconSrc: "/lesson.png",
+    iconSrc: "/books.svg",
   },
   {
     label: "Challenges",
     href: "/admin/challenges",
-    iconSrc: "/challenge.jpg",
+    iconSrc: "/fire.svg",
+  },
+  {
+    label: "Mini games",
+    href: "/admin/mini-games",
+    iconSrc: "/minigame.svg",
   },
 ];
 
