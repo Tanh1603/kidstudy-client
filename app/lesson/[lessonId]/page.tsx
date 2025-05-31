@@ -10,6 +10,8 @@ import UserProgressDTO from "../../models/UserProgressDTO";
 import { getUserLessonById } from "../../services/lesson-service";
 import { getUserProgress } from "../../services/user-progress";
 
+
+
 const LessonPage = () => {
   const { userId, getToken } = useAuth();
   const [lesson, setLesson] = useState<LessonDTO | null>(null);

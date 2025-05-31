@@ -10,8 +10,8 @@ export const Footer = () => {
       className="
         w-full
         mt-12t
-         // Increased vertical padding for better visual space
-        relative // Needed for absolute positioning of content if desired, or for image overlay
+        py-8 // Increased vertical padding for better visual space
+        relative
         overflow-hidden // Ensures image doesn't spill out if it's larger than the footer
         flex items-center justify-center // Center content vertically and horizontally
         bg-yellow
@@ -24,11 +24,6 @@ export const Footer = () => {
         minHeight: "75px", // Minimum height for the footer
       }}
     >
-      {/* Optional: Overlay for better text readability on busy backgrounds */}
-      {/* <div className="absolute inset-0 bg-black opacity-50"></div> */}
-
-      {/* Copyright text */}
-      
     </footer>
   );
 };
