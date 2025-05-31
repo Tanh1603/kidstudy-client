@@ -11,7 +11,7 @@ import GameEndScreen from "./game-end-screen";
 import { shuffleArray } from "@/lib/utils";
 import { Footer } from "@/components/ui/footer-game";
 
-import { DifficultyEnum } from "@/app/models/Game";
+import { DifficultyEnum, GameTypeEnum } from "@/app/models/Game";
 
 export enum GameType {
   ANAGRAM = "ANAGRAM",
@@ -21,11 +21,22 @@ export enum GameType {
 interface GameProps {
   topicId: number;
   difficulty: DifficultyEnum;
-  gameType: GameType;
+  gameType: GameTypeEnum;
   words: GameWordData[]; // Game still expects the full GameWordData with 'id' and 'letters'
 }
 // app/(mini-games)/anagram/anagram.tsx (or in your types file)
-
+// This type represents the raw structure of an anagram question from your database/model.
+// It's effectively `Omit<AnagramGameQuestion, 'gameType'>` and also omitting 'id'
+// because the game component will generate its own 'id' for display purposes.
+// We are only interested in the 'word', 'imageSrc', 'topicId', and 'difficulty' here.
+export type AnagramRawQuestion = {
+  word: string;
+  imageSrc: string;
+  topicId: number;
+  difficulty: DifficultyEnum;
+  // Note: we are NOT including the `id` from the Zod schema here,
+  // because we are generating a new `id` for `GameWordData` for React keys.
+};
 export type GameWordData = {
   id: string; // The unique ID you generate
   word: string;
@@ -312,6 +323,7 @@ const Game = ({ topicId, difficulty, gameType, words: initialWordsData }: GamePr
                              w-full max-w-[300px] sm:max-w-[350px] md:max-w-[400px] lg:max-w-[450px]"
                 >
                   <Image
+                    key={currentWord.id} // Use the generated id for the key
                     src={currentWord.imageSrc}
                     alt={currentWord.word}
                     width={450}
