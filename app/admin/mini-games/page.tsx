@@ -1,6 +1,7 @@
+/* eslint-disable import/order */
 "use client";
 
-import TopicPage from "./topic-page";
+import TopicPage from "./topic/topic-page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GameQuestionTab from "./game-tab";
 import { ColumnDef } from "@tanstack/react-table";
@@ -9,6 +10,7 @@ import {
   AnagramGameQuestion,
   GameTypeEnum,
   MatchUpGameQuestion,
+  MemoryEnum,
   MemoryGameQuestion,
   MemoryGameQuestionWithAudio,
   MemoryGameQuestionWithImageAndAudio,
@@ -16,6 +18,10 @@ import {
   SpellingBeeGameQuestion,
 } from "@/app/models/Game";
 import Image from "next/image";
+import AddAnagramQuestion from "./upsert-anagrm";
+import { ActionCellHelper } from "../dropdown-helper";
+import { ImageColumnHelper } from "../imag-column-helper";
+import { AudioColumnHelper } from "../audio-column-helper";
 
 const anagramColumns: ColumnDef<AnagramGameQuestion>[] = [
   {
@@ -39,26 +45,11 @@ const anagramColumns: ColumnDef<AnagramGameQuestion>[] = [
   {
     accessorKey: "imageSrc",
     header: ({ column }) => <SortableHeader column={column} title="imageSrc" />,
-    cell: ({ row }) => {
-      const imageSrc = row.original.imageSrc;
-      return (
-        <div className="flex items-center justify-center">
-          {imageSrc ? (
-            <div className="relative h-[60px] w-full overflow-hidden rounded border">
-              <Image
-                src={imageSrc}
-                alt="imageSrc"
-                fill
-                sizes="(max-width: 640px) 100vw, 640px"
-                className="object-contain"
-              />
-            </div>
-          ) : (
-            <span>No Image</span>
-          )}
-        </div>
-      );
-    },
+    cell: ({ row }) => <ImageColumnHelper row={row} />,
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => <ActionCellHelper row={row} type="anagram" />,
   },
 ];
 
@@ -84,26 +75,11 @@ const matchUpColumns: ColumnDef<MatchUpGameQuestion>[] = [
   {
     accessorKey: "imageSrc",
     header: ({ column }) => <SortableHeader column={column} title="imageSrc" />,
-    cell: ({ row }) => {
-      const imageSrc = row.original.imageSrc;
-      return (
-        <div className="flex items-center justify-center">
-          {imageSrc ? (
-            <div className="relative h-[60px] w-full overflow-hidden rounded border">
-              <Image
-                src={imageSrc}
-                alt="imageSrc"
-                fill
-                sizes="(max-width: 640px) 100vw, 640px"
-                className="object-contain"
-              />
-            </div>
-          ) : (
-            <span>No Image</span>
-          )}
-        </div>
-      );
-    },
+    cell: ({ row }) => <ImageColumnHelper row={row} />,
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => <ActionCellHelper row={row} type="match-up" />,
   },
 ];
 
@@ -133,20 +109,9 @@ const memoryColumns: ColumnDef<MemoryGameQuestion>[] = [
     ),
   },
   {
-    id: "audioSrc", // dùng id thay cho accessorKey vì không phải bản ghi nào cũng có
+    id: "audioSrc",
     header: ({ column }) => <SortableHeader column={column} title="audioSrc" />,
-    cell: ({ row }) => {
-      const audioSrc = (
-        row.original as
-          | MemoryGameQuestionWithAudio
-          | MemoryGameQuestionWithImageAndAudio
-      ).audioSrc;
-      return audioSrc ? (
-        <audio controls src={audioSrc} className="max-w-full" />
-      ) : (
-        <span>No Audio</span>
-      );
-    },
+    cell: ({ row }) => <AudioColumnHelper row={row} />,
   },
   {
     id: "matchText",
@@ -161,30 +126,12 @@ const memoryColumns: ColumnDef<MemoryGameQuestion>[] = [
   {
     id: "imageSrc",
     header: ({ column }) => <SortableHeader column={column} title="Image" />,
-    cell: ({ row }) => {
-      const question = row.original;
-      // Kiểm tra các loại có imageSrc
-      if (
-        "imageSrc" in question &&
-        (question.memoryType === "WORD_IMAGE" ||
-          question.memoryType === "IMAGE_AUDIO")
-      ) {
-        return (
-          <div className="flex items-center justify-center">
-            <div className="relative h-[60px] w-[60px] overflow-hidden rounded border">
-              <Image
-                src={question.imageSrc}
-                alt="image"
-                fill
-                sizes="(max-width: 640px) 100vw, 640px"
-                className="object-contain"
-              />
-            </div>
-          </div>
-        );
-      }
-      return <span>No Image</span>;
-    },
+    cell: ({ row }) => <ImageColumnHelper row={row} />,
+  },
+
+  {
+    id: "actions",
+    cell: ({ row }) => <ActionCellHelper row={row} type="memory" />,
   },
 ];
 
@@ -211,75 +158,64 @@ const spellingBeeColumns: ColumnDef<SpellingBeeGameQuestion>[] = [
   {
     accessorKey: "audioSrc",
     header: ({ column }) => <SortableHeader column={column} title="audioSrc" />,
+    cell: ({ row }) => <AudioColumnHelper row={row} />,
   },
 
   {
     accessorKey: "imageSrc",
     header: ({ column }) => <SortableHeader column={column} title="imageSrc" />,
-    cell: ({ row }) => {
-      const imageSrc = row.original.imageSrc;
-      return (
-        <div className="flex items-center justify-center">
-          {imageSrc ? (
-            <div className="relative h-[60px] w-full overflow-hidden rounded border">
-              <Image
-                src={imageSrc}
-                alt="imageSrc"
-                fill
-                sizes="(max-width: 640px) 100vw, 640px"
-                className="object-contain"
-              />
-            </div>
-          ) : (
-            <span>No Image</span>
-          )}
-        </div>
-      );
-    },
+    cell: ({ row }) => <ImageColumnHelper row={row} />,
+  },
+
+  {
+    id: "actions",
+    cell: ({ row }) => <ActionCellHelper row={row} type="spelling-bee" />,
   },
 ];
 
 const Page = () => {
   return (
-    <div className="flex p-4">
-      <Tabs defaultValue="Anagram" className="w-full">
-        <TabsList>
-          <TabsTrigger value="Anagram">Anagram</TabsTrigger>
-          <TabsTrigger value="MatchUp">Match Up</TabsTrigger>
-          <TabsTrigger value="Memory">Memory</TabsTrigger>
-          <TabsTrigger value="SpellingBee">SpellingBee</TabsTrigger>
-          <TabsTrigger value="Topic">Topic</TabsTrigger>
-        </TabsList>
+    <div>
+      <div className="flex p-4">
+        <Tabs defaultValue="Anagram" className="w-full">
+          <TabsList>
+            <TabsTrigger value="Anagram">Anagram</TabsTrigger>
+            <TabsTrigger value="MatchUp">Match Up</TabsTrigger>
+            <TabsTrigger value="Memory">Memory</TabsTrigger>
+            <TabsTrigger value="SpellingBee">SpellingBee</TabsTrigger>
+            <TabsTrigger value="Topic">Topic</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="Anagram">
-          <GameQuestionTab
-            columns={anagramColumns}
-            gameType={GameTypeEnum.ANAGRAM}
-          />
-        </TabsContent>
-        <TabsContent value="MatchUp">
-          <GameQuestionTab
-            columns={matchUpColumns}
-            gameType={GameTypeEnum.MATCH_UP}
-          />
-        </TabsContent>
-        <TabsContent value="Memory">
-          {" "}
-          <GameQuestionTab
-            columns={memoryColumns}
-            gameType={GameTypeEnum.MEMORY}
-          />
-        </TabsContent>
-        <TabsContent value="SpellingBee">
-          <GameQuestionTab
-            columns={spellingBeeColumns}
-            gameType={GameTypeEnum.SPELLING_BEE}
-          />
-        </TabsContent>
-        <TabsContent value="Topic">
-          <TopicPage />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="Anagram">
+            <GameQuestionTab
+              columns={anagramColumns}
+              gameType={GameTypeEnum.ANAGRAM}
+            />
+          </TabsContent>
+          <TabsContent value="MatchUp">
+            <GameQuestionTab
+              columns={matchUpColumns}
+              gameType={GameTypeEnum.MATCH_UP}
+            />
+          </TabsContent>
+          <TabsContent value="Memory">
+            {" "}
+            <GameQuestionTab
+              columns={memoryColumns}
+              gameType={GameTypeEnum.MEMORY}
+            />
+          </TabsContent>
+          <TabsContent value="SpellingBee">
+            <GameQuestionTab
+              columns={spellingBeeColumns}
+              gameType={GameTypeEnum.SPELLING_BEE}
+            />
+          </TabsContent>
+          <TabsContent value="Topic">
+            <TopicPage />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };

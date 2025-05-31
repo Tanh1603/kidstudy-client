@@ -6,6 +6,11 @@ import { UnitFormModal } from "@/components/modals/admin/unit-form-modal";
 import { LessonFormModal } from "@/components/modals/admin/lesson-form-modal";
 import { ChallengeFormModal } from "@/components/modals/admin/challenge-form-modal";
 import ChallengeOptionFormModal from "@/components/modals/admin/challenge-option-form-modal";
+import UpsertAnagramQuestion from "./mini-games/upsert-anagrm";
+import { useAdminModal } from "@/store/use-admin-store";
+import UpsertMatchUpQuestion from "./mini-games/upsert-matchup";
+import UpsertSpellingBeeQuestion from "./mini-games/upsert-spellingbee";
+import UpsertMemoryQuestion from "./mini-games/upsert-memory";
 
 const data = [
   {
@@ -35,6 +40,7 @@ const link = {
   iconSrc: "/admin.svg",
 };
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
+  const { type } = useAdminModal();
   return (
     <>
       <MobileHeader sidebarItems={data} link={link} />
@@ -46,7 +52,11 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
       <UnitFormModal />
       <LessonFormModal />
       <ChallengeFormModal />
-      <ChallengeOptionFormModal />
+      {type === "challenge-options" && <ChallengeOptionFormModal />}
+      {type === "anagram" && <UpsertAnagramQuestion />}
+      {type === "match-up" && <UpsertMatchUpQuestion />}
+      {type === "spelling-bee" && <UpsertSpellingBeeQuestion />}
+      {type === "memory" && <UpsertMemoryQuestion />}
     </>
   );
 };

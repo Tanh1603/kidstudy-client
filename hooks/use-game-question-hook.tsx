@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 "use client";
 import { DifficultyEnum, GameQuestion, GameTypeEnum } from "@/app/models/Game";
 import {
@@ -8,11 +9,15 @@ import {
   updateGameQuestion,
 } from "@/app/services/admin/minigame-service";
 import { useAuth } from "@clerk/nextjs";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 const useGetGameQuestionByGameType = (gameType: GameTypeEnum) => {
   const { getToken } = useAuth();
+  if (!gameType) {
+    throw new Error("Game type is required");
+  }
+
   return useQuery({
     queryKey: ["game-questions", gameType],
     queryFn: async () => {
@@ -62,11 +67,12 @@ const useGetRandomGameQuestionByGameType = (
   });
 };
 
-const useCreateGameQuestion = () => {
+const useCreateGameQuestion = (gameType: GameTypeEnum) => {
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newQuestion: GameQuestion) => {
+    mutationFn: async (newQuestion: FormData) => {
       const token = (await getToken()) as string;
       if (!token) throw new Error("Token is required");
       return await createGameQuestion(token, newQuestion);
@@ -76,12 +82,16 @@ const useCreateGameQuestion = () => {
     },
     onSuccess: () => {
       toast.success("Game question created successfully!");
+      void queryClient.invalidateQueries({
+        queryKey: ["game-questions", gameType],
+      });
     },
   });
 };
 
-const useUpdateGameQuestion = () => {
+const useUpdateGameQuestion = (gameType: GameTypeEnum) => {
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
@@ -89,7 +99,7 @@ const useUpdateGameQuestion = () => {
       newQuestion,
     }: {
       id: number;
-      newQuestion: GameQuestion;
+      newQuestion: FormData;
     }) => {
       const token = (await getToken()) as string;
       if (!token) throw new Error("Token is required");
@@ -99,13 +109,17 @@ const useUpdateGameQuestion = () => {
       toast.error(error.message);
     },
     onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["game-questions", gameType],
+      });
       toast.success("Game question created successfully!");
     },
   });
 };
 
-const useDeleteGameQuestion = () => {
+const useDeleteGameQuestion = (gameType: GameTypeEnum) => {
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: number) => {
@@ -117,6 +131,9 @@ const useDeleteGameQuestion = () => {
       toast.error(error.message);
     },
     onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["game-questions", gameType],
+      });
       toast.success("Game question deleted successfully!");
     },
   });

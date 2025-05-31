@@ -23,11 +23,40 @@ import { useDeleteLesson } from "@/hooks/use-lesson-hook";
 import { useDeleteChallenge } from "@/hooks/use-challenge-hook";
 import { useAuth } from "@clerk/nextjs";
 import { deleteFile } from "../services/uploadFile";
+import {
+  AnagramGameQuestion,
+  GameTypeEnum,
+  MatchUpGameQuestion,
+  MemoryGameQuestion,
+  SpellingBeeGameQuestion,
+} from "../models/Game";
+import { useDeleteGameQuestion } from "@/hooks/use-game-question-hook";
 export const ActionCellHelper = ({ row, type }: { row: any; type: string }) => {
   const { onOpen } = useAdminModal();
   const deleteUnit = useDeleteUnit();
   const deleteLesson = useDeleteLesson();
   const deleteChallenge = useDeleteChallenge();
+  let gameType;
+  switch (type) {
+    case "anagram":
+      gameType = GameTypeEnum.ANAGRAM;
+      break;
+    case "memory":
+      gameType = GameTypeEnum.MEMORY;
+      break;
+    case "match-up":
+      gameType = GameTypeEnum.MATCH_UP;
+      break;
+    case "spelling-bee":
+      gameType = GameTypeEnum.SPELLING_BEE;
+      break;
+    default:
+      break;
+  }
+  const deleteGameQuestion = useDeleteGameQuestion(
+    gameType ?? GameTypeEnum.ANAGRAM
+  );
+
   const { getToken } = useAuth();
   const handleSubmit = () => {
     if (type === "unit") {
@@ -37,9 +66,18 @@ export const ActionCellHelper = ({ row, type }: { row: any; type: string }) => {
       console.log(row?.original);
     } else if (type === "challenge") {
       onOpen("challenge", "update", row?.original as ChallengeForm);
-    } else if (type === "challengeOption") {
-      // setIsChallengeOptionModalOpen(true);
-      // setCurrentChallengeOption(row?.original as ChallengeOptionDTO);
+    } else if (type === "anagram") {
+      onOpen("anagram", "update", row?.original as AnagramGameQuestion);
+    } else if (type === "match-up") {
+      onOpen("match-up", "update", row?.original as MatchUpGameQuestion);
+    } else if (type === "spelling-bee") {
+      onOpen(
+        "spelling-bee",
+        "update",
+        row?.original as SpellingBeeGameQuestion
+      );
+    } else if (type == "memory") {
+      onOpen("memory", "update", row?.original as MemoryGameQuestion);
     }
   };
 
@@ -87,6 +125,18 @@ export const ActionCellHelper = ({ row, type }: { row: any; type: string }) => {
         await Promise.all(promises);
       } else if (type === "challengeOption") {
         toast.success("Challenge option deleted successfully");
+      } else if (
+        type === "anagram" ||
+        type === "match-up" ||
+        type === "spelling-bee" ||
+        type === "memory"
+      ) {
+        const id = row?.original?.id;
+        if (!id) {
+          toast.error("Error id");
+          return;
+        }
+        await deleteGameQuestion.mutateAsync(id);
       }
     } catch (error) {
       console.error(error);
@@ -103,7 +153,10 @@ export const ActionCellHelper = ({ row, type }: { row: any; type: string }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center">
-        <DropdownMenuItem onClick={handleSubmit} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={handleSubmit}
+          className="cursor-pointer active:bg-blue-500"
+        >
           Edit
         </DropdownMenuItem>
         <DropdownMenuItem

@@ -2,12 +2,28 @@ import { create } from "zustand";
 
 // Định nghĩa TData có thể là bất kỳ loại dữ liệu nào
 type AdminModalState<TData = unknown> = {
-  type?: "unit" | "lesson" | "challenge" | "challenge-options";
+  type?:
+    | "unit"
+    | "lesson"
+    | "challenge"
+    | "challenge-options"
+    | "anagram"
+    | "memory"
+    | "match-up"
+    | "spelling-bee";
   action?: "create" | "update";
   data?: TData;
   isOpen: boolean;
   onOpen: (
-    type: "unit" | "lesson" | "challenge" | "challenge-options",
+    type:
+      | "unit"
+      | "lesson"
+      | "challenge"
+      | "challenge-options"
+      | "anagram"
+      | "memory"
+      | "match-up"
+      | "spelling-bee",
     action: "create" | "update",
     data?: TData
   ) => void;

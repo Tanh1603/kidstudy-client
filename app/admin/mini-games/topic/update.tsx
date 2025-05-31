@@ -10,7 +10,7 @@ import {
   useUpdateTopicTitle,
 } from "@/hooks/use-topic-hook";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type UpdateTopicModalProps = {
   topic?: TopicDTO;
@@ -18,6 +18,11 @@ type UpdateTopicModalProps = {
 };
 
 const UpdateTopicModal = ({ topic, onClose }: UpdateTopicModalProps) => {
+  const [title, setTitle] = useState<string>(topic?.title ?? "");
+  const [icon, setIcon] = useState<File | null>(null);
+  const updateTopicTitle = useUpdateTopicTitle();
+  const updateTopicIcon = useUpdateTopicIcon();
+
   if (!topic) {
     return (
       <div className="modal">
@@ -25,11 +30,6 @@ const UpdateTopicModal = ({ topic, onClose }: UpdateTopicModalProps) => {
       </div>
     );
   }
-
-  const [title, setTitle] = useState(topic.title);
-  const [icon, setIcon] = useState<File | null>(null);
-  const updateTopicTitle = useUpdateTopicTitle();
-  const updateTopicIcon = useUpdateTopicIcon();
 
   const handleUpdateTitle = async () => {
     if (title === topic.title) return;
@@ -56,7 +56,7 @@ const UpdateTopicModal = ({ topic, onClose }: UpdateTopicModalProps) => {
             className="flex-1 rounded border px-2 py-1"
             onChange={(e) => setTitle(e.target.value)}
           />
-          <Button variant="super" onClick={handleUpdateTitle}>
+          <Button variant="super" onClick={void handleUpdateTitle}>
             {updateTopicTitle.isPending ? <Loading /> : "Update Title"}
           </Button>
         </div>
@@ -79,7 +79,7 @@ const UpdateTopicModal = ({ topic, onClose }: UpdateTopicModalProps) => {
             accept="image/*"
             onChange={(e) => setIcon(e.target.files?.[0] || null)}
           />
-          <Button variant="super" onClick={handleUpdateIcon}>
+          <Button variant="super" onClick={void handleUpdateIcon}>
             {updateTopicIcon.isPending ? <Loading /> : "Update Icon"}
           </Button>
         </div>

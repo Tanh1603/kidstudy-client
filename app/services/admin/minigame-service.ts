@@ -51,11 +51,12 @@ const getGameQuestionsByGameType = async (
   }
 };
 
-const createGameQuestion = async (token: string, question: GameQuestion) => {
+const createGameQuestion = async (token: string, question: FormData) => {
   try {
     const response = await api.post(`admin/mini-games`, question, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
 
@@ -69,12 +70,13 @@ const createGameQuestion = async (token: string, question: GameQuestion) => {
 const updateGameQuestion = async (
   token: string,
   id: number,
-  question: GameQuestion
+  question: FormData
 ) => {
   try {
     const response = await api.put(`admin/mini-games/${id}`, question, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
 

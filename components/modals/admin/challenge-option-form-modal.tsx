@@ -1,7 +1,8 @@
 /* eslint-disable import/order */
 "use client";
+import { AudioColumnHelper } from "@/app/admin/audio-column-helper";
 import { SortableHeader } from "@/app/admin/column-helpers";
-import UrlCell from "@/app/admin/url-cell";
+import { ImageColumnHelper } from "@/app/admin/imag-column-helper";
 import ChallengeOptionDTO, {
   ChallengeOptionForm,
   challengeOptionsSchema,
@@ -103,14 +104,14 @@ const ChallengeOptionFormModal = () => {
       header: ({ column }) => (
         <SortableHeader column={column} title="audioSrc" />
       ),
-      cell: ({ row }) => <UrlCell value={row.original.audioSrc ?? null} />,
+      cell: ({ row }) => <AudioColumnHelper row={row} />,
     },
     {
       accessorKey: "imageSrc",
       header: ({ column }) => (
         <SortableHeader column={column} title="imageSrc" />
       ),
-      cell: ({ row }) => <UrlCell value={row.original.imageSrc ?? null} />,
+      cell: ({ row }) => <ImageColumnHelper row={row} />,
     },
     {
       accessorKey: "delete",

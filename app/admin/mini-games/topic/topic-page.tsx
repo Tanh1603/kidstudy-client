@@ -15,9 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import ChallengeDTO from "@/app/models/ChallengeDTO";
 import { MoreHorizontal } from "lucide-react";
-import { type } from "os";
 import {
   DropdownMenu,
   DropdownMenuContent,

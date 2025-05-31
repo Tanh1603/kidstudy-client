@@ -122,7 +122,7 @@ const useGetChallengeOptionsByChallengeId = (challengeId: number) => {
       toast.error(error.message);
       return false;
     },
-    enabled: challengeId ? true : false,
+    enabled: Boolean(challengeId) ? true : false,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
   });
