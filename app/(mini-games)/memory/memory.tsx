@@ -1,19 +1,94 @@
+// app/(mini-games)/memory/game.tsx
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion"; // Ensure motion and AnimatePresence are imported
 import { Header } from "@/components/ui/header-game";
 import GameEndScreen from "./game-end-screen";
 import { shuffleArray } from "@/lib/utils";
-import MemoryCard, { CardType } from "./card"; // Assuming './card' is the path to your MemoryCard component
+// import MemoryCard, { CardType } from "./card"; // REMOVED: We're defining MemoryCard directly now
+import { Footer } from "@/components/ui/footer-game";
+import { Lightbulb } from 'lucide-react'; // NEW: Import Lightbulb icon
 
-// Update this section in your Game.tsx
+// --- MemoryCard Component Definition (Moved from ./card.tsx) ---
+// Define CardType and MemoryCardProps interfaces here if not already in a shared type file
+export interface CardType {
+  id: string;
+  wordId: number;
+  type: 'image' | 'text';
+  content: string;
+  isFlipped: boolean;
+  isMatched: boolean;
+}
+
+interface MemoryCardProps {
+  card: CardType;
+  onClick: (card: CardType) => void;
+  imageAltText?: string;
+}
+
+const MemoryCard: React.FC<MemoryCardProps> = ({ card, onClick, imageAltText }) => {
+  // Define common transition properties for a smoother spring animation
+  const flipTransition = {
+    type: "spring",
+    stiffness: 300, // Controls the "strength" of the spring. Higher = faster to target.
+    damping: 25,    // Controls how much the spring oscillates. Lower = more bouncy.
+    mass: 1,        // Controls the weight of the animating element. Higher = slower to react.
+  };
+
+  return (
+    <motion.div
+      className={`relative w-25 h-25 md:w-32 md:h-32 rounded-lg shadow-md cursor-pointer transform transition-all duration-300
+        ${card.isMatched ? 'opacity-0 scale-90 pointer-events-none' : 'scale-100'}
+      `}
+      onClick={() => onClick(card)}
+      style={{ perspective: 1000 }}
+      whileHover={{ scale: card.isMatched ? 0.9 : 1.05 }}
+    >
+      {/* Card Front (Content - Image or Text) */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center bg-white rounded-lg backface-hidden"
+        animate={{ rotateY: card.isFlipped ? 0 : 180 }}
+        transition={flipTransition}
+        style={{ zIndex: card.isFlipped ? 2 : 1 }}
+      >
+        {card.type === 'image' ? (
+          <Image
+            src={card.content}
+            alt={imageAltText || "Memory Card Image"}
+            width={80}
+            height={80}
+            objectFit="contain"
+          />
+        ) : (
+          <span className="text-xl md:text-2xl font-bold text-gray-800 uppercase text-center p-2">
+            {card.content}
+          </span>
+        )}
+      </motion.div>
+
+      {/* Card Back (Cover - Lightbulb) */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center bg-yellow-500 rounded-lg text-white font-bold text-3xl backface-hidden"
+        animate={{ rotateY: card.isFlipped ? 180 : 0 }}
+        transition={flipTransition}
+        style={{ zIndex: card.isFlipped ? 1 : 2 }}
+      >
+        <Lightbulb className="w-12 h-12 text-yellow-100" />
+      </motion.div>
+    </motion.div>
+  );
+};
+// --- End MemoryCard Component Definition ---
+
+
 type WordData = {
   id: number;
   word: string;
   image: string;
 };
 
-// Expanded words array for 10 pairs (20 cards for 4x5 grid)
 const words: WordData[] = [
   { id: 1, word: "CAT", image: "/animation/cat.jpg" },
   { id: 2, word: "DOG", image: "/animation/dog.jpg" },
@@ -25,14 +100,12 @@ const words: WordData[] = [
   { id: 8, word: "HOUSE", image: "/images/house.png" },
   { id: 9, word: "TREE", image: "/images/tree.png" },
   { id: 10, word: "SUN", image: "/images/sun.png" },
-  // Add more unique words (total of 10 for 20 cards)
 ];
 
-const totalPairs = words.length; // This will be 10 for our 4x5 grid
+const totalPairs = words.length;
 const generateMemoryCards = (wordData: WordData[]): CardType[] => {
   let cards: CardType[] = [];
   wordData.forEach((item) => {
-    // Create image card
     cards.push({
       id: `${item.id}-image-${Math.random()}`,
       wordId: item.id,
@@ -41,7 +114,6 @@ const generateMemoryCards = (wordData: WordData[]): CardType[] => {
       isFlipped: false,
       isMatched: false,
     });
-    // Create text card
     cards.push({
       id: `${item.id}-text-${Math.random()}`,
       wordId: item.id,
@@ -51,27 +123,24 @@ const generateMemoryCards = (wordData: WordData[]): CardType[] => {
       isMatched: false,
     });
   });
-  return shuffleArray(cards); // Shuffle all cards to randomize positions
+  return shuffleArray(cards);
 };
 
 const Game = () => {
   const [cards, setCards] = useState<CardType[]>([]);
-  const [flippedCards, setFlippedCards] = useState<CardType[]>([]); // Stores up to 2 flipped cards
+  const [flippedCards, setFlippedCards] = useState<CardType[]>([]);
   const [matchedPairs, setMatchedPairs] = useState(0);
-  const [moves, setMoves] = useState(0); // Tracks how many turns taken
-  const [score, setScore] = useState(0); // Keeping score for GameEndScreen
+  const [moves, setMoves] = useState(0);
 
   const [isGameOver, setIsGameOver] = useState(false);
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [hasWon, setHasWon] = useState(false);
 
-  // Initialize cards when component mounts or game restarts
   useEffect(() => {
-    restartGame(); // Call restartGame to initialize the board on first load
+    restartGame();
   }, []);
 
-  // Check for game win condition
   useEffect(() => {
     if (matchedPairs === totalPairs && totalPairs > 0) {
       setIsRunning(false);
@@ -80,8 +149,6 @@ const Game = () => {
     }
   }, [matchedPairs, totalPairs]);
 
-
-  // Timer logic
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (isRunning) {
@@ -96,19 +163,13 @@ const Game = () => {
     };
   }, [isRunning]);
 
-  // Card click handler
   const handleCardClick = useCallback((clickedCard: CardType) => {
-    // Ignore clicks if:
-    // 1. Two cards are already flipped (waiting for them to flip back)
-    // 2. The clicked card is already flipped
-    // 3. The clicked card is already matched
     if (flippedCards.length === 2 || clickedCard.isFlipped || clickedCard.isMatched) {
       return;
     }
 
-    setMoves(prev => prev + 1); // Increment moves
+    setMoves(prev => prev + 1);
 
-    // Update the clicked card to be flipped
     setCards((prevCards) =>
       prevCards.map((card) =>
         card.id === clickedCard.id ? { ...card, isFlipped: true } : card
@@ -119,11 +180,9 @@ const Game = () => {
       const newFlipped = [...prevFlipped, clickedCard];
 
       if (newFlipped.length === 2) {
-        // Two cards are flipped, check for match
         const [firstCard, secondCard] = newFlipped;
 
         if (firstCard.wordId === secondCard.wordId) {
-          // Match found!
           setMatchedPairs((prev) => prev + 1);
           setCards((prevCards) =>
             prevCards.map((card) =>
@@ -132,9 +191,8 @@ const Game = () => {
                 : card
             )
           );
-          setFlippedCards([]); // Clear flipped cards
+          setFlippedCards([]);
         } else {
-          // No match, flip them back after a delay
           setTimeout(() => {
             setCards((prevCards) =>
               prevCards.map((card) =>
@@ -143,97 +201,110 @@ const Game = () => {
                   : card
               )
             );
-            setFlippedCards([]); // Clear flipped cards
-          }, 1000); // 1-second delay before flipping back
+            setFlippedCards([]);
+          }, 1000);
         }
       }
       return newFlipped;
     });
-  }, [flippedCards]); // Depend on flippedCards to ensure correct state checking
-
-
-  // No keyboard event listener needed for memory game usually
-  useEffect(() => {
-    // No keyboard event listener needed for memory game usually
-  }, []);
+  }, [flippedCards]);
 
   const restartGame = () => {
     setIsGameOver(false);
-    setScore(0); // Reset score
     setMatchedPairs(0);
     setMoves(0);
     setHasWon(false);
     setTime(0);
     setIsRunning(true);
     setFlippedCards([]);
-    setCards(generateMemoryCards(words)); // Generate a new set of shuffled cards
+    setCards(generateMemoryCards(words));
   };
 
   return (
-    <>
-      {/* 👈 ADDED 'w-full' to the main container div */}
-      <div className="flex flex-col items-center w-full min-h-screen">
+    <div
+      className="flex flex-col items-center w-full min-h-screen relative"
+      style={{
+        backgroundImage: "url('/animation/anagram-bg.jpg')",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+      }}
+    >
+      <div className="absolute inset-0 bg-black opacity-5 z-0"></div>
+
+      <Header
+        currentWordIndex={matchedPairs}
+        totalWords={totalPairs}
+      />
+
+      <div className="relative z-10 flex flex-col items-center w-full flex-grow overflow-x-hidden">
         {isGameOver ? (
           <GameEndScreen
-            score={matchedPairs} // Score is matched pairs for memory game
+            score={matchedPairs}
             time={time}
             onRestart={restartGame}
             hasWon={hasWon}
           />
         ) : (
           <>
-            {/* Header shows matched pairs out of total pairs */}
-            <Header
-              currentWordIndex={matchedPairs}
-              totalWords={totalPairs}
-            />
+            <div
+              className="flex flex-col items-center flex-grow mx-auto w-fit
+                         min-w-[380px] md:min-w-[700px] lg:min-w-[900px] max-w-full
+                         px-4 py-4 md:px-6 md:py-6 lg:px-8 lg:py-8
+                         md:flex-row justify-center gap-4 md:gap-6 lg:gap-8
+                         mt-8 mb-8 p-4 md:p-6 rounded-xl shadow-2xl relative "
+              style={{
+                backgroundImage: "url('/animation/anagram-bg2.jpg')",
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundAttachment: "local",
+              }}
+            >
+              <div className="absolute inset-0 bg-white opacity-10 rounded-xl z-10"></div>
 
-            {/* Main game content area, now with consistent padding */}
-            <div className="flex flex-col md:flex-row w-full max-w-6xl items-center justify-around gap-10 mt-8 px-4 py-4 flex-grow">
-
-              {/* Scoreboard and Timer Section */}
-              <div className="flex flex-col items-center gap-4 order-first md:order-last min-w-[200px]">
-
-                  {/* Timer Display */}
-                  <div className="relative w-[200px] h-[100px] mb-4 overflow-hidden rounded-lg shadow-lg">
-                      <Image
-                          src="/animation/timer-background.png"
-                          alt="Timer Background"
-                          className="object-cover"
-                          fill
-                      />
+              <div className="relative z-20 flex flex-col items-center gap-3 order-first md:order-last flex-shrink">
+                  {/* UPDATED TIMER CONTAINER */}
+                  <div
+                      className="relative w-full max-w-[250px] sm:max-w-[300px] lg:max-w-[350px] aspect-video mb-3 rounded-lg overflow-hidden"
+                      style={{
+                          backgroundImage: "url('/animation/timer-background.png')",
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          backgroundRepeat: "no-repeat"
+                      }}
+                  >
                       <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-4xl font-bold font-mono text-white text-game-display">
+                          <div className="text-3xl sm:text-4xl lg:text-5xl font-bold font-mono text-white text-game-display">
                               {Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}
                           </div>
                       </div>
                   </div>
 
-                  {/* Moves Counter */}
-                  <div className="text-3xl font-bold font-mono text-yellow-400 text-game-display mb-2">
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-bold font-mono text-yellow-400 text-game-display mb-1">
                       Moves: {moves}
                   </div>
 
-                  {/* Matched Pairs Display */}
-                  <div className="relative w-[200px] h-[100px] mb-4 overflow-hidden rounded-lg shadow-lg">
-                      <Image
-                          src="/animation/score-board.jpg"
-                          alt="Score Board"
-                          className="object-contain" fill
-                      />
+                  {/* UPDATED MATCHED PAIRS CONTAINER */}
+                  <div
+                      className="relative w-full max-w-[250px] sm:max-w-[300px] lg:max-w-[350px] aspect-video mb-3 rounded-lg overflow-hidden"
+                      style={{
+                          backgroundImage: "url('/animation/score-board.png')",
+                          backgroundSize: "contain",
+                          backgroundPosition: "center",
+                          backgroundRepeat: "no-repeat"
+                      }}
+                  >
                       <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-4xl font-bold font-mono text-white text-game-display">
-                            {matchedPairs} / {totalPairs}
+                          <div className="text-3xl sm:text-4xl lg:text-5xl font-bold font-mono text-white text-game-display">
+                            {matchedPairs}
                           </div>
                       </div>
                   </div>
-
-                  {/* No attempts left counter for memory game typically */}
               </div>
 
-
-              {/* Memory Card Grid Section */}
-              <div className="flex-grow grid grid-cols-4 md:grid-cols-5 gap-3 p-4 bg-gray-100 rounded-lg shadow-inner max-w-4xl mx-auto">
+              <div className="relative z-20 flex-grow grid grid-cols-4 sm:grid-cols-4 md:grid-cols-5 gap-3 p-4 bg-gray-100 rounded-lg shadow-inner max-w-4xl mx-auto">
                 <AnimatePresence>
                   {cards.map((card) => (
                     <MemoryCard
@@ -246,16 +317,11 @@ const Game = () => {
                 </AnimatePresence>
               </div>
             </div>
-            {/* No status messages or submit/reset buttons for memory game */}
           </>
         )}
-        {/* Footer is outside the conditional rendering, so it always appears */}
-        {/* If you want the footer only when the game is active, move it inside the else block */}
-        {/* If you want it only on game over, move it inside the isGameOver block */}
-        {/* For full-screen layout, it's often better to have the footer fixed or part of the main flex container */}
-        {/* For now, keeping it here at the bottom of the main flex container */}
       </div>
-    </>
+      <Footer />
+    </div>
   );
 };
 
