@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 import { DifficultyEnum, GameQuestion, GameTypeEnum } from "@/app/models/Game";
 import api from "../api";
 
@@ -9,8 +10,6 @@ const getRandomGameQuestion = async (
   limit: number = 10
 ) => {
   try {
-    console.log(limit);
-    
     const response = await api.get(
       `user/mini-games?gameType=${gameType}&difficulty=${difficulty}&topicId=${topicId}&limit=${limit}`,
       {
@@ -19,8 +18,6 @@ const getRandomGameQuestion = async (
         },
       }
     );
-    console.log("Response data:", response.data);
-    
     return response.data as GameQuestion[];
   } catch (error) {
     console.error("Error fetching random game question:", error);

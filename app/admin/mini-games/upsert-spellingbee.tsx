@@ -3,8 +3,6 @@
 import {
   DifficultyEnum,
   GameTypeEnum,
-  MatchUpGameQuestion,
-  matchUpSchema,
   SpellingBeeGameQuestion,
   spellingBeeSchema,
 } from "@/app/models/Game";

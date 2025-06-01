@@ -1,6 +1,6 @@
 /* eslint-disable import/order */
 "use client";
-import { DifficultyEnum, GameQuestion, GameTypeEnum } from "@/app/models/Game";
+import { DifficultyEnum, GameTypeEnum } from "@/app/models/Game";
 import {
   createGameQuestion,
   deleteGameQuestion,

@@ -6,6 +6,7 @@ import {
   createTopic,
   deleteTopic,
   getTopicsForAdmin,
+  getTopicsForUser,
   updateIcon,
   updateTitle,
 } from "@/app/services/admin/topic-service";
@@ -44,7 +45,7 @@ const useGetTopicUser = () => {
       if (!token) {
         throw new Error("Token is required");
       }
-      return await getTopicsForAdmin(token);
+      return await getTopicsForUser(token);
     },
     throwOnError: (error) => {
       toast.error(error.message);

@@ -36,6 +36,16 @@ const MiniGamePage = () => {
       iconColor: "text-blue-600",
       href: "/memory",
     },
+    {
+      id: 4,
+      title: "Spelling Bee",
+      description: "Spell words correctly to earn points",
+      image: "/animation/play_spellingbee.png",
+      color: "from-red-400 to-red-600",
+      bgColor: "bg-red-50",
+      iconColor: "text-red-600",
+      href: "/mini-games/spelling-bee",
+    },
   ];
 
   return (

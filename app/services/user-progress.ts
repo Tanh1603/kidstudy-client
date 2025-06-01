@@ -65,7 +65,6 @@ type HeartsResponse = {
   success?: boolean;
 };
 
-
 const reduceHearts = async (
   token: string,
   challengeId: number,
@@ -88,7 +87,10 @@ const reduceHearts = async (
   }
 };
 
-const refillHearts = async (token: string, userId: string):Promise<HeartsResponse> => {
+const refillHearts = async (
+  token: string,
+  userId: string
+): Promise<HeartsResponse> => {
   try {
     const response = await api.put(
       `/user/user-progress/refill-hearts?userId=${userId}`,
@@ -105,10 +107,35 @@ const refillHearts = async (token: string, userId: string):Promise<HeartsRespons
     throw error;
   }
 };
+
+const updateUserPoints = async (
+  token: string,
+  userId: string,
+  points: number
+) => {
+  try {
+    const response = await api.patch(
+      `/user/user-progress/${userId}/points`,
+      { points: points },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("Update user points response:", response.data);
+    
+    return response.data as UserProgressDTO;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
 export {
   getUserProgress,
   upsertUserProgress,
   getLeaderboard,
   reduceHearts,
   refillHearts,
+  updateUserPoints,
 };
