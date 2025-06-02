@@ -118,45 +118,42 @@ export const Quiz = ({
     if (!correctOption) return;
 
     if (correctOption.id === selectedOption) {
-      // Immediately show feedback
-      void correctControls.play();
-      setStatus("correct");
-      setPercentage((prev) => prev + 100 / challenges.length);
-      
-      // If it's practice mode, update hearts immediately
-      if (initialPercentage === 100) {
-        setHearts((prev) => Math.min(prev + 1, MAX_HEARTS));
-      }
+      startTransition(async () => {
+        const token = (await getToken()) as string;
+        upsertChallengeProgress(token, challenge.id, userId as string)
+          .then((response ) => {
+            if (response?.error === "hearts") {
+              openHeartsModal();
+              return;
+            }
 
-      // Make API call in background
-      startTransition(() => {
-        void getToken().then((token) => {
-          upsertChallengeProgress(token as string, challenge.id, userId as string)
-            .then((response) => {
-              if (response?.error === "hearts") {
-                openHeartsModal();
-              }
-            })
-            .catch(() => toast.error("Something went wrong. Please try again."));
-        });
+            void correctControls.play();
+            setStatus("correct");
+            setPercentage((prev) => prev + 100 / challenges.length);
+
+            // This is a practice
+            if (initialPercentage === 100) {
+              setHearts((prev) => Math.min(prev + 1, MAX_HEARTS));
+            }
+          })
+          .catch(() => toast.error("Something went wrong. Please try again."));
       });
     } else {
-      // Immediately show feedback
-      void incorrectControls.play();
-      setStatus("wrong");
-      setHearts((prev) => Math.max(prev - 1, 0));
+      startTransition(async () => {
 
-      // Make API call in background
-      startTransition(() => {
-        void getToken().then((token) => {
-          reduceHearts(token as string, challenge.id, userId as string)
-            .then((response) => {
-              if (response?.error === "hearts") {
-                openHeartsModal();
-              }
-            })
-            .catch(() => toast.error("Something went wrong. Please try again."));
-        });
+        const token = (await getToken()) as string;
+        reduceHearts(token, challenge.id, userId as string)
+          .then((response) => {
+            if (response?.error  === "hearts") {
+              openHeartsModal();
+              return;
+            }
+
+            void incorrectControls.play();
+            setStatus("wrong");
+            if (!response?.error) setHearts((prev) => Math.max(prev - 1, 0));
+          })
+          .catch(() => toast.error("Something went wrong. Please try again."));
       });
     }
   };
@@ -212,6 +209,7 @@ export const Quiz = ({
     );
   }
 
+
   const title =
     challenge.type === "ASSIST"
       ? "Select the correct meaning"
@@ -246,7 +244,7 @@ export const Quiz = ({
                 status={status}
                 selectedOption={selectedOption}
                 disabled={pending}
-                type={challenge.type}
+                type={challenge.type as "ASSIST" | "SELECT"}
               />
             </div>
           </div>

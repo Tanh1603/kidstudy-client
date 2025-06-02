@@ -1,0 +1,202 @@
+// app/(mini-games)/anagram/data.ts
+
+import { DifficultyEnum, AnagramGameQuestion, GameTypeEnum } from "@/app/models/Game";
+
+// This is sample data to be used until actual database integration.
+// It must conform to the AnagramGameQuestion type.
+export const SAMPLE_ANAGRAM_QUESTIONS: AnagramGameQuestion[] = [
+  {
+    id: 1, // Unique ID for the question
+    topicId: 101, // Example topic ID for "Fruits"
+    difficulty: DifficultyEnum.EASY,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "APPLE",
+    imageSrc: "/game-assets/anagram/apple.jpg", // Make sure this path exists in your public folder
+  },
+  {
+    id: 2,
+    topicId: 101,
+    difficulty: DifficultyEnum.EASY,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "BANANA",
+    imageSrc: "/game-assets/anagram/banana.jpg",
+  },
+  {
+    id: 3,
+    topicId: 101,
+    difficulty: DifficultyEnum.EASY,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "GRAPE",
+    imageSrc: "/game-assets/anagram/grape.jpg",
+  },
+  {
+    id: 4,
+    topicId: 101,
+    difficulty: DifficultyEnum.EASY,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "LEMON",
+    imageSrc: "/game-assets/anagram/lemon.jpg",
+  },
+  {
+    id: 5,
+    topicId: 101,
+    difficulty: DifficultyEnum.EASY,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "ORANGE",
+    imageSrc: "/game-assets/anagram/orange.jpg",
+  },
+  {
+    id: 6,
+    topicId: 101,
+    difficulty: DifficultyEnum.EASY,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "PEACH",
+    imageSrc: "/game-assets/anagram/peach.jpg",
+  },
+  {
+    id: 7,
+    topicId: 101,
+    difficulty: DifficultyEnum.EASY,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "PLUM",
+    imageSrc: "/game-assets/anagram/plum.jpg",
+  },
+  {
+    id: 8,
+    topicId: 101,
+    difficulty: DifficultyEnum.EASY,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "BERRY",
+    imageSrc: "/game-assets/anagram/berry.jpg",
+  },
+
+  {
+    id: 9,
+    topicId: 102, // Example topic ID for "Animals"
+    difficulty: DifficultyEnum.MEDIUM,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "TIGER",
+    imageSrc: "/game-assets/anagram/tiger.jpg",
+  },
+  {
+    id: 10,
+    topicId: 102,
+    difficulty: DifficultyEnum.MEDIUM,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "PANDA",
+    imageSrc: "/game-assets/anagram/panda.jpg",
+  },
+  {
+    id: 11,
+    topicId: 102,
+    difficulty: DifficultyEnum.MEDIUM,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "ZEBRA",
+    imageSrc: "/game-assets/anagram/zebra.jpg",
+  },
+  {
+    id: 12,
+    topicId: 102,
+    difficulty: DifficultyEnum.MEDIUM,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "SNAKE",
+    imageSrc: "/game-assets/anagram/snake.jpg",
+  },
+  {
+    id: 13,
+    topicId: 102,
+    difficulty: DifficultyEnum.MEDIUM,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "MONKEY",
+    imageSrc: "/game-assets/anagram/monkey.jpg",
+  },
+  {
+    id: 14,
+    topicId: 102,
+    difficulty: DifficultyEnum.MEDIUM,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "DOLPHIN",
+    imageSrc: "/game-assets/anagram/dolphin.jpg",
+  },
+  {
+    id: 15,
+    topicId: 102,
+    difficulty: DifficultyEnum.MEDIUM,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "KOALA",
+    imageSrc: "/game-assets/anagram/koala.jpg",
+  },
+  {
+    id: 16,
+    topicId: 102,
+    difficulty: DifficultyEnum.MEDIUM,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "SHARK",
+    imageSrc: "/game-assets/anagram/shark.jpg",
+  },
+
+  {
+    id: 17,
+    topicId: 103, // Example topic ID for "Countries"
+    difficulty: DifficultyEnum.HARD,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "ARGENTINA",
+    imageSrc: "/game-assets/anagram/argentina.jpg",
+  },
+  {
+    id: 18,
+    topicId: 103,
+    difficulty: DifficultyEnum.HARD,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "AUSTRALIA",
+    imageSrc: "/game-assets/anagram/australia.jpg",
+  },
+  {
+    id: 19,
+    topicId: 103,
+    difficulty: DifficultyEnum.HARD,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "BRAZIL",
+    imageSrc: "/game-assets/anagram/brazil.jpg",
+  },
+  {
+    id: 20,
+    topicId: 103,
+    difficulty: DifficultyEnum.HARD,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "CANADA",
+    imageSrc: "/game-assets/anagram/canada.jpg",
+  },
+  {
+    id: 21,
+    topicId: 103,
+    difficulty: DifficultyEnum.HARD,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "FRANCE",
+    imageSrc: "/game-assets/anagram/france.jpg",
+  },
+  {
+    id: 22,
+    topicId: 103,
+    difficulty: DifficultyEnum.HARD,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "GERMANY",
+    imageSrc: "/game-assets/anagram/germany.jpg",
+  },
+  {
+    id: 23,
+    topicId: 103,
+    difficulty: DifficultyEnum.HARD,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "JAPAN",
+    imageSrc: "/game-assets/anagram/japan.jpg",
+  },
+  {
+    id: 24,
+    topicId: 103,
+    difficulty: DifficultyEnum.HARD,
+    gameType: GameTypeEnum.ANAGRAM,
+    word: "MEXICO",
+    imageSrc: "/game-assets/anagram/mexico.jpg",
+  },
+];
