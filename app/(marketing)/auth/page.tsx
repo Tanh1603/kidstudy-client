@@ -39,6 +39,7 @@ export default function AuthCallback() {
             userId: user?.id,
             hearts: MAX_HEARTS,
             points: INITIAL_POINT_HEARTS,
+            tickets: 5,
             userName:
               user?.fullName ||
               user?.username ||

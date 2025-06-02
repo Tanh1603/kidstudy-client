@@ -2,6 +2,7 @@ import { authMiddleware } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 
 export default authMiddleware({
+  clockSkewInMs: 60000,
   publicRoutes: ["/", "/api/webhooks/stripe", "/auth"],
   afterAuth: (auth, req) => {
     if (auth.userId) {

@@ -39,7 +39,7 @@ export const GameScreen: React.FC = () => {
     GameTypeEnum.SPELLING_BEE,
     selectedDifficulty,
     selectedTopic?.id ?? 0,
-    2
+    20
   );
 
   const audioRef = useRef<HTMLAudioElement | null>(null);

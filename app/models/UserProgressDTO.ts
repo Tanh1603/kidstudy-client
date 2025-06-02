@@ -3,6 +3,7 @@ type UserProgressDTO = {
   userId: string;
   hearts: number;
   points: number;
+  tickets: number;
   userName: string;
   userImageSrc: string;
 };

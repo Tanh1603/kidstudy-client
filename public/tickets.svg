@@ -1,0 +1,39 @@
+<svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="ticketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#58CC02;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#46A302;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shadowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.3" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Shadow -->
+  <rect x="4" y="14" width="110" height="50" rx="8" ry="8" fill="url(#shadowGradient)" opacity="0.3"/>
+  
+  <!-- Main ticket body -->
+  <rect x="2" y="12" width="110" height="50" rx="8" ry="8" fill="url(#ticketGradient)" stroke="#46A302" stroke-width="1"/>
+  
+  <!-- Left semicircle cutout -->
+  <circle cx="2" cy="37" r="8" fill="white"/>
+  
+  <!-- Right semicircle cutout -->
+  <circle cx="112" cy="37" r="8" fill="white"/>
+  
+  <!-- Dashed line in middle -->
+  <line x1="30" y1="37" x2="84" y2="37" stroke="white" stroke-width="2" stroke-dasharray="3,3" opacity="0.8"/>
+  
+  <!-- Ticket text/number -->
+  <text x="57" y="32" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">TICKET</text>
+  <text x="57" y="46" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" opacity="0.9">001</text>
+  
+  <!-- Decorative stars -->
+  <polygon points="20,22 21,25 24,25 21.5,27 22.5,30 20,28 17.5,30 18.5,27 16,25 19,25" fill="white" opacity="0.6"/>
+  <polygon points="94,22 95,25 98,25 95.5,27 96.5,30 94,28 91.5,30 92.5,27 90,25 93,25" fill="white" opacity="0.6"/>
+  
+  <!-- Small highlight for 3D effect -->
+  <rect x="4" y="14" width="106" height="2" rx="6" fill="white" opacity="0.3"/>
+</svg>

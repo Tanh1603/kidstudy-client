@@ -26,6 +26,7 @@ import { ResultCard } from "./result-card";
 import { reduceHearts } from "@/app/services/user-progress";
 import { upsertChallengeProgress } from "@/app/services/challenge-service";
 import { useAuth } from "@clerk/nextjs";
+import { useAddPointToQuest } from "@/hooks/use-quest-hook";
 type QuizProps = {
   initialPercentage: number;
   initialHearts: number;
@@ -57,6 +58,7 @@ export const Quiz = ({
     autoPlay: true,
   });
   const { width, height } = useWindowSize();
+  const addPoint = useAddPointToQuest();
 
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -121,7 +123,7 @@ export const Quiz = ({
       startTransition(async () => {
         const token = (await getToken()) as string;
         upsertChallengeProgress(token, challenge.id, userId as string)
-          .then((response ) => {
+          .then((response) => {
             if (response?.error === "hearts") {
               openHeartsModal();
               return;
@@ -137,14 +139,14 @@ export const Quiz = ({
             }
           })
           .catch(() => toast.error("Something went wrong. Please try again."));
+        addPoint.mutateAsync(10).then().catch((error) => toast.error(error?.message));
       });
     } else {
       startTransition(async () => {
-
         const token = (await getToken()) as string;
         reduceHearts(token, challenge.id, userId as string)
           .then((response) => {
-            if (response?.error  === "hearts") {
+            if (response?.error === "hearts") {
               openHeartsModal();
               return;
             }
@@ -208,7 +210,6 @@ export const Quiz = ({
       </>
     );
   }
-
 
   const title =
     challenge.type === "ASSIST"

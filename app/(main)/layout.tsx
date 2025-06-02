@@ -1,7 +1,11 @@
-import type { PropsWithChildren } from "react";
+"use client";
+import { useEffect, type PropsWithChildren } from "react";
 
 import { MobileHeader } from "@/components/mobile-header";
 import { Sidebar } from "@/components/sidebar";
+import { useResetDailyQuest } from "@/hooks/use-quest-hook";
+import Loading from "@/components/loading";
+import Error from "@/components/error";
 
 const data = [
   {
@@ -15,11 +19,6 @@ const data = [
     iconSrc: "/leaderboard.svg",
   },
   {
-    label: "Quests",
-    href: "/quests",
-    iconSrc: "/quests.svg",
-  },
-  {
     label: "Shop",
     href: "/shop",
     iconSrc: "/shop.svg",
@@ -27,8 +26,8 @@ const data = [
   {
     label: "Mini games",
     href: "/mini-games",
-    iconSrc: "/mini-games.svg"
-  }
+    iconSrc: "/mini-games.svg",
+  },
 ];
 
 const link = {
@@ -36,6 +35,22 @@ const link = {
   iconSrc: "/bee.png",
 };
 const MainLayout = ({ children }: PropsWithChildren) => {
+  const { mutate, isError, isPending } = useResetDailyQuest();
+
+  useEffect(() => {
+    const lastResetTime = localStorage.getItem("lastQuestReset");
+    const now = new Date();
+    const today = now.toDateString();
+
+    if (lastResetTime !== today) {
+      void mutate();
+      localStorage.setItem("lastQuestReset", today);
+    }
+  }, [mutate]);
+
+  // if (isPending) return <Loading />;
+  if (isError) return <Error />;
+
   return (
     <>
       <MobileHeader sidebarItems={data} link={link} />

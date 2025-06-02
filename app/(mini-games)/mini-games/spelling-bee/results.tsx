@@ -1,6 +1,9 @@
 /* eslint-disable import/order */
 "use client";
+import { addPointToquest } from "@/app/services/admin/quests-service";
 import { updateUserPoints } from "@/app/services/user-progress";
+import Loading from "@/components/loading";
+import { useAddPointToQuest } from "@/hooks/use-quest-hook";
 import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
 import { useAuth } from "@clerk/nextjs";
 import React, { useEffect } from "react";
@@ -16,8 +19,11 @@ export const ResultModal: React.FC = () => {
     resetGame,
   } = useSpellingBeeStore();
 
-  const { getToken, userId } = useAuth();
+  const addPoint = useAddPointToQuest();
 
+  
+  const { getToken, userId } = useAuth();
+  
   useEffect(() => {
     const updatePoints = async () => {
       if (showResultModal && userId) {
@@ -27,14 +33,17 @@ export const ResultModal: React.FC = () => {
           return;
         }
         await updateUserPoints(token, userId, score);
+        await addPoint.mutateAsync(score);
       }
     };
-
+    
     void updatePoints();
   }, [getToken, score, showResultModal, userId]);
-
+  
   if (!showResultModal) return null;
-
+  
+  if (addPoint.isPending) return <Loading />;
+  
   const isTimeOut = gameEndReason === "timeout";
 
   const closeModal = () => {

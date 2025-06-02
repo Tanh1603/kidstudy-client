@@ -9,8 +9,7 @@ import LessonDTO from "../../models/Lesson";
 import UserProgressDTO from "../../models/UserProgressDTO";
 import { getUserLessonById } from "../../services/lesson-service";
 import { getUserProgress } from "../../services/user-progress";
-
-
+import Loading from "@/components/loading";
 
 const LessonPage = () => {
   const { userId, getToken } = useAuth();
@@ -45,7 +44,7 @@ const LessonPage = () => {
     }
   }, [getToken, lessonId, userId]);
 
-  if (!lesson || !userProgress) return <div>Loading...</div>;
+  if (!lesson || !userProgress) return <Loading />;
 
   const initialPercentage =
     (lesson.challenges.filter((challenge) => challenge.completed).length /

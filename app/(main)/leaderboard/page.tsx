@@ -1,12 +1,8 @@
+/* eslint-disable import/order */
 "use client";
-import { useState } from "react";
-import { useEffect } from "react";
 
-import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 
-import UserProgressDTO from "@/app/models/UserProgressDTO";
-import { getLeaderboard, getUserProgress } from "@/app/services/user-progress";
 import { FeedWrapper } from "@/components/feed-wrapper";
 // import { Promo } from "@/components/promo";
 import { Quests } from "@/components/quests";
@@ -15,63 +11,20 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { UserProgress } from "@/components/user-progress";
 
-
-
-
 import Loading from "./loading";
+import { useGetLeaderboard } from "@/hooks/use-user-progress-hook";
+import Error from "@/components/error";
 const LeaderboardPage = () => {
-  const { userId, getToken } = useAuth();
-  const [leaderboard, setLeaderboard] = useState<UserProgressDTO[]>([]);
-  const [userProgress, setUserProgress] = useState<UserProgressDTO>();
-  const [loading, setLoading] = useState(true);
+  const { data: leaderboard, isLoading, error } = useGetLeaderboard();
 
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        setLoading(true);
-        const token = await getToken();
-        const [leaderboardData, userProgressData] = await Promise.all([
-          getLeaderboard(token as string, 10),
-          getUserProgress(token as string, userId as string),
-        ]);
-        console.log(leaderboardData);
-
-        setLeaderboard(leaderboardData);
-        setUserProgress(userProgressData);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    void fetchLeaderboard();
-  }, [userId, getToken]);
-
-  if (loading) return <Loading />;
-  if (!userProgress) return null;
-
-  // const [userProgress, userSubscription, leaderboard] = await Promise.all([
-  //   userProgressData,
-  //   userSubscriptionData,
-  //   leaderboardData,
-  // ]);
-
-  // if (!userProgress || !userProgress.activeCourse) redirect("/courses");
-
-  // const isPro = !!userSubscription?.isActive;
+  if (isLoading) return <Loading />;
+  if (!leaderboard || error) return <Error />;
 
   return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
       <StickyWrapper>
-        <UserProgress
-          // activeCourse={userProgress.activeCourse}
-          hearts={userProgress.hearts}
-          points={userProgress.points}
-          // hasActiveSubscription={isPro}
-          hasActiveSubscription={false}
-        />
-        {/* {!isPro && <Promo />} */}
-        <Quests points={userProgress.points} />
+        <UserProgress hasActiveSubscription={false} />
+        <Quests />
       </StickyWrapper>
 
       <FeedWrapper>
@@ -86,9 +39,6 @@ const LeaderboardPage = () => {
           <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">
             Leaderboard
           </h1>
-          {/* <p className="mb-6 text-center text-lg text-muted-foreground">
-            See where you stand among other learners in the community.
-          </p> */}
 
           <Separator className="mb-4 h-0.5 rounded-full" />
           {leaderboard ? (
