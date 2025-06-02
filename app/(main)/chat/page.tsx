@@ -19,7 +19,7 @@ export default function Chat() {
       // 🔹 Lấy lịch sử tin nhắn trước
       const fetchMessages = async () => {
           try {
-              const response = await fetch("http://localhost:8081/messages");
+              const response = await fetch("https://websocket-q6kl.onrender.com/messages");
               const data: Message[] = await response.json();
               console.log("📥 Dữ liệu từ API:", data); // Debug log
               setMessages(data); 
@@ -33,7 +33,7 @@ export default function Chat() {
 
   // 🔹 WebSocket connection riêng biệt
   useEffect(() => {
-      wsRef.current = new WebSocket("ws://localhost:8081");
+      wsRef.current = new WebSocket("https://websocket-q6kl.onrender.com");
       
       wsRef.current.onopen = () => {
           console.log("🔗 Kết nối WebSocket thành công!");
@@ -75,13 +75,12 @@ export default function Chat() {
       setContent("");
     }
   };
-
   return (
     <FeedWrapper>
         
         <div className="flex w-full flex-col items-center">
         <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">Chat WebSocket</h1>
-        <div className="max-w-xl mx-auto p-4">
+          <div className="max-w-3xl w-full mx-auto p-6">
             <div className="border rounded p-4 mb-4 h-[400px] overflow-auto bg-gray-50" ref={chatContainerRef}>
                 {messages.length > 0 ? (
                     messages.map((msg, index) => (
