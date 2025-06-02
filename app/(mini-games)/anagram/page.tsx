@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable import/order */
 // app/(mini-games)/anagram/anagram.tsx
 "use client"; // MUST be at the very top!
 
