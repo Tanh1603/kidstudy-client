@@ -16,34 +16,54 @@ export default function Chat() {
   const wsRef = useRef<WebSocket | null>(null); // 🔹 Khai báo WebSocket đúng kiểu
 
   useEffect(() => {
-    wsRef.current = new WebSocket("ws://localhost:8081");
+      // 🔹 Lấy lịch sử tin nhắn trước
+      const fetchMessages = async () => {
+          try {
+              const response = await fetch("http://localhost:8081/messages");
+              const data: Message[] = await response.json();
+              console.log("📥 Dữ liệu từ API:", data); // Debug log
+              setMessages((prevMessages) => [...data, ...prevMessages]); 
+          } catch (error) {
+              console.error("❌ Lỗi khi tải lịch sử tin nhắn:", error);
+          }
+      };
+      
+      fetchMessages();
+  }, []); // Chạy riêng khi component mount
 
-    wsRef.current.onopen = () => {
-      console.log("🔗 Kết nối WebSocket thành công!");
-    };
-
-    wsRef.current.onmessage = (event) => {
-      const newMessage: Message = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-      setTimeout(() => {
-        chatContainerRef.current?.scrollTo({ top: chatContainerRef.current.scrollHeight, behavior: "smooth" });
-      }, 100);
-    };
-
-    wsRef.current.onclose = () => {
-      console.log("❌ Mất kết nối WebSocket server!");
-    };
-
-    wsRef.current.onerror = (error) => {
-      console.error("⚠️ Lỗi WebSocket:", error);
-    };
-
-    return () => {
-      wsRef.current?.close();
-    };
+  // 🔹 WebSocket connection riêng biệt
+  useEffect(() => {
+      wsRef.current = new WebSocket("ws://localhost:8081");
+      
+      wsRef.current.onopen = () => {
+          console.log("🔗 Kết nối WebSocket thành công!");
+      };
+      
+      wsRef.current.onmessage = (event) => {
+          const newMessage: Message = JSON.parse(event.data);
+          console.log("📨 Tin nhắn mới từ WebSocket:", newMessage); // Debug log
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+          
+          setTimeout(() => {
+              chatContainerRef.current?.scrollTo({ 
+                  top: chatContainerRef.current.scrollHeight, 
+                  behavior: "smooth" 
+              });
+          }, 100);
+      };
+      
+      wsRef.current.onclose = () => {
+          console.log("❌ Mất kết nối WebSocket server!");
+      };
+      
+      wsRef.current.onerror = (error) => {
+          console.error("⚠️ Lỗi WebSocket:", error);
+      };
+      
+      return () => {
+          wsRef.current?.close();
+      };
   }, []);
-
   const sendMessage = () => {
     if (content.trim() && wsRef.current) { // 🔹 Kiểm tra WebSocket trước khi gửi
       const messageData: Message = {
@@ -51,7 +71,6 @@ export default function Chat() {
         content: content,
         created_at: new Date().toISOString(),
       };
-
       wsRef.current.send(JSON.stringify(messageData)); 
       setContent("");
     }
@@ -64,18 +83,17 @@ export default function Chat() {
         <h1 className="my-6 text-center text-2xl font-bold text-neutral-800">Chat WebSocket</h1>
         <div className="max-w-xl mx-auto p-4">
             <div className="border rounded p-4 mb-4 h-[400px] overflow-auto bg-gray-50" ref={chatContainerRef}>
-            {messages.length > 0 ? (
-                messages.map((msg, index) => (
-                <div key={index} className="mb-2">
-                    <span className="font-bold">{msg.user_id}</span>: <span>{msg.content}</span>
-                    <div className="text-xs text-gray-500">{new Date(msg.created_at).toLocaleString()}</div>
-                </div>
-                ))
-            ) : (
-                <p>Chưa có tin nhắn nào.</p>
-            )}
+                {messages.length > 0 ? (
+                    messages.map((msg, index) => (
+                        <div key={index} className="mb-2">
+                            <span className="font-bold">{msg.user_id}</span>: <span>{msg.content}</span>
+                            <div className="text-xs text-gray-500">{new Date(msg.created_at).toLocaleString()}</div>
+                        </div>
+                    ))
+                ) : (
+                    <p>Chưa có tin nhắn nào.</p>
+                )}
             </div>
-
             {/* Ô nhập tin nhắn */}
             <div className="flex">
             <input
