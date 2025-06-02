@@ -30,7 +30,6 @@ export default function Chat() {
       
       fetchMessages();
   }, []); // Chạy riêng khi component mount
-
   // 🔹 WebSocket connection riêng biệt
   useEffect(() => {
       wsRef.current = new WebSocket("https://websocket-q6kl.onrender.com");
