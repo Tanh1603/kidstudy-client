@@ -22,7 +22,7 @@ export default function Chat() {
               const response = await fetch("http://localhost:8081/messages");
               const data: Message[] = await response.json();
               console.log("📥 Dữ liệu từ API:", data); // Debug log
-              setMessages((prevMessages) => [...data, ...prevMessages]); 
+              setMessages(data); 
           } catch (error) {
               console.error("❌ Lỗi khi tải lịch sử tin nhắn:", error);
           }
