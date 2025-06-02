@@ -12,7 +12,7 @@ type UnitBannerProps = {
 
 export const UnitBanner = ({ title, description, lessonId }: UnitBannerProps) => {
   return (
-    <div className="flex w-full items-center justify-between rounded-xl bg-yellow-500 p-5 text-white">
+    <div className="flex w-full items-center justify-between rounded-xl bg-yellow-100 p-5 text-yellow-600">
       <div className="space-y-2.5">
         <h3 className="text-2xl font-bold">{title}</h3>
         <p className="text-lg">{description}</p>
@@ -21,7 +21,7 @@ export const UnitBanner = ({ title, description, lessonId }: UnitBannerProps) =>
       <Link href={`/lesson/${lessonId}`}>
         <Button
           size="lg"
-          variant="secondary"
+          variant="primary"
           className="hidden border-2 border-b-4 active:border-b-2 xl:flex"
         >
           <NotebookText className="mr-2" />

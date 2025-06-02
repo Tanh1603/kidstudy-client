@@ -32,7 +32,7 @@ export const Keyboard: React.FC<KeyboardProps> = ({
               key={letter}
               onClick={() => onKeyPress(letter)}
               disabled={disabled}
-              className="h-8 w-8 transform rounded-lg bg-gradient-to-b from-gray-200 to-gray-300 text-base font-bold shadow-md transition-all duration-300 hover:scale-110 hover:shadow-lg active:scale-95 disabled:opacity-50 sm:h-10 sm:w-10 sm:text-lg md:h-12 md:w-12 md:text-xl"
+              className="h-8 w-8 transform rounded-lg bg-gradient-to-b from-yellow-200 to-yellow-300 text-base font-bold shadow-md transition-all duration-300 hover:scale-110 hover:shadow-lg active:scale-95 disabled:opacity-50 sm:h-10 sm:w-10 sm:text-lg md:h-12 md:w-12 md:text-xl"
             >
               {letter}
             </button>

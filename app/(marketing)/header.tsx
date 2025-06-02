@@ -21,7 +21,7 @@ export const Header = () => {
     <>
       <header
         className={cn(
-          "h-20 w-full border-b-2 border-slate-200 px-4"
+          "h-20 w-full border-b-2 border-slate-200 px-4 bg-yellow-100"
         )}
       >
         <div className="mx-auto flex h-full items-center justify-between lg:max-w-screen-lg">

@@ -1,13 +1,16 @@
 // app/(mini-games)/match-up/page.tsx
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
 import { useState, useEffect, useCallback } from "react";
+
+import { useAuth } from "@clerk/nextjs";
+
 import { Game } from "./match-up"; // CHANGED: Import as named export
-import Loading from "@/components/loading";
-import DifficultySelector from "@/components/difficulty-selector";
-import TopicSelector from "@/components/topic-selector";
+
 import { DifficultyEnum, GameTypeEnum } from "@/app/models/Game";
+import DifficultySelector from "@/components/difficulty-selector";
+import Loading from "@/components/loading";
+import TopicSelector from "@/components/topic-selector";
 
 // --- Types for Match-Up Game ---
 // Raw question data from your database/model
@@ -99,10 +102,11 @@ const ALL_MATCH_UP_RAW_QUESTIONS: MatchUpRawQuestion[] = [
   
   // ... (rest of the page.tsx code)
 // Helper to shuffle an array (can be reused from utils if available)
-const shuffleArray = <T extends any[]>(array: T): T => {
+const shuffleArray = <T extends unknown[]>(array: T): T => {
   const newArray = [...array] as T;
   for (let i = newArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
   }
   return newArray;
@@ -117,10 +121,10 @@ const MatchUp = () => {
   const [gameQuestions, setGameQuestions] = useState<MatchUpGameData[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/require-await
     const fetchAuthToken = async () => {
       setLoading(true);
       try {
-        const token = await getToken();
         // console.log("Authentication token:", token);
       } catch (error) {
         console.error("Failed to retrieve authentication token:", error);
@@ -158,7 +162,7 @@ const MatchUp = () => {
       const correctWord = data.word;
       // Generate distractors: pick 2-3 other words from the same context
       // Ensure distractors are not the correct word and are unique
-      let distractors = shuffleArray(allWordsInCurrentContext)
+      const distractors = shuffleArray(allWordsInCurrentContext)
         .filter(word => word !== correctWord)
         .slice(0, 2); // Get 2 distractors
 

@@ -32,8 +32,8 @@ const MiniGamePage = () => {
       description: "Test your memory skills",
       image: "/animation/play_memory.png",
       color: "from-yellow-400 to-yellow-600",
-      bgColor: "bg-blue-50",
-      iconColor: "text-blue-600",
+      bgColor: "bg-yellow-50",
+      iconColor: "text-yellow-600",
       href: "/memory",
     },
     {
@@ -131,7 +131,7 @@ const MiniGamePage = () => {
             <div className="mb-3 flex items-center justify-center">
               <span className="mr-2 text-2xl">🎯</span>
               <h2 className="text-xl font-semibold text-gray-800">
-                Ready to Challenge Yourself?
+                Ready to challenge yourself?
               </h2>
             </div>
             <p className="text-gray-600">

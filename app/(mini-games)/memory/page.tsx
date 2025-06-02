@@ -1,13 +1,15 @@
 "use client";
-import { useAuth } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
+
+import { useAuth } from "@clerk/nextjs";
+
 import Game from "./memory";
 
-const Anagram = () => {
+const Memory = () => {
   const { userId, getToken } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   useEffect(() => {
-    const fetchAnagram = async () => {
+    const fetchMemory = async () => {
       setLoading(true);
       try {
         const token = await getToken();
@@ -19,7 +21,7 @@ const Anagram = () => {
       }
     };
 
-    fetchAnagram();
+    void fetchMemory();
   }, [userId, getToken]);
 
 return (
@@ -29,4 +31,4 @@ return (
 );
 };
 
-export default Anagram;
+export default Memory;
