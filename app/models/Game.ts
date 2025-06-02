@@ -37,12 +37,14 @@ const anagramSchema = baseGameSchema.extend({
   gameType: z.literal(GameTypeEnum.ANAGRAM),
   word: z.string().min(1, "Word is required"),
   imageSrc: fileOrUrl,
+  audioSrc: fileOrUrl,
 });
 
 const matchUpSchema = baseGameSchema.extend({
   gameType: z.literal(GameTypeEnum.MATCH_UP),
   word: z.string().min(1, "Word is required"),
   imageSrc: fileOrUrl,
+  audioSrc: fileOrUrl,
 });
 
 const spellingBeeSchema = baseGameSchema.extend({

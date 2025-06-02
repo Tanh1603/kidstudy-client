@@ -39,7 +39,7 @@ export const GameScreen: React.FC = () => {
     GameTypeEnum.SPELLING_BEE,
     selectedDifficulty,
     selectedTopic?.id ?? 0,
-    20
+    2
   );
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -52,13 +52,6 @@ export const GameScreen: React.FC = () => {
       : null;
 
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [colorTheme, setColorTheme] = useState(0);
-  const colorThemes = [
-    "from-purple-100 via-pink-200 to-blue-300",
-    "from-green-100 via-teal-200 to-blue-300",
-    "from-orange-100 via-yellow-200 to-pink-300",
-    "from-indigo-100 via-purple-200 to-pink-300",
-  ];
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -131,7 +124,6 @@ export const GameScreen: React.FC = () => {
 
       setTimeout(() => {
         setIsTransitioning(true);
-        setColorTheme((prev) => (prev + 1) % colorThemes.length);
         setTimeout(() => {
           if (currentQuestionIndex < gameQuestions.length - 1) {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -167,11 +159,13 @@ export const GameScreen: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-b ${colorThemes[colorTheme]} p-2 transition-all duration-1000 sm:p-4`}
-      style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 40c20-10 40 10 60 0s40 10 60 0v60H0z' fill='%23D4A574' opacity='0.3'/%3E%3Cpath d='M0 60c20-10 40 10 60 0s40 10 60 0v40H0z' fill='%23D4A574' opacity='0.2'/%3E%3C/svg%3E")`,
-        backgroundRepeat: "repeat-x",
-        backgroundPosition: "bottom",
+    className="flex flex-col items-center w-full min-h-screen relative"
+        style={{
+          backgroundImage: "url('/animation/anagram-bg.jpg')",
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
       }}
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-4">
@@ -220,7 +214,7 @@ export const GameScreen: React.FC = () => {
                   alt={currentQuestion.word}
                   width={80}
                   height={80}
-                  className={`h-16 w-16 transform transition-all duration-500 hover:scale-110 sm:h-24 sm:w-24 md:h-32 md:w-32 ${
+                  className={`h-30 w-30 transform transition-all duration-500 hover:scale-110 sm:h-40 sm:w-40 md:h-50 md:w-32 ${
                     isTransitioning
                       ? "rotate-180 scale-0"
                       : "rotate-0 scale-100"
