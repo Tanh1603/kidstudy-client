@@ -1,10 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-
 import {  useAuth } from "@clerk/nextjs";
 import Image from "next/image";
-
 import UserProgressDTO from "@/app/models/UserProgressDTO";
 import { getUserProgress } from "@/app/services/user-progress";
 import { FeedWrapper } from "@/components/feed-wrapper";
@@ -117,13 +115,10 @@ export default function UserProfile() {
       <div className="flex flex-row-reverse gap-[48px] px-6">
       <StickyWrapper>
         <UserProgress
-          //activeCourse={userProgress.activeCourse}
           hearts={userProgress.hearts}
           points={userProgress.points}
-          // hasActiveSubscription={isPro}
           hasActiveSubscription={false}
         />
-        {/* {!isPro && <Promo />} */}
         <Quests points={userProgress.points} />
       </StickyWrapper>
         <FeedWrapper>
