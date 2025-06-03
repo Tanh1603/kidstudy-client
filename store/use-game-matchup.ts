@@ -1,7 +1,7 @@
 /* eslint-disable import/order */
 import { create } from "zustand";
-import { DifficultyEnum, AnagramGameQuestion } from "@/app/models/Game";
-import TopicDTO from "@/app/models/TopicDTO";
+import { DifficultyEnum, MatchUpGameQuestion } from "../app/models/Game";
+import TopicDTO from "../app/models/TopicDTO";
 
 export type GameState = {
   currentScreen: "difficulty" | "topics" | "game";
@@ -12,7 +12,7 @@ export type GameState = {
   score: number;
   wrongAnswers: number;
   showFeedback: string;
-  gameQuestions: AnagramGameQuestion[];
+  gameQuestions:MatchUpGameQuestion[];
   totalQuestions: number;
   timeLeft: number;
   isGameActive: boolean;
@@ -46,7 +46,7 @@ export type GameActions = {
   setScore: (score: number) => void;
   setWrongAnswers: (count: number) => void;
   setShowFeedback: (feedback: string) => void;
-  setGameQuestions: (questions: AnagramGameQuestion[]) => void;
+  setGameQuestions: (questions: MatchUpGameQuestion[]) => void;
   setTotalQuestions: (count: number) => void;
   setTimeLeft: (time: number) => void;
   setIsGameActive: (active: boolean) => void;
@@ -55,7 +55,7 @@ export type GameActions = {
   resetGame: () => void;
 };
 
-export const useAnagramStore = create<GameState & GameActions>((set) => ({
+export const useMatchUpStore = create<GameState & GameActions>((set) => ({
   ...initialState,
 
   setCurrentScreen: (screen) => set({ currentScreen: screen }),

@@ -1,491 +1,300 @@
-// app/(mini-games)/match-up/match-up.tsx
+/* eslint-disable import/order */
 "use client";
-
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion"; // Using require for commonJS interop
-import { AlertTriangle, Lightbulb } from "lucide-react";
-
-import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
-import { ResultModal } from "./results"; // Import your ResultModal
-import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
-import { GameTypeEnum, SpellingBeeGameQuestion } from "@/app/models/Game";
-import Loading from "@/components/loading";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { LucideImageOff } from "lucide-react";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { shuffleArray } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { useMatchUpStore } from "@/store/use-game-matchup";
+import { ResultModal } from "./results";
+import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
+import { GameTypeEnum, GameQuestion, MatchUpGameQuestion } from "@/app/models/Game";
+import Loading from "@/components/loading";
+import Image from "next/image";
+import { Header } from "@/components/ui/header-game";
 
-// Define a type for your draggable choices
-interface DraggableChoice {
-  word: string;
-  id: string; // Unique ID for this draggable instance
+const NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME = 8;
+
+function isSpellingBeeGameQuestion(question: GameQuestion): question is MatchUpGameQuestion {
+  return question.gameType === GameTypeEnum.ANAGRAM && typeof (question as unknown as MatchUpGameQuestion).word === 'string';
 }
 
-// Draggable Word component (enhanced with selected state)
-interface DraggableWordProps {
-  word: string;
-  id: string; // Unique ID for the draggable element itself
-  onDragEnd: (info: any, wordId: string, word: string) => void;
-  onClick: (wordId: string, word: string) => void; // New onClick handler for selection
-  isDropped: boolean; // To hide the word if it's correctly dropped
-  isDisabled: boolean; // To disable dragging for already matched words
-  isSelected: boolean; // NEW: To visually indicate selection
-}
-
-const DraggableWord: React.FC<DraggableWordProps> = ({ word, id, onDragEnd, onClick, isDropped, isDisabled, isSelected }) => {
-  return (
-    <motion.div
-      className={`
-        bg-blue-500 text-white font-bold text-lg sm:text-xl md:text-2xl
-        px-4 py-2 rounded-lg shadow-md flex-shrink-0
-        transition-all duration-200 select-none
-        ${isDropped ? 'opacity-0 pointer-events-none' : 'opacity-100'} /* Hidden if correctly dropped */
-        ${isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-grab'}
-        ${isSelected ? 'border-4 border-yellow-400 shadow-lg scale-105' : ''} /* Visual feedback for selection */
-        relative z-30
-      `}
-      drag={!isDisabled}
-      dragSnapToOrigin
-      onDragEnd={(event, info) => onDragEnd(info, id, word)}
-      onClick={() => !isDisabled && onClick(id, word)} // Call onClick for selection
-      whileHover={!isDisabled && !isSelected ? { scale: 1.05 } : {}}
-      whileTap={!isDisabled ? { scale: 0.95, cursor: 'grabbing' } : {}}
-      key={id}
-    >
-      {word}
-    </motion.div>
-  );
-};
-
-// --- Main GameScreen Component ---
 export const GameScreen: React.FC = () => {
-  // --- Global Store Access (for settings) ---
   const {
+    score,
+    timeLeft,
+    isGameActive,
     selectedDifficulty,
     selectedTopic,
+    showResultModal,
+    setTimeLeft,
+    setIsGameActive,
+    setGameEndReason,
     setShowResultModal,
-    showResultModal // Get showResultModal state from the store
-  } = useSpellingBeeStore();
+    setScore,
+    setWrongAnswers,
+    wrongAnswers,
+    gameQuestions,
+    setGameQuestions,
+  } = useMatchUpStore();
 
-  // --- Game-specific State Declarations ---
-  const [currentRoundQuestions, setCurrentRoundQuestions] = useState<SpellingBeeGameQuestion[]>([]);
-  const [droppedWordsMap, setDroppedWordsMap] = useState<Map<string, string>>(new Map()); // Map: imageId (string) -> droppedWord
-  const [matchedImageIds, setMatchedImageIds] = useState<Set<string>>(new Set()); // Set of image IDs (string) that are correctly matched
-  const [availableChoices, setAvailableChoices] = useState<DraggableChoice[]>([]); // Words to drag (all words in the round), now with unique IDs
-  const [selectedWord, setSelectedWord] = useState<DraggableChoice | null>(null); // Tracks the word clicked for placement
-  const [totalRoundsCompleted, setTotalRoundsCompleted] = useState(0); // This will now represent games completed if we end after one round
-  const [incorrectAttempts, setIncorrectAttempts] = useState(0);
-  const [score, setScore] = useState(0);
-  const [time, setTime] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
-  const [isGameOver, setIsGameOver] = useState(false);
-  const [hasWon, setHasWon] = useState(false);
+  const [userMatches, setUserMatches] = useState<Map<number, string>>(new Map());
+  const [wordOptions, setWordOptions] = useState<string[]>([]);
+  const dropZoneRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const questionsMap = useRef<Map<number, MatchUpGameQuestion>>(new Map());
+
+  const [isDragging, setIsDragging] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [feedbackType, setFeedbackType] = useState<'success' | 'error' | null>(null);
 
-  // --- Ref Hooks ---
-  const dropTargetRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [selectedWord, setSelectedWord] = useState<string | null>(null);
+
+  const { data, isLoading } = useGetRandomGameQuestionByGameType(
+    GameTypeEnum.ANAGRAM,
+    selectedDifficulty,
+    selectedTopic?.id ?? 0,
+    NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME
+  );
+
   const correctSoundRef = useRef<HTMLAudioElement | null>(null);
   const incorrectSoundRef = useRef<HTMLAudioElement | null>(null);
 
-  // --- Constants ---
-  const QUESTIONS_PER_ROUND = 8;
-  const MAX_INCORRECT_ATTEMPTS = 10;
-
-  // --- Data Fetching Hook ---
-  const gameType = GameTypeEnum.MATCH_UP;
-  const { data: initialQuestionsData, isLoading } = useGetRandomGameQuestionByGameType(
-    gameType,
-    selectedDifficulty,
-    selectedTopic?.id ?? 0,
-    QUESTIONS_PER_ROUND // Fetch exactly one round's worth of questions
-  );
-  interface QuestionWithChoices extends SpellingBeeGameQuestion {
-    choices: string[];
-  }
-
-
-  // Type guard function
-  function hasChoicesStrict(question: SpellingBeeGameQuestion): question is QuestionWithChoices {
-      // Check if the property exists and if it's an array of strings
-      if (!('choices' in question) || !Array.isArray(question.choices) || !question.choices.every(choice => typeof choice === 'string')) {
-          return false;
-      }
-      return true;
-  }
-  // --- Utility to get drop zone rects (Memoized) ---
-  const getDropZoneRects = useCallback(() => {
-    const rects: Map<string, DOMRect> = new Map();
-    currentRoundQuestions.forEach(q => {
-      const idString = q.id.toString();
-      const element = dropTargetRefs.current[idString];
-      if (element) {
-        rects.set(idString, element.getBoundingClientRect());
-      }
-    });
-    return rects;
-  }, [currentRoundQuestions]);
-
-
-  // --- Game Logic Callbacks (Memoized) ---
-
-  const initializeRound = useCallback(() => {
-    if (!initialQuestionsData || initialQuestionsData.length === 0) {
-      console.warn("No initial questions data available to start a round.");
-      setIsRunning(false);
-      setIsGameOver(true);
-      setHasWon(false);
-      setShowResultModal(true); // Show modal even if no questions
-      return;
+  useEffect(() => {
+    if (!correctSoundRef.current) {
+      correctSoundRef.current = new Audio("/correct.wav");
     }
-
-    // Ensure we only use QUESTIONS_PER_ROUND for the single round
-    let newRoundQuestions: SpellingBeeGameQuestion[] = initialQuestionsData.slice(0, QUESTIONS_PER_ROUND);
-
-    newRoundQuestions = shuffleArray(newRoundQuestions);
-
-    setCurrentRoundQuestions(newRoundQuestions);
-    setDroppedWordsMap(new Map());
-    setMatchedImageIds(new Set());
-    setSelectedWord(null); // Clear selected word on new round
-
-    const allPossibleChoicesInRound = new Set<string>();
-    newRoundQuestions.forEach(q => {
-      allPossibleChoicesInRound.add(q.word);
-      if (hasChoicesStrict(q)) { // Use the type guard
-          q.choices.forEach((choice: string) => allPossibleChoicesInRound.add(choice));
-      }
-    });
-
-    const shuffledAndIdChoices: DraggableChoice[] = shuffleArray(Array.from(allPossibleChoicesInRound)).map(word => ({
-      word,
-      id: `${word}-${crypto.randomUUID()}`
-    }));
-
-    setAvailableChoices(shuffledAndIdChoices);
-    setFeedbackMessage(null);
-
-    // Start timer only if it's the beginning of a new game (totalRoundsCompleted is 0)
-    if (totalRoundsCompleted === 0 && !isGameOver) {
-      setTime(0);
-      setIsRunning(true);
+    if (!incorrectSoundRef.current) {
+      incorrectSoundRef.current = new Audio("/incorrect.wav");
     }
+  }, []);
 
-  }, [initialQuestionsData, totalRoundsCompleted, isGameOver, setShowResultModal]);
+  useEffect(() => {
+    if (data && data.length === NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME && gameQuestions.length === 0) {
+      const spellingBeeQuestions = data.filter(isSpellingBeeGameQuestion);
 
-  const handleDragEnd = useCallback((info: DraggableEvent, draggableWordId: string, word: string) => {
-    // Clear any selected word when a drag interaction completes
-    setSelectedWord(null);
+      if (spellingBeeQuestions.length === NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME) {
+        setGameQuestions(spellingBeeQuestions);
 
-    const dropZoneRects = getDropZoneRects();
-    let droppedOnImageId: string | null = null;
+        questionsMap.current.clear();
+        spellingBeeQuestions.forEach(q => questionsMap.current.set(q.id, q));
 
-    for (const [imageId, rect] of dropZoneRects.entries()) {
-      const dropX = (info as { point: { x: number; y: number } }).point.x;
-      const dropY = (info as { point: { x: number; y: number } }).point.y;
-
-      if (
-        dropX >= rect.left &&
-        dropX <= rect.right &&
-        dropY >= rect.top &&
-        dropY <= rect.bottom
-      ) {
-        if (!matchedImageIds.has(imageId)) { // Only allow dropping on unmatched slots
-          droppedOnImageId = imageId;
-          break;
-        }
-      }
-    }
-    if (droppedOnImageId) {
-        const targetQuestion = currentRoundQuestions.find(q => q.id.toString() === droppedOnImageId);
-
-        if (targetQuestion && word.toLocaleLowerCase() === targetQuestion.word.toLocaleLowerCase()) {
-            // Correct match
-            setDroppedWordsMap(prevMap => {
-                const newMap = new Map(prevMap);
-                // Remove the word if it was previously in another slot (incorrectly placed)
-                for (const [key, value] of newMap.entries()) {
-                    if (value === word && !matchedImageIds.has(key)) {
-                        newMap.delete(key);
-                        break;
-                    }
-                }
-                newMap.set(droppedOnImageId, word); // Place the word
-                return newMap;
-            });
-            setMatchedImageIds(prevSet => {
-                const newSet = new Set(prevSet);
-                newSet.add(droppedOnImageId); // Mark as matched
-                return newSet;
-            });
-            setScore(prevScore => prevScore + 10);
-            correctSoundRef.current?.play().catch(console.error);
-            setFeedbackMessage("Correct!");
-            setTimeout(() => setFeedbackMessage(null), 700);
-
-            // Check if all are matched to end the game (since it's only one round)
-            if (matchedImageIds.size + 1 === QUESTIONS_PER_ROUND) { // +1 because state might not be updated yet
-                setTimeout(() => {
-                    setFeedbackMessage("All matched! Game Over!");
-                    setIsRunning(false);
-                    setHasWon(true); // Player won the round
-                    setIsGameOver(true);
-                    setShowResultModal(true);
-                    setTotalRoundsCompleted(1); // Mark one game as completed
-                }, 800);
-            }
-
-        } else {
-            // Incorrect match
-            setIncorrectAttempts(prev => {
-                const newAttempt = prev + 1;
-                if (newAttempt >= MAX_INCORRECT_ATTEMPTS) {
-                    setIsGameOver(true);
-                    setIsRunning(false);
-                    setHasWon(false); // Game lost due to max attempts
-                    setShowResultModal(true);
-                }
-                return newAttempt;
-            });
-            incorrectSoundRef.current?.play().catch(console.error);
-            setFeedbackMessage("Incorrect! Try again.");
-            setTimeout(() => setFeedbackMessage(null), 1000);
-            // Word remains in pool, or if it was in another slot, it stays there.
-            // If it was already in the *same* slot (but incorrect), it just stays there.
-            // If it was previously in an *incorrect* slot and you tried to move it to another *incorrect* slot, it doesn't move.
-            // For simplicity, if it's incorrect, we just don't allow the placement.
-            // If it was already in a slot, it stays there, if not it goes back to choices pool.
-        }
-    }
-    // If not dropped on any image, it just snaps back due to dragSnapToOrigin
-  }, [getDropZoneRects, matchedImageIds, currentRoundQuestions, correctSoundRef, incorrectSoundRef, setScore, setShowResultModal, setIsRunning, setHasWon, setIsGameOver, setTotalRoundsCompleted]);
-
-
-  // handleUndropWord - unchanged, still allows removing INCORRECTLY placed words
-  const handleUndropWord = useCallback((imageId: string) => {
-    setDroppedWordsMap(prevMap => {
-      const newMap = new Map(prevMap);
-      if (newMap.has(imageId) && !matchedImageIds.has(imageId)) { // Only undrop if not a correct match
-        newMap.delete(imageId);
-      }
-      return newMap;
-    });
-  }, [matchedImageIds]);
-
-
-  // NEW: Handle click on a draggable word (for selection)
-  const handleDraggableWordClick = useCallback((wordId: string, wordValue: string) => {
-    // If the word is already correctly matched, do nothing
-    const isWordMatched = currentRoundQuestions.some(q => matchedImageIds.has(q.id.toString()) && q.word === wordValue);
-    if (isWordMatched) {
-      return;
-    }
-
-    const clickedDraggable = availableChoices.find(choice => choice.id === wordId);
-    if (clickedDraggable) {
-      // If the clicked word is already selected, deselect it
-      if (selectedWord?.id === clickedDraggable.id) {
+        const allCorrectWords = spellingBeeQuestions.map(q => q.word);
+        setWordOptions(shuffleArray(allCorrectWords));
+        setUserMatches(new Map());
+        setTimeLeft(600);
+        setIsGameActive(true);
+        setScore(0);
+        setWrongAnswers(0);
+        setFeedbackMessage(null);
+        setFeedbackType(null);
         setSelectedWord(null);
       } else {
-        // Otherwise, select it
-        setSelectedWord(clickedDraggable);
+        // Not enough valid SpellingBee questions to start the game
+        setIsGameActive(false);
+        setShowResultModal(true);
+        setGameEndReason("not_enough_words_available");
       }
+    } else if (!isLoading && data && data.length < NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME && gameQuestions.length === 0) {
+      // Data loaded, but not enough questions to start
+      setIsGameActive(false);
+      setShowResultModal(true);
+      setGameEndReason("not_enough_words_available");
     }
-  }, [selectedWord, availableChoices, matchedImageIds, currentRoundQuestions]);
+  }, [data, setGameQuestions, setTimeLeft, setIsGameActive, setShowResultModal, setGameEndReason, setScore, setWrongAnswers, gameQuestions.length, isLoading]);
 
-  // NEW: Handle click on a drop zone (to place or undrop)
-  const handleDropZoneClick = useCallback((imageId: string) => {
-    const qIdString = imageId; // Already a string
-    const currentDroppedWord = droppedWordsMap.get(qIdString);
-    const isMatched = matchedImageIds.has(qIdString);
 
-    if (isMatched) {
-      // Do nothing if the slot is already correctly matched
-      return;
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    if (isGameActive && timeLeft > 0) {
+      timer = setInterval(() => {
+        if (timeLeft <= 1) {
+          setIsGameActive(false);
+          setGameEndReason("timeout");
+          setShowResultModal(true);
+          setTimeLeft(0);
+        } else {
+          setTimeLeft(timeLeft - 1);
+        }
+      }, 1000);
+    } else if (!isGameActive && timeLeft === 0 && !showResultModal) {
+      // Game already ended by time, and modal not shown, show it.
+      setGameEndReason("timeout");
+      setShowResultModal(true);
     }
 
-    if (selectedWord) {
-      // A word is selected, try to place it
-      const targetQuestion = currentRoundQuestions.find(q => q.id.toString() === qIdString);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isGameActive, timeLeft, setIsGameActive, setGameEndReason, setShowResultModal, setTimeLeft, showResultModal]);
 
-      if (targetQuestion && selectedWord.word.toLocaleLowerCase() === targetQuestion.word.toLocaleLowerCase()) {
-        // Correct match
-        setDroppedWordsMap(prevMap => {
-          const newMap = new Map(prevMap);
 
-          // Remove the selected word if it's currently in another slot (incorrectly placed)
-          for (const [key, value] of newMap.entries()) {
-            if (value === selectedWord.word && !matchedImageIds.has(key)) {
-              newMap.delete(key);
+  const setDropZoneRef = useCallback((questionId: number, node: HTMLDivElement | null) => {
+    if (node) {
+      dropZoneRefs.current.set(questionId, node);
+    } else {
+      dropZoneRefs.current.delete(questionId);
+    }
+  }, []);
+
+  // Helper to calculate correct matches from a given map
+  const getCorrectMatchesCount = useCallback((currentMap: Map<number, string>) => {
+    let count = 0;
+    gameQuestions.forEach(q => {
+      if (isSpellingBeeGameQuestion(q)) {
+        if (currentMap.get(q.id)?.toLocaleLowerCase() === q.word.toLocaleLowerCase()) {
+          count++;
+        }
+      }
+    });
+    return count;
+  }, [gameQuestions]);
+
+
+  const handleMatchAttempt = useCallback((targetQuestionId: number, attemptedWord: string) => {
+    setFeedbackMessage(null);
+    setFeedbackType(null);
+
+    const targetQuestion = questionsMap.current.get(targetQuestionId);
+
+    if (targetQuestion && isSpellingBeeGameQuestion(targetQuestion)) {
+      if (attemptedWord.toLocaleLowerCase() === targetQuestion.word.toLocaleLowerCase()) {
+        let currentCorrectMatches = 0; // Initialize here
+
+        setUserMatches((prev) => {
+          const updatedUserMatchesMap = new Map(prev); // Always create a new map
+
+          // Remove the word from any previous assignments
+          for (const [qId, matchedWord] of updatedUserMatchesMap.entries()) {
+            if (matchedWord === attemptedWord && qId !== targetQuestionId) {
+              updatedUserMatchesMap.delete(qId);
               break;
             }
           }
 
-          // If there's a word already in this slot (it must be incorrect), remove it
-          if (newMap.has(qIdString)) {
-              newMap.delete(qIdString);
+          // Check if this is a new correct assignment for scoring
+          const isNewCorrectAssignment = !prev.has(targetQuestionId) || prev.get(targetQuestionId)?.toLocaleLowerCase() !== attemptedWord.toLocaleLowerCase();
+          if (isNewCorrectAssignment) {
+              setScore(score + 10);
           }
 
-          newMap.set(qIdString, selectedWord.word); // Place the correct word
-          return newMap;
-        });
-        setMatchedImageIds(prevSet => {
-            const newSet = new Set(prevSet);
-            newSet.add(qIdString); // Mark as matched
-            return newSet;
-        });
-        setScore(prevScore => prevScore + 10);
-        correctSoundRef.current?.play().catch(console.error);
-        setFeedbackMessage("Correct!");
-        setTimeout(() => setFeedbackMessage(null), 700);
+          updatedUserMatchesMap.set(targetQuestionId, attemptedWord);
 
-        setSelectedWord(null); // Deselect the word after successful placement
+          // Calculate currentCorrectMatches using the map that will be the new state
+          currentCorrectMatches = getCorrectMatchesCount(updatedUserMatchesMap);
 
-        // Check if all are matched to end the game (since it's only one round)
-        if (matchedImageIds.size + 1 === QUESTIONS_PER_ROUND) { // +1 because state might not be updated yet
-            setTimeout(() => {
-                setFeedbackMessage("All matched! Game Over!");
-                setIsRunning(false);
-                setHasWon(true); // Player won the round
-                setIsGameOver(true);
-                setShowResultModal(true);
-                setTotalRoundsCompleted(1); // Mark one game as completed
-            }, 800);
+          return updatedUserMatchesMap; // Return the new map for state update
+        });
+
+        correctSoundRef.current?.play().catch((err) => console.error("Correct sound error:", err));
+        setFeedbackMessage("Correct Match!");
+        setFeedbackType('success');
+
+        // Now, after setUserMatches has executed its updater function and assigned `currentCorrectMatches`
+        // we can check the value. This will be in the same synchronous flow.
+        if (currentCorrectMatches === NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME) {
+            setIsGameActive(false);
+            setGameEndReason("completed");
+            setShowResultModal(true);
+            setFeedbackMessage("All words matched! Game completed!");
+            setFeedbackType('success');
         }
 
+        return true; // Match was successful
       } else {
-        // Incorrect match
-        setIncorrectAttempts(prev => {
-            const newAttempt = prev + 1;
-            if (newAttempt >= MAX_INCORRECT_ATTEMPTS) {
-                setIsGameOver(true);
-                setIsRunning(false);
-                setHasWon(false); // Game lost due to max attempts
-                setShowResultModal(true);
-            }
-            return newAttempt;
-        });
-        incorrectSoundRef.current?.play().catch(console.error);
-        setFeedbackMessage("Incorrect! Try again.");
-        setTimeout(() => setFeedbackMessage(null), 1000);
-        setSelectedWord(null); // Deselect word after an incorrect attempt
+        setWrongAnswers(wrongAnswers + 1);
+        incorrectSoundRef.current?.play().catch((err) => console.error("Incorrect sound error:", err));
+        setFeedbackMessage("Incorrect. Try again!");
+        setFeedbackType('error');
+        return false; // Match was incorrect
       }
-    } else if (currentDroppedWord && !isMatched) {
-      // No word selected, but there's an INCORRECTLY placed word in this slot, so undrop it
-      handleUndropWord(qIdString);
     }
-  }, [selectedWord, droppedWordsMap, matchedImageIds, handleUndropWord, currentRoundQuestions, correctSoundRef, incorrectSoundRef, setScore, setShowResultModal, setIsRunning, setHasWon, setIsGameOver, setTotalRoundsCompleted]);
+    return false; // Target question not found or not spelling bee type
+  }, [score, wrongAnswers, setScore, setWrongAnswers, getCorrectMatchesCount, setIsGameActive, setGameEndReason, setShowResultModal]);
 
 
-  // handleSubmit - Now primarily for advancing round or game over check
-  const handleSubmit = useCallback(() => {
-    // If all are matched (due to immediate validation), end the game
-    if (matchedImageIds.size === QUESTIONS_PER_ROUND) {
-      correctSoundRef.current?.play().catch(console.error);
-      setFeedbackMessage("All matched! Game Over!");
-      setIsRunning(false);
-      setHasWon(true);
-      setIsGameOver(true);
-      setShowResultModal(true);
-      setTotalRoundsCompleted(1); // Mark one game as completed
-    } else {
-      // If not all matched, and attempts are exhausted, game over
-      setIncorrectAttempts(prev => {
-        const newAttempt = prev + 1; // Submitting when not all are correct also counts as an attempt
-        if (newAttempt >= MAX_INCORRECT_ATTEMPTS) {
-          setIsGameOver(true);
-          setIsRunning(false);
-          setHasWon(false);
-          setShowResultModal(true);
+  const handleWordDragEnd = useCallback(
+    (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo, draggedWord: string) => {
+      setIsDragging(false);
+      setSelectedWord(null); // Clear selected word after drag
+
+
+      for (const [questionId, dropZoneElement] of dropZoneRefs.current.entries()) {
+        if (!dropZoneElement) continue;
+
+        const dropZoneRect = dropZoneElement.getBoundingClientRect();
+        const clientX = info.point.x;
+        const clientY = info.point.y;
+
+        if (
+          clientX >= dropZoneRect.left &&
+          clientX <= dropZoneRect.right &&
+          clientY >= dropZoneRect.top &&
+          clientY <= dropZoneRect.bottom
+        ) {
+          handleMatchAttempt(questionId, draggedWord);
+          break;
         }
-        return newAttempt;
-      });
-      incorrectSoundRef.current?.play().catch(console.error);
-      setFeedbackMessage("Not all words matched correctly. Keep trying!");
-      setTimeout(() => setFeedbackMessage(null), 1500);
-    }
-  }, [matchedImageIds, QUESTIONS_PER_ROUND, correctSoundRef, setShowResultModal, incorrectSoundRef, setTotalRoundsCompleted, setIsRunning, setHasWon, setIsGameOver]);
-
-  // --- Effect Hooks ---
-
-  useEffect(() => {
-    correctSoundRef.current = new Audio("/correct.wav");
-    incorrectSoundRef.current = new Audio("/incorrect.wav");
-  }, []);
-
-  useEffect(() => {
-    // Initialize round only if not game over and questions data is available
-    if (initialQuestionsData && initialQuestionsData.length > 0 && !isGameOver) {
-      initializeRound();
-    }
-  }, [totalRoundsCompleted, initialQuestionsData, isGameOver, initializeRound]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isRunning && !isGameOver) { // Only run timer if not game over
-      interval = setInterval(() => {
-        setTime((prevTime) => prevTime + 1);
-      }, 1000);
-    } else if (!isRunning && interval) {
-      clearInterval(interval);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isRunning, isGameOver]);
-
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === "Enter" && !isGameOver && matchedImageIds.size === QUESTIONS_PER_ROUND) {
-        // Only allow enter to submit if all are matched and game is not over
-        handleSubmit();
       }
-    };
-    window.addEventListener("keydown", handleKeyPress);
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [handleSubmit, isGameOver, matchedImageIds.size]);
+    },
+    [handleMatchAttempt]
+  );
 
-  // Deselect word if escape key is pressed
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+  const handleWordOptionClick = useCallback((word: string) => {
+    if (!isDragging) {
+      if (selectedWord === word) {
         setSelectedWord(null);
-        setFeedbackMessage(null); // Clear any pending feedback
+      } else {
+        setSelectedWord(word);
+        setFeedbackMessage("Word selected: " + word.toUpperCase());
+        setFeedbackType(null);
       }
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, []);
+    }
+  }, [selectedWord, isDragging]);
 
 
-  // --- Conditional Rendering for Loading and No Questions ---
-  if (isLoading) {
-    return <Loading />;
-  }
+  const handleDropZoneClick = useCallback((questionId: number) => {
+    if (selectedWord && !userMatches.has(questionId)) {
+      handleMatchAttempt(questionId, selectedWord);
+      setSelectedWord(null);
+    } else if (userMatches.has(questionId)) {
+        if (selectedWord === userMatches.get(questionId)) {
+            let currentCorrectMatches = 0; // Initialize here
 
-  if (!initialQuestionsData || initialQuestionsData.length === 0) {
-    // If no questions, ensure game over and show result modal
-    useEffect(() => {
-      if (!isGameOver) { // Only set once
-        setIsGameOver(true);
-        setHasWon(false);
-        setShowResultModal(true);
-      }
-    }, [isGameOver, setShowResultModal]);
+            setUserMatches(prev => {
+                const updatedUserMatchesMap = new Map(prev);
+                updatedUserMatchesMap.delete(questionId);
 
-    return (
-      <div className="flex min-h-screen items-center justify-center text-2xl text-white">
-        No questions available for this difficulty/topic!
-        {/*
-          No props are needed here because ResultModal pulls everything from the store.
-          The 'showResultModal' state from the store will control its visibility.
-        */}
-        {showResultModal && <ResultModal />}
-      </div>
-    );
-  }
+                // Calculate currentCorrectMatches using the map that will be the new state
+                currentCorrectMatches = getCorrectMatchesCount(updatedUserMatchesMap);
 
-  // --- Helper for time formatting ---
+                return updatedUserMatchesMap;
+            });
+            setFeedbackMessage("Word un-assigned.");
+            setFeedbackType(null);
+
+            // Check game completion after un-assigning
+            if (currentCorrectMatches === NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME) {
+                setIsGameActive(false);
+                setGameEndReason("completed");
+                setShowResultModal(true);
+                setFeedbackMessage("All words matched! Game completed!");
+                setFeedbackType('success');
+            }
+
+        } else if (selectedWord === null) {
+            setFeedbackMessage("This spot is taken. Select a word to move it, or select this word to un-assign.");
+            setFeedbackType('error');
+        } else {
+            setFeedbackMessage("This spot is taken. Un-assign the current word first, or try another spot.");
+            setFeedbackType('error');
+        }
+        setSelectedWord(null);
+    } else {
+        setFeedbackMessage("Select a word first!");
+        setFeedbackType('error');
+    }
+  }, [selectedWord, handleMatchAttempt, userMatches, getCorrectMatchesCount, setIsGameActive, setGameEndReason, setShowResultModal]);
+
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
       .toString()
@@ -494,9 +303,39 @@ export const GameScreen: React.FC = () => {
     return `${minutes}:${secs}`;
   };
 
+  const calculateCorrectMatchesCount = useMemo(() => {
+      return getCorrectMatchesCount(userMatches);
+  }, [userMatches, getCorrectMatchesCount]);
+  useEffect(() => {
+    // This effect will run whenever calculateCorrectMatchesCount changes
+    // which in turn depends on userMatches and gameQuestions
+    if (calculateCorrectMatchesCount === NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME && isGameActive) {
+      setIsGameActive(false);
+      setGameEndReason("completed");
+      setShowResultModal(true);
+      setFeedbackMessage("All words matched! Game completed!");
+      setFeedbackType('success');
+    }
+  }, [calculateCorrectMatchesCount, isGameActive, setIsGameActive, setGameEndReason, setShowResultModal, setFeedbackMessage, setFeedbackType]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (gameQuestions.length === 0 && !isLoading) {
+      return (
+          <div className="flex flex-col items-center justify-center min-h-screen text-2xl text-white">
+              <p>Not enough relevant game questions available for a matching round. Please try a different selection or wait for more content.</p>
+              {data && data.length > 0 && (
+                  <p className="text-lg mt-2">Fetched {data.length} questions, but not enough of type  `Match up`.</p>
+              )}
+          </div>
+      );
+  }
+
   return (
     <div
-      className="flex flex-col items-center w-full min-h-screen relative"
+      className="flex flex-col items-center w-full min-h-screen relative overflow-hidden"
       style={{
         backgroundImage: "url('/animation/anagram-bg.jpg')",
         backgroundPosition: "center",
@@ -505,224 +344,155 @@ export const GameScreen: React.FC = () => {
         backgroundAttachment: "fixed",
       }}
     >
-      <div className="absolute inset-0 bg-black opacity-5 z-0"></div>
-
-      <div className="relative z-10 flex flex-col items-center w-full flex-grow overflow-x-hidden">
-          <>
-            <div
-              className="flex flex-col items-center flex-grow mx-auto w-fit
-                           min-w-[380px] md:min-w-[700px] lg:min-w-[900px] max-w-full
-                           px-4 py-4 md:px-6 md:py-6 lg:px-8 lg:py-8
-                           md:flex-row justify-center gap-4 md:gap-6 lg:gap-8
-                           mt-8 mb-8 p-4 md:p-6 rounded-xl shadow-2xl relative "
-              style={{
-                backgroundImage: "url('/animation/anagram-bg2.jpg')",
-                backgroundPosition: "center",
-                backgroundSize: "cover",
-                backgroundRepeat: "no-repeat",
-                backgroundAttachment: "local",
-              }}
-            >
-              <div className="absolute inset-0 bg-white opacity-10 rounded-xl z-10"></div>
-
-              {/* Scoreboard and Timer Section */}
-              <div className="relative z-20 flex flex-col items-center gap-3 order-first md:order-last flex-shrink">
-                <div
-                  className="relative w-full max-w-[250px] sm:max-w-[300px] lg:max-w-[350px] aspect-video mb-3 rounded-lg overflow-hidden"
-                  style={{
-                    backgroundImage: "url('/animation/timer-background.png')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat"
-                  }}
-                >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-3xl sm:text-4xl lg:text-5xl font-bold font-mono text-white text-game-display">
-                      {formatTime(time)}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold font-mono text-yellow-400 text-game-display mb-1">
-                  Score
-                </div>
-                <div
-                  className="relative w-full max-w-[250px] sm:max-w-[300px] lg:max-w-[350px] aspect-video mb-3 rounded-lg overflow-hidden"
-                  style={{
-                    backgroundImage: "url('/animation/score-board.png')",
-                    backgroundSize: "contain",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat"
-                  }}
-                >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-3xl sm:text-4xl lg:text-5xl font-bold font-mono text-white text-game-display">
-                      {score}
-                    </div>
-                  </div>
-                </div>
-
-                {(() => {
-                  const attemptsLeft = MAX_INCORRECT_ATTEMPTS - incorrectAttempts;
-                  let containerClasses = "flex items-center justify-center px-3 py-2 sm:px-4 sm:py-2 rounded-xl font-bold transition-colors duration-300 transform scale-100";
-                  const textClasses = "text-sm sm:text-base md:text-lg";
-                  let icon = null;
-                  const iconClasses = "mr-1 h-4 w-4 sm:h-5 sm:w-5";
-
-                  if (attemptsLeft <= 0) {
-                    containerClasses += " bg-gray-200 border-gray-400 text-gray-600 border-2";
-                    icon = <Lightbulb className={`${iconClasses} text-gray-500`} />;
-                  } else if (attemptsLeft <= 2) {
-                    containerClasses += " bg-red-100 border-red-400 text-red-700 border-2";
-                    icon = <AlertTriangle className={`${iconClasses} text-red-600`} />;
-                    if (attemptsLeft === 1) {
-                      containerClasses += " animate-pulse-fast";
-                    }
-                  } else {
-                    containerClasses += " bg-green-50 border-green-200 text-green-600 border-2";
-                    icon = <Lightbulb className={`${iconClasses} text-green-500`} />;
-                  }
-
-                  return (
-                    <motion.div
-                      key={attemptsLeft}
-                      initial={{ opacity: 0, y: -20, scale: 0.8 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      className={`${containerClasses} ${textClasses}`}
-                    >
-                      {icon}
-                      <span>You have {attemptsLeft} attempts left</span>
-                    </motion.div>
-                  );
-                })()}
-              </div>
-
-              {/* Main Game Content Area */}
-              <div className="relative z-20 flex flex-col items-center flex-grow gap-4 lg:gap-6
-                               bg-white/20 p-4 rounded-lg shadow-xl border border-yellow-400
-                               w-full max-w-5xl md:max-w-4xl">
-
-                {/* Image Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr w-full">
-                  {currentRoundQuestions.map((q) => {
-                    const qIdString = q.id.toString();
-                    const isImageMatched = matchedImageIds.has(qIdString);
-                    // The word in the slot is either the correct one (if matched) or the one from droppedWordsMap (if incorrectly placed)
-                    const currentDisplayedWord = isImageMatched ? q.word : (droppedWordsMap.get(qIdString) || null);
-
-                    return (
-                      <motion.div
-                        key={q.id}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className={`flex flex-col items-center justify-between p-2 rounded-lg bg-white/70 shadow-md
-                                     ${isImageMatched ? 'border-4 border-green-500' : 'border border-gray-300'}
-                                     ${isImageMatched ? 'pointer-events-none' : ''}`}
-                      >
-                        {/* Image */}
-                        <div className="mb-2 p-1 border border-gray-200 rounded-md bg-white flex-shrink-0 w-full">
-                          <Image
-                            src={typeof q.imageSrc === 'string' ? q.imageSrc : ''}
-                            alt={q.word}
-                            width={150}
-                            height={112}
-                            className="object-contain w-full h-auto max-h-[100px] md:max-h-[120px]"
-                          />
-                        </div>
-
-                        {/* Blank Space / Drop Zone */}
-                        <div
-                          id={`drop-zone-${qIdString}`}
-                          ref={(el) => (dropTargetRefs.current[qIdString] = el)}
-                          className={`
-                            w-full h-12 flex items-center justify-center
-                            border-2 rounded-lg mb-2
-                            ${isImageMatched ? 'border-green-500 bg-green-100 text-green-700' :
-                             selectedWord && !currentDisplayedWord ? 'border-yellow-400 bg-yellow-50 animate-pulse' : /* Highlight empty droptarget if word is selected */
-                             currentDisplayedWord ? 'border-blue-400 bg-blue-50' : 'border-dashed border-gray-400 bg-gray-50'}
-                            text-gray-800 text-sm sm:text-base md:text-lg font-bold uppercase
-                            transition-colors duration-300 select-none
-                            ${isImageMatched ? 'cursor-not-allowed' : 'cursor-pointer'}
-                          `}
-                          onClick={() => handleDropZoneClick(qIdString)}
-                        >
-                          {currentDisplayedWord || "Tap or drag word here"}
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-
-                {/* Draggable Word Choices */}
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 260,
-                      damping: 20,
-                    }}
-                    className="w-full flex justify-center gap-2 sm:gap-3 p-3 rounded-md min-w-0 flex-wrap "
-                  >
-                    {availableChoices.map((draggableChoice) => {
-                      // A word is 'matched' if it's correctly placed and locked
-                      const isWordMatchedAndLocked = currentRoundQuestions.some(q => matchedImageIds.has(q.id.toString()) && q.word === draggableChoice.word);
-
-                      const isSelected = selectedWord?.id === draggableChoice.id;
-
-                      // Only hide words if they are matched and locked
-                      const shouldHideWord = isWordMatchedAndLocked;
-
-                      return (
-                        <DraggableWord
-                          key={draggableChoice.id}
-                          word={draggableChoice.word}
-                          id={draggableChoice.id}
-                          onDragEnd={handleDragEnd}
-                          onClick={handleDraggableWordClick}
-                          isDropped={shouldHideWord} // Hide only if correctly placed
-                          isDisabled={isWordMatchedAndLocked} // Disable dragging if matched
-                          isSelected={isSelected}
-                        />
-                      );
-                    })}
-                  </motion.div>
-                </AnimatePresence>
-
-                {/* Submit and Reset Buttons */}
-              </div>
+      <Header
+        currentWordIndex={calculateCorrectMatchesCount}
+        totalWords={NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME}
+      />
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 p-4 sm:p-6 lg:p-8 w-full">
+        {/* Header (Score, Time) */}
+        <div className="flex flex-col items-center justify-between gap-2 sm:mb-2 sm:flex-row sm:gap-4">
+          <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:gap-4">
+            <div className="rounded-xl bg-white/80 px-3 py-2 text-lg font-bold text-blue-600 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl sm:px-4 sm:text-xl">
+              Score: {score}
             </div>
+            <div className="rounded-xl bg-white/80 px-3 py-2 text-lg font-bold text-green-600 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl sm:px-4 sm:text-xl">
+              Matched: {calculateCorrectMatchesCount} / {NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME}
+            </div>
+            <div className="rounded-xl bg-white/80 px-3 py-2 text-lg font-bold text-red-600 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl sm:px-4 sm:text-xl">
+              Wrong Attempts: {wrongAnswers}
+            </div>
+          </div>
+          <div className="rounded-xl bg-white/80 px-3 py-2 text-lg font-bold text-green-600 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl sm:px-4 sm:text-xl">
+            Time: {formatTime(timeLeft)}
+          </div>
+        </div>
 
-            {/* Feedback Messages */}
-            {feedbackMessage && (
-              <AnimatePresence>
-                <motion.div
-                  key={feedbackMessage}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.3 }}
-                  className={`mt-3 text-lg sm:text-xl font-bold ${
-                    feedbackMessage.includes("Correct") || feedbackMessage.includes("All matched") ? "text-green-500" : "text-red-500"
-                  }`}
-                  aria-live="polite"
+        {/* Feedback Message Display */}
+        {feedbackMessage && (
+            <motion.div
+              key={feedbackMessage}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className={`mt-3 text-center text-lg sm:text-xl font-bold ${
+                  feedbackType === 'success' ? "text-green-600" : feedbackType === 'error' ? "text-red-600" : "text-blue-600" // Blue for info
+              } bg-white/50 p-2 rounded-lg shadow-md`}
+              aria-live="polite"
+            >
+              {feedbackMessage}
+            </motion.div>
+        )}
+
+        {/* Main Game Area: Pictures with Drop Zones */}
+        <div className="flex flex-wrap justify-center gap-4 py-4 w-full max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar">
+          <AnimatePresence>
+            {gameQuestions.map((question) => (
+              <motion.div
+                key={question.id}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3 }}
+                className={`relative flex flex-col items-center p-3 sm:p-4 rounded-3xl shadow-lg transition-all duration-300 transform
+                  ${isDragging ? 'scale-105 shadow-xl' : ''}
+                  ${userMatches.has(question.id) && userMatches.get(question.id) === (isSpellingBeeGameQuestion(question) ? question.word : null)
+                      ? 'bg-green-100/70 border-green-400' // Correctly matched
+                      : userMatches.has(question.id)
+                        ? 'bg-red-100/70 border-red-400' // Assigned (potentially incorrect if it gets here)
+                        : 'bg-white/80 border-blue-200' // Default
+                  }
+                  border-2 w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] lg:w-[calc(25%-1rem)] xl:w-[calc(20%-1rem)] max-w-[200px] aspect-square
+                `}
+              >
+                {/* Image */}
+                <div className="mb-2 w-full flex justify-center">
+                  {question.imageSrc ? (
+                    <Image
+                      src={
+                        typeof question.imageSrc === "string"
+                          ? question.imageSrc
+                          : URL.createObjectURL(question.imageSrc)
+                      }
+                      alt={isSpellingBeeGameQuestion(question) ? question.word : "Question Image"}
+                      width={100}
+                      height={100}
+                      className="object-contain h-24 w-24 sm:h-28 sm:w-28 rounded-lg shadow-sm"
+                    />
+                  ) : (
+                    <LucideImageOff className="h-20 w-20 sm:h-24 sm:w-24 text-gray-400" />
+                  )}
+                </div>
+                {/* Drop Zone */}
+                <div
+                  ref={(node) => setDropZoneRef(question.id, node)}
+                  onClick={() => handleDropZoneClick(question.id)}
+                  className={`mt-auto flex items-center justify-center min-h-[40px] sm:min-h-[50px] w-full rounded-md border-2 border-dashed
+                  ${userMatches.has(question.id)
+                      ? 'border-green-400 bg-green-100/20' // Assigned, show green border (if userMatches.get(q.id) is correct word, it's green)
+                      : selectedWord && !isDragging
+                          ? 'border-purple-500 bg-purple-100/30 cursor-pointer' // Highlight if word selected
+                          : 'border-gray-300 bg-gray-100/20 cursor-pointer' // Default empty zone
+                  }
+                  p-1 text-center text-sm sm:text-base font-semibold text-gray-700 transition-colors duration-150`}
                 >
-                  {feedbackMessage}
-                </motion.div>
-              </AnimatePresence>
-            )}
-          </>
-      </div>
+                  {userMatches.get(question.id) ? (
+                    <motion.div
+                      key={userMatches.get(question.id)}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-blue-700 font-bold bg-blue-100 rounded-md px-2 py-1 truncate max-w-full"
+                    >
+                      {userMatches.get(question.id)?.toUpperCase()}
+                    </motion.div>
+                  ) : (
+                    <span className="text-gray-500/70">
+                        {selectedWord ? "Click to assign " + selectedWord.toUpperCase() : "Drop or click here"}
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
 
-      {/* Result Modal */}
-      {showResultModal && (
-        <ResultModal
-        />
-      )}
+        {/* Draggable Word Options */}
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-4 py-4 bg-white/20 rounded-xl backdrop-blur-sm shadow-xl border border-white/30">
+          <AnimatePresence>
+            {wordOptions.map((word) => (
+              // Only render if the word is not already matched to any picture
+              !Array.from(userMatches.values()).includes(word) && (
+                <motion.div
+                  key={word}
+                  drag
+                  onDragStart={() => setIsDragging(true)}
+                  onDragEnd={(e, info) => handleWordDragEnd(e, info, word)}
+                  dragSnapToOrigin
+                  onClick={() => handleWordOptionClick(word)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95, cursor: "grabbing" }}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className={`flex items-center justify-center h-14 sm:h-16 px-4 sm:px-6 rounded-full border-2
+                  ${selectedWord === word ? 'border-amber-500 bg-amber-600 ring-4 ring-amber-300' : 'border-purple-400 bg-purple-600'}
+                  text-white text-base sm:text-lg font-bold shadow-md cursor-pointer flex-shrink-0
+                  ${isDragging ? 'z-50' : ''}
+                  `}
+                >
+                  {word.toUpperCase()}
+                </motion.div>
+              )
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* ResultModal component - UNCOMMENTED */}
+        <ResultModal />
+      </div>
     </div>
   );
 };
