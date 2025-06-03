@@ -10,7 +10,6 @@ import {
   addPointToquest,
   resetDailyQuest,
 } from "@/app/services/admin/quests-service";
-import api from "@/app/services/api";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";

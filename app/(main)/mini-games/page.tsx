@@ -79,7 +79,7 @@ const MiniGamePage = () => {
       return;
     }
 
-    create.mutateAsync({
+    void create.mutateAsync({
       ...data,
       tickets: data.tickets - game.requiredTickets,
     });
