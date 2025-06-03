@@ -2,7 +2,7 @@
 "use client";
 import { updateUserPoints } from "@/app/services/user-progress";
 import { useAddPointToQuest } from "@/hooks/use-quest-hook";
-import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
+import { useAnagramStore } from "@/store/use-game-anagram";
 import { useAuth } from "@clerk/nextjs";
 import React, { useEffect } from "react";
 
@@ -15,7 +15,7 @@ export const ResultModal: React.FC = () => {
     setShowResultModal,
     setCurrentScreen,
     resetGame,
-  } = useSpellingBeeStore();
+  } = useAnagramStore();
 
   const addPoint = useAddPointToQuest();
 
@@ -35,7 +35,7 @@ export const ResultModal: React.FC = () => {
     };
 
     void updatePoints();
-  }, [showResultModal]);
+  }, [showResultModal, addPoint, getToken, score, userId]);
 
   if (!showResultModal) return null;
 

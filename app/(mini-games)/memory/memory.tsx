@@ -46,13 +46,13 @@ export const MemoryGameScreen: React.FC = () => {
     isGameActive,
     selectedDifficulty,
     selectedTopic,
-    memoryType, // New: Memory game type
+    memoryType,
     showResultModal,
-    cards, // New: All cards for the game
-    flippedCards, // New: Currently flipped cards
-    matchedPairs, // New: Count of matched pairs
-    moves, // New: Count of moves
-    wrongAttempts, // Updated: Renamed from wrongAnswers
+    cards,
+    flippedCards,
+    matchedPairs,
+    moves,
+    wrongAttempts,
     setCards,
     setFlippedCards,
     setMatchedPairs,
@@ -63,10 +63,10 @@ export const MemoryGameScreen: React.FC = () => {
     setShowResultModal,
     setScore,
     setWrongAttempts,
-    setShowFeedback, // To display feedback messages
-    setTotalQuestions, // To set total pairs
-    totalQuestions, // Total pairs
-    setCurrentScreen, // To navigate back to results or other screens on game end
+    setShowFeedback,
+    setTotalQuestions,
+    totalQuestions,
+    setCurrentScreen,
   } = useMemoryStore();
 
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
