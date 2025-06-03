@@ -55,7 +55,7 @@ export const GameScreen: React.FC = () => {
     GameTypeEnum.ANAGRAM,
     selectedDifficulty,
     selectedTopic?.id ?? 0,
-    5 // Fetch a reasonable number of questions for a round, e.g., 5
+    5
   );
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -148,16 +148,6 @@ export const GameScreen: React.FC = () => {
       incorrectSoundRef.current = new Audio("/incorrect.wav");
     }
 
-    // Handle current question audio specifically
-    if (
-      currentQuestion?.audioSrc &&
-      typeof currentQuestion.audioSrc === "string"
-    ) {
-      const audio = new Audio(currentQuestion.audioSrc);
-      audioRef.current = audio;
-    } else {
-        audioRef.current = null; // Clear audio if no src
-    }
 
     return () => {
       // Clean up audio objects if component unmounts or audioSrc changes
@@ -166,7 +156,7 @@ export const GameScreen: React.FC = () => {
         audioRef.current.src = "";
       }
     };
-  }, [currentQuestion?.audioSrc]); // Re-run if audio source changes
+  }, []); // Re-run if audio source changes
 
   const playAudio = () => {
     audioRef.current?.play().catch((err) => console.error(err));
@@ -272,7 +262,7 @@ export const GameScreen: React.FC = () => {
       }}
     >
       <Header
-        currentWordIndex={gameQuestions.length-currentQuestion.id+1}
+        currentWordIndex={currentQuestionIndex}
         totalWords={gameQuestions.length}
       />
       {/* Increased max-w-4xl to max-w-6xl for a bigger game area */}
@@ -338,15 +328,6 @@ export const GameScreen: React.FC = () => {
                 />
               )}
             </div>
-            {currentQuestion.audioSrc && ( // Only show audio button if audioSrc exists
-              <button
-                onClick={playAudio}
-                className="rounded-full border-2 border-gray-300 bg-white/90 p-2 transition-all duration-300 hover:scale-110 hover:bg-gray-50 hover:shadow-lg sm:p-3"
-              >
-                <Volume2 size={20} className="sm:h-6 sm:w-6" />
-                <audio ref={audioRef} /> {/* Audio element for current question */}
-              </button>
-            )}
           </div>
 
           {/* Answer Display using Reorder.Group for drag and drop */}
@@ -411,7 +392,7 @@ export const GameScreen: React.FC = () => {
                 className="text-lg sm:text-xl px-6 py-2 sm:px-8 sm:py-3"
                 disabled={!isGameActive || showFeedback !== ''} // Disable if game not active or feedback is showing
               >
-                Submit Anagram
+                Submit
               </Button>
             </motion.div>
 

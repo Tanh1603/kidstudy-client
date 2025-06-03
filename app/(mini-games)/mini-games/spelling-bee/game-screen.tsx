@@ -10,6 +10,7 @@ import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-ho
 import { GameTypeEnum, SpellingBeeGameQuestion } from "@/app/models/Game";
 import Loading from "@/components/loading";
 import Image from "next/image";
+import { Header } from "@/components/ui/header-game";
 
 export const GameScreen: React.FC = () => {
   const {
@@ -168,6 +169,10 @@ export const GameScreen: React.FC = () => {
           backgroundAttachment: "fixed",
       }}
     >
+      <Header
+        currentWordIndex={gameQuestions.length-currentQuestion.id+1}
+        totalWords={gameQuestions.length}
+      />
       <div className="mx-auto flex max-w-4xl flex-col gap-4">
         {/* Header */}
         <div className="flex flex-col items-center justify-between gap-2 sm:mb-2 sm:flex-row sm:gap-4">
