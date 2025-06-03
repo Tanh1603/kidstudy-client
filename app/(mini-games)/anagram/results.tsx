@@ -1,7 +1,7 @@
 /* eslint-disable import/order */
 "use client";
 import { updateUserPoints } from "@/app/services/user-progress";
-import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
+import { useAnagramStore } from "@/store/use-game-anagram";
 import { useAuth } from "@clerk/nextjs";
 import React, { useEffect } from "react";
 
@@ -14,7 +14,7 @@ export const ResultModal: React.FC = () => {
     setShowResultModal,
     setCurrentScreen,
     resetGame,
-  } = useSpellingBeeStore();
+  } = useAnagramStore();
 
   const { getToken, userId } = useAuth();
 

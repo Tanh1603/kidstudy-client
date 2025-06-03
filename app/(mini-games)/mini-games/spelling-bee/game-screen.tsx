@@ -214,7 +214,7 @@ export const GameScreen: React.FC = () => {
                   alt={currentQuestion.word}
                   width={80}
                   height={80}
-                  className={`h-30 w-30 transform transition-all duration-500 hover:scale-110 sm:h-40 sm:w-40 md:h-50 md:w-32 ${
+                  className={`h-30 w-30 transform transition-all duration-500 hover:scale-110 sm:h-40 sm:w-40 md:h-32 md:w-32 ${
                     isTransitioning
                       ? "rotate-180 scale-0"
                       : "rotate-0 scale-100"

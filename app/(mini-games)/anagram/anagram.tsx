@@ -4,10 +4,10 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import { LucideImageOff, Volume2 } from "lucide-react";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { shuffleArray } from "@/lib/utils";
-import { useSpellingBeeStore } from "@/store/use-game-spellingbee"; // Your Zustand store
+import { useAnagramStore } from "@/store/use-game-anagram"; // Your Zustand store
 import { ResultModal } from "./results"; // Re-using ResultModal
 import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
-import { GameTypeEnum, SpellingBeeGameQuestion } from "@/app/models/Game";
+import { GameTypeEnum, AnagramGameQuestion } from "@/app/models/Game";
 import Loading from "@/components/loading";
 import Image from "next/image";
 import { Button } from "@/components/ui/button"; // Assuming you have a Button component
@@ -46,7 +46,7 @@ export const GameScreen: React.FC = () => {
     totalQuestions,
     gameQuestions, // Assuming this is also managed by the store now
     setGameQuestions,
-  } = useSpellingBeeStore();
+  } = useAnagramStore();
 
   const correctAnswers = Math.floor(score / 10); // Calculate correct answers from score
 
@@ -72,7 +72,7 @@ export const GameScreen: React.FC = () => {
   useEffect(() => {
     if (data && data.length > 0 && gameQuestions.length === 0) {
       // Data arrived and store is empty, so initialize game
-      setGameQuestions(data as SpellingBeeGameQuestion[]);
+      setGameQuestions(data as AnagramGameQuestion[]);
       setTotalQuestions(data.length);
       setTimeLeft(600); // Set initial timer (e.g., 10 minutes)
       setIsGameActive(true);

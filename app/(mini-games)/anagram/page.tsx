@@ -1,13 +1,13 @@
 /* eslint-disable import/order */
 "use client";
-import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
+import { useAnagramStore } from "@/store/use-game-anagram";
 import React from "react";
-import { DifficultyScreen } from "../difficulty-screen";
-import { TopicsScreen } from "../topic-screen";
+import { DifficultyScreen } from "./difficulty-screen";
+import { TopicsScreen } from "./topic-screen";
 import { GameScreen } from "./anagram";
 
-const SpellingBeeGame: React.FC = () => {
-  const { currentScreen } = useSpellingBeeStore();
+const AnagramGame: React.FC = () => {
+  const { currentScreen } = useAnagramStore();
 
   switch (currentScreen) {
     case "difficulty":
@@ -21,4 +21,4 @@ const SpellingBeeGame: React.FC = () => {
   }
 };
 
-export default SpellingBeeGame;
+export default AnagramGame;

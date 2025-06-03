@@ -1,7 +1,7 @@
 /* eslint-disable import/order */
 "use client";
 import { updateUserPoints } from "@/app/services/user-progress";
-import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
+import { useMatchUpStore } from "@/store/use-game-matchup";
 import { useAuth } from "@clerk/nextjs";
 import React, { useEffect } from "react";
 
@@ -13,8 +13,8 @@ export const ResultModal: React.FC = () => {
     wrongAnswers,
     setShowResultModal,
     setCurrentScreen,
-    resetGame, // Make sure resetGame is available from your store
-  } = useSpellingBeeStore();
+    resetGame,
+  } = useMatchUpStore();
 
   const { getToken, userId } = useAuth();
 
@@ -30,31 +30,17 @@ export const ResultModal: React.FC = () => {
       }
     };
 
-    // Only attempt to update points if the modal is shown, user is logged in,
-    // and ideally, points haven't been updated for this game session yet
-    // (though the current useEffect dependency array handles basic re-renders).
-    // You might want a more explicit flag if score can change after modal shows.
-    if (showResultModal && userId) {
-      void updatePoints();
-    }
+    void updatePoints();
   }, [getToken, score, showResultModal, userId]);
 
   if (!showResultModal) return null;
 
   const isTimeOut = gameEndReason === "timeout";
 
-  // This function will handle navigating back to topic selection
-  const handleChooseNewTopic = () => {
-    setShowResultModal(false); // Close the modal
-    resetGame(); // Reset game state in the store
-    setCurrentScreen("topics"); // Navigate to the topics screen
-  };
-
-  // This function will handle navigating back to the main menu
-  const handleGoToMainMenu = () => {
-    setShowResultModal(false); // Close the modal
-    resetGame(); // Reset game state in the store
-    // Assuming 'home' or 'main-menu' is a valid screen for setCurrentScreen
+  const closeModal = () => {
+    setShowResultModal(false);
+    resetGame();
+    setCurrentScreen("topics");
   };
 
   return (
@@ -107,13 +93,13 @@ export const ResultModal: React.FC = () => {
 
           <div className="flex flex-col justify-center gap-2 sm:flex-row sm:gap-3">
             <button
-              onClick={handleChooseNewTopic}
+              onClick={closeModal}
               className="w-full transform rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 sm:w-auto sm:px-6 sm:py-3 sm:text-base"
             >
               Choose New Topic
             </button>
             <button
-              onClick={handleGoToMainMenu} // Use the new handler
+              onClick={resetGame}
               className="w-full transform rounded-xl bg-gradient-to-r from-gray-500 to-gray-600 px-4 py-2 text-sm font-bold text-white shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 sm:w-auto sm:px-6 sm:py-3 sm:text-base"
             >
               Main Menu

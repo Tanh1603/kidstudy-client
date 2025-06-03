@@ -1,15 +1,15 @@
 /* eslint-disable import/order */
 "use client";
-import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
+import { useAnagramStore } from "@/store/use-game-anagram";
 import React from "react";
-import TopicDTO from "../models/TopicDTO";
+import TopicDTO from "../../models/TopicDTO";
 import Image from "next/image";
 import { useGetTopicUser } from "@/hooks/use-topic-hook";
 import Loading from "@/components/loading";
 
 export const TopicsScreen: React.FC = () => {
   const { setCurrentScreen, setSelectedTopic, setIsGameActive } =
-    useSpellingBeeStore();
+    useAnagramStore();
 
   const { data: topics, isLoading } = useGetTopicUser();
 
