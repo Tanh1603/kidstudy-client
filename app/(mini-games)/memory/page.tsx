@@ -4,7 +4,7 @@ import { useMemoryStore } from "@/store/use-game-memory";
 import React from "react";
 import { DifficultyScreen } from "./difficulty-screen";
 import { TopicsScreen } from "./topic-screen";
-import { MemoryGameScreen } from "./memory";
+import MemoryGameScreen from "./memory";
 
 const SpellingBeeGame: React.FC = () => {
   const { currentScreen } = useMemoryStore();

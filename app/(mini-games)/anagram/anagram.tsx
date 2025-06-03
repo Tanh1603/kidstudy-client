@@ -1,19 +1,21 @@
-/* eslint-disable import/order */
 "use client";
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { LucideImageOff, Volume2 } from "lucide-react";
+
 import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { shuffleArray } from "@/lib/utils";
-import { useSpellingBeeStore } from "@/store/use-game-spellingbee"; // Your Zustand store
-import { ResultModal } from "./results"; // Re-using ResultModal
-import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
-import { GameTypeEnum, SpellingBeeGameQuestion } from "@/app/models/Game";
-import Loading from "@/components/loading";
+import { LucideImageOff} from "lucide-react";
 import Image from "next/image";
+
+import { ResultModal } from "./results"; // Re-using ResultModal
+
+import * as Game from "@/app/models/Game";
+import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button"; // Assuming you have a Button component
 import { Header } from "@/components/ui/header-game";
+import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
+import { shuffleArray } from "@/lib/utils";
+import { useAnagramStore } from "@/store/use-game-anagram"; // Your Zustand store
 
-// Define the structure for individual draggable letters
+
 interface DraggableLetter {
   letter: string;
   originalIndex: number; // For internal tracking if needed
@@ -46,19 +48,18 @@ export const GameScreen: React.FC = () => {
     totalQuestions,
     gameQuestions, // Assuming this is also managed by the store now
     setGameQuestions,
-  } = useSpellingBeeStore();
+  } = useAnagramStore();
 
   const correctAnswers = Math.floor(score / 10); // Calculate correct answers from score
 
   // Fetch questions using your hook
   const { data, isLoading } = useGetRandomGameQuestionByGameType(
-    GameTypeEnum.ANAGRAM,
+    Game.GameTypeEnum.ANAGRAM,
     selectedDifficulty,
     selectedTopic?.id ?? 0,
-    5 // Fetch a reasonable number of questions for a round, e.g., 5
+    5
   );
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const correctSoundRef = useRef<HTMLAudioElement | null>(null);
   const incorrectSoundRef = useRef<HTMLAudioElement | null>(null);
   const currentQuestion =
@@ -72,7 +73,7 @@ export const GameScreen: React.FC = () => {
   useEffect(() => {
     if (data && data.length > 0 && gameQuestions.length === 0) {
       // Data arrived and store is empty, so initialize game
-      setGameQuestions(data as SpellingBeeGameQuestion[]);
+      setGameQuestions(data as Game.AnagramGameQuestion[]);
       setTotalQuestions(data.length);
       setTimeLeft(600); // Set initial timer (e.g., 10 minutes)
       setIsGameActive(true);
@@ -148,29 +149,9 @@ export const GameScreen: React.FC = () => {
       incorrectSoundRef.current = new Audio("/incorrect.wav");
     }
 
-    // Handle current question audio specifically
-    if (
-      currentQuestion?.audioSrc &&
-      typeof currentQuestion.audioSrc === "string"
-    ) {
-      const audio = new Audio(currentQuestion.audioSrc);
-      audioRef.current = audio;
-    } else {
-        audioRef.current = null; // Clear audio if no src
-    }
 
-    return () => {
-      // Clean up audio objects if component unmounts or audioSrc changes
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = "";
-      }
-    };
-  }, [currentQuestion?.audioSrc]); // Re-run if audio source changes
+  }, []); // Re-run if audio source changes
 
-  const playAudio = () => {
-    audioRef.current?.play().catch((err) => console.error(err));
-  };
   // --- Handle Answer Submission ---
   const handleSubmit = useCallback(() => {
     if (showFeedback || !isGameActive || !currentQuestion) return;
@@ -272,7 +253,7 @@ export const GameScreen: React.FC = () => {
       }}
     >
       <Header
-        currentWordIndex={gameQuestions.length-currentQuestion.id+1}
+        currentWordIndex={currentQuestionIndex}
         totalWords={gameQuestions.length}
       />
       {/* Increased max-w-4xl to max-w-6xl for a bigger game area */}
@@ -338,15 +319,6 @@ export const GameScreen: React.FC = () => {
                 />
               )}
             </div>
-            {currentQuestion.audioSrc && ( // Only show audio button if audioSrc exists
-              <button
-                onClick={playAudio}
-                className="rounded-full border-2 border-gray-300 bg-white/90 p-2 transition-all duration-300 hover:scale-110 hover:bg-gray-50 hover:shadow-lg sm:p-3"
-              >
-                <Volume2 size={20} className="sm:h-6 sm:w-6" />
-                <audio ref={audioRef} /> {/* Audio element for current question */}
-              </button>
-            )}
           </div>
 
           {/* Answer Display using Reorder.Group for drag and drop */}
@@ -411,7 +383,7 @@ export const GameScreen: React.FC = () => {
                 className="text-lg sm:text-xl px-6 py-2 sm:px-8 sm:py-3"
                 disabled={!isGameActive || showFeedback !== ''} // Disable if game not active or feedback is showing
               >
-                Submit Anagram
+                Submit
               </Button>
             </motion.div>
 
