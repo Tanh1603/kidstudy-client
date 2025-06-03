@@ -33,6 +33,11 @@ const mobileData = [
     href: "/mini-games",
     iconSrc: "/mini-games.svg",
   },
+  {
+    label: "AI",
+    href: "/chat-with-ai",
+    iconSrc: "/quests.svg",
+  },
 ];
 
 const data = [
@@ -55,6 +60,11 @@ const data = [
     label: "Mini games",
     href: "/mini-games",
     iconSrc: "/mini-games.svg",
+  },
+  {
+    label: "AI",
+    href: "/chat-with-ai",
+    iconSrc: "/robot-avatar.svg",
   },
 ];
 
