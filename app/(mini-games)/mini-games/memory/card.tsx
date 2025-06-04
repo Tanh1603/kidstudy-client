@@ -1,10 +1,10 @@
-// components/card.tsx
 "use client"; // If it uses client-side hooks or event listeners
 
 import React, { useRef } from "react";
 
-import { Volume2, ImageOff } from "lucide-react"; // For icons
 import Image from "next/image"; // For image content
+
+import { Volume2, ImageOff } from "lucide-react"; // For icons
 
 // Define the props that the Card component expects
 interface CardProps {

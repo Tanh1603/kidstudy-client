@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion';
 import Image from 'next/image'; // Assuming you are using Next.js
+
+import { motion } from 'framer-motion';
 
 type ProgressBarProps = {
   current: number;

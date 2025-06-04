@@ -139,7 +139,10 @@ export const Quiz = ({
             }
           })
           .catch(() => toast.error("Something went wrong. Please try again."));
-        addPoint.mutateAsync(10).then().catch((error) => toast.error(error?.message));
+        addPoint.mutateAsync(10).then(() => {}).catch((error) => {
+          const message = typeof (error as { message?: string })?.message === 'string' ? (error as { message: string }).message : 'An error occurred.';
+          toast.error(message);
+        });
       });
     } else {
       startTransition(async () => {
@@ -245,7 +248,7 @@ export const Quiz = ({
                 status={status}
                 selectedOption={selectedOption}
                 disabled={pending}
-                type={challenge.type as "ASSIST" | "SELECT"}
+                type={challenge.type}
               />
             </div>
           </div>

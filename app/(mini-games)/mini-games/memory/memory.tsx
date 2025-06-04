@@ -1,19 +1,19 @@
-// app/game/memory/page.tsx
 "use client";
 import React, { useEffect, useRef, useCallback } from "react";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { Lightbulb, Volume2 } from 'lucide-react'; // Import Lightbulb and Volume2 icons
 import Image from "next/image"; // Import Image component for card content
 
-import { ResultModal } from "./results"; // Your existing ResultModal
+import { motion, AnimatePresence } from "framer-motion";
+
+import { Lightbulb, Volume2 } from 'lucide-react'; // Import Lightbulb and Volume2 icons
+
 
 import * as Game from "@/app/models/Game";
 import Loading from "@/components/loading";
 import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook"; // Your existing hook
 import { useMemoryStore, MemoryCardState } from "@/store/use-game-memory"; // Use the NEW Memory Game store
 
-// Import framer-motion components
+import { ResultModal } from "./results"; // Your existing ResultModal
 
 // --- Card Component Definition (Adapted from your MemoryCard and integrated framer-motion) ---
 interface CardProps {

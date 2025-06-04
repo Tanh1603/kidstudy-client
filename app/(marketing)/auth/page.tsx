@@ -2,10 +2,14 @@
 
 import { useEffect } from "react";
 
-import { useAuth, useUser } from "@clerk/nextjs";
-import { Loader } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
+import { useAuth, useUser } from "@clerk/nextjs";
+
+import { useRouter } from "next/navigation";
+
+import { Loader } from "lucide-react";
+
 
 import { UserProgressDTOCreate } from "@/app/models/UserProgressDTO";
 import {

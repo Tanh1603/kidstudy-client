@@ -1,5 +1,6 @@
-import { InfinityIcon } from "lucide-react";
 import Image from "next/image";
+
+import { InfinityIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 

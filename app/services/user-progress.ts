@@ -1,7 +1,8 @@
-import api from "./api";
 import UserProgressDTO, {
   UserProgressDTOCreate,
 } from "../models/UserProgressDTO";
+
+import api from "./api";
 
 const getUserProgress = async (
   token: string,

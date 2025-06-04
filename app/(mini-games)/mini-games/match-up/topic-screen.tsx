@@ -1,15 +1,15 @@
 /* eslint-disable import/order */
 "use client";
-import { useMemoryStore } from "@/store/use-game-memory";
+import { useMatchUpStore } from "@/store/use-game-matchup";
 import React from "react";
-import TopicDTO from "../../models/TopicDTO";
+import TopicDTO from "../../../models/TopicDTO";
 import Image from "next/image";
 import { useGetTopicUser } from "@/hooks/use-topic-hook";
 import Loading from "@/components/loading";
 
 export const TopicsScreen: React.FC = () => {
   const { setCurrentScreen, setSelectedTopic, setIsGameActive } =
-    useMemoryStore();
+    useMatchUpStore();
 
   const { data: topics, isLoading } = useGetTopicUser();
 

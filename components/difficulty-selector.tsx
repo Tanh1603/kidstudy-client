@@ -1,8 +1,10 @@
 // components/difficulty-selector.tsx
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { DifficultyEnum } from "@/app/models/Game"; // Adjust path as needed
+
 import { motion } from "framer-motion";
+
+import { DifficultyEnum } from "@/app/models/Game"; // Adjust path as needed
+import { Button } from "@/components/ui/button";
 
 interface DifficultySelectorProps {
   onSelectDifficulty: (difficulty: DifficultyEnum) => void;

@@ -1,7 +1,8 @@
-/* eslint-disable import/order */
 "use client";
 import React from "react";
+
 import { RotateCcw } from "lucide-react";
+
 import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
 
 interface KeyboardProps {

@@ -1,8 +1,16 @@
 import { useState } from "react";
+
 import { XIcon } from "lucide-react";
+
 import Loading from "@/components/loading";
 
-export const AudioColumnHelper = ({ row }: { row: any }) => {
+interface Row {
+  original?: {
+    audioSrc: string | Blob;
+  };
+}
+
+export const AudioColumnHelper = ({ row }: { row: Row }) => {
   const [hasError, setHasError] = useState(false);
   const [loading, setLoading] = useState(true);
   const audioSrc = row.original?.audioSrc;

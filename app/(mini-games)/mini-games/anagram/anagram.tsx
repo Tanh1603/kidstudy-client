@@ -1,19 +1,21 @@
 "use client";
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 
-import { motion, AnimatePresence, Reorder } from "framer-motion";
-import { LucideImageOff} from "lucide-react";
 import Image from "next/image";
 
-import { ResultModal } from "./results"; // Re-using ResultModal
+import { motion, AnimatePresence, Reorder } from "framer-motion";
+
+import { LucideImageOff} from "lucide-react";
 
 import * as Game from "@/app/models/Game";
 import Loading from "@/components/loading";
-import { Button } from "@/components/ui/button"; // Assuming you have a Button component
+import { Button } from "@/components/ui/button";
 import { Header } from "@/components/ui/header-game";
 import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
 import { shuffleArray } from "@/lib/utils";
 import { useAnagramStore } from "@/store/use-game-anagram"; // Your Zustand store
+
+import { ResultModal } from "./results"; // Re-using ResultModal - MOVED HERE
 
 
 interface DraggableLetter {
