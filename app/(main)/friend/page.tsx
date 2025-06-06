@@ -38,6 +38,7 @@ export default function UserProfile() {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgressDTO>();
+  const [friendsProgress, setFriendsProgress] = useState<Record<string, UserProgressDTO>>({});
 
   // Fetch friends and friend requests
   useEffect(() => {
@@ -90,6 +91,36 @@ export default function UserProfile() {
 
     void fetchUserProgress();
   }, [userId, getToken]);
+
+  //fetch Friend Progress
+  useEffect(() => {
+    if (friends.length === 0) return;
+    const fetchFriendsProgress = async () => {
+      try {
+        const results = await Promise.all(
+          friends.map(async (friend) => {
+            const res = await fetch(`${API}/user/user-progress/email/${friend.sender_email}`);
+            const data = await res.json() as UserProgressDTO;
+            return { email: friend.sender_email, progress: data };
+          })
+        );
+
+        setFriendsProgress(results.reduce((acc, item) => {
+          acc[item.email] = item.progress;
+          return acc;
+        }, {} as Record<string, UserProgressDTO>));
+      } catch (error) {
+        console.error("❌ Lỗi khi lấy dữ liệu:", error);
+      }
+    };
+
+    fetchFriendsProgress()
+    .then(() => console.log("✅ Fetch thành công"))
+    .catch((error) => console.error("❌ Lỗi khi fetch:", error));
+
+  }, [friends]);
+
+
 
   const handleSendRequest = useCallback(async () => {
     const userEmail = user?.emailAddresses[0]?.emailAddress;
@@ -256,10 +287,11 @@ export default function UserProfile() {
                     className="border p-2 rounded mb-2 flex items-center justify-between"
                   >
                     <span className="font-bold">{friend.sender_email}</span>
+
                     <FriendProgres
-                      hearts={userProgress.hearts}
-                      points={userProgress.points}
-                      hasActiveSubscription={false}
+                          hearts={friendsProgress[friend.sender_email]?.hearts } // ✅ Kiểm tra dữ liệu
+                          points={friendsProgress[friend.sender_email]?.points }
+                          hasActiveSubscription={false}
                     />
                   </li>
                 ))}
