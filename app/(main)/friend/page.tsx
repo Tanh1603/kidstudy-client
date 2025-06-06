@@ -8,7 +8,7 @@ import Image from "next/image";
 import UserProgressDTO from "@/app/models/UserProgressDTO";
 import { getUserProgress } from "@/app/services/user-progress";
 import { FeedWrapper } from "@/components/feed-wrapper";
-import { UserProgress1 } from "@/components/friend-progres";
+import { FriendProgres } from "@/components/friend-progres";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";
@@ -16,12 +16,12 @@ import { UserProgress } from "@/components/user-progress";
 const API = process.env.NEXT_PUBLIC_BASE_API_URL;
 
 interface Friend {
-  sender_id: string;
+  sender_email: string;
 }
 
 interface FriendRequest {
   id: string;
-  sender_id: string;
+  sender_email: string;
 }
 
 interface FriendsApiResponse {
@@ -32,7 +32,7 @@ export default function UserProfile() {
   const { user, isLoaded } = useUser();
   const { userId, getToken } = useAuth();
 
-  const [receiverId, setReceiverId] = useState("");
+  const [receiverEmail, setReceiverEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [friends, setFriends] = useState<Friend[]>([]);
@@ -99,7 +99,7 @@ export default function UserProfile() {
       return;
     }
 
-    if (!receiverId.trim()) {
+    if (!receiverEmail.trim()) {
       setMessage("Vui lòng nhập email người nhận!");
       return;
     }
@@ -112,8 +112,8 @@ export default function UserProfile() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          senderId: userEmail, 
-          receiverId: receiverId.trim() 
+          senderEmail: userEmail, 
+          receiverEmail: receiverEmail.trim() 
         }),
       });
 
@@ -123,14 +123,14 @@ export default function UserProfile() {
 
       const data: FriendsApiResponse = await response.json() as FriendsApiResponse;
       setMessage(data.message ?? "Đã gửi lời mời thành công!");
-      setReceiverId(""); // Clear input after success
+      setReceiverEmail(""); // Clear input after success
     } catch (error) {
       console.error("Error sending friend request:", error);
       setMessage("Có lỗi xảy ra, vui lòng thử lại!");
     } finally {
       setLoading(false);
     }
-  }, [user?.emailAddresses, receiverId]);
+  }, [user?.emailAddresses, receiverEmail]);
 
   const handleAccept = useCallback(async (requestId: string) => {
     try {
@@ -230,8 +230,8 @@ export default function UserProfile() {
             <input
               type="email"
               placeholder="Nhập Email người nhận"
-              value={receiverId}
-              onChange={(e) => setReceiverId(e.target.value)}
+              value={receiverEmail}
+              onChange={(e) => setReceiverEmail(e.target.value)}
               className="w-full p-2 border rounded mb-2"
             />
             <button
@@ -252,11 +252,11 @@ export default function UserProfile() {
               <ul className="mt-2">
                 {friends.map((friend) => (
                   <li 
-                    key={friend.sender_id} 
+                    key={friend.sender_email} 
                     className="border p-2 rounded mb-2 flex items-center justify-between"
                   >
-                    <span className="font-bold">{friend.sender_id}</span>
-                    <UserProgress1
+                    <span className="font-bold">{friend.sender_email}</span>
+                    <FriendProgres
                       hearts={userProgress.hearts}
                       points={userProgress.points}
                       hasActiveSubscription={false}
@@ -273,7 +273,7 @@ export default function UserProfile() {
               <ul className="mt-2">
                 {friendRequests.map((request) => (
                   <li key={request.id} className="border p-2 rounded mb-2">
-                    <span className="font-bold">{request.sender_id}</span>
+                    <span className="font-bold">{request.sender_email}</span>
                     <button
                       className="ml-4 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition"
                       onClick={handleAcceptWrapper(request.id)}

@@ -5,19 +5,19 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 // import { courses } from "@/db/schema";
 
-type UserProgressProps1 = {
+type UserProgressProps = {
   // activeCourse: typeof courses.$inferSelect;
   hearts: number;
   points: number;
   hasActiveSubscription: boolean;
 };
 
-export const UserProgress1 = ({
+export const FriendProgres = ({
   // activeCourse,
   hearts,
   points,
   hasActiveSubscription,
-}: UserProgressProps1) => {
+}: UserProgressProps) => {
   return (
     <div className="flex  ">
       {/* <Link href="/courses">
@@ -32,7 +32,7 @@ export const UserProgress1 = ({
         </Button>
       </Link> */}
 
-      <Link href="/shop">
+     
         <Button variant="ghost" className="text-orange-500">
           <Image
             src="/points.svg"
@@ -43,9 +43,9 @@ export const UserProgress1 = ({
           />
           {points}
         </Button>
-      </Link>
+   
 
-      <Link href="/shop">
+  
         <Button variant="ghost" className="text-rose-500">
           <Image
             src="/heart.svg"
@@ -60,7 +60,6 @@ export const UserProgress1 = ({
             hearts
           )}
         </Button>
-      </Link>
     </div>
   );
 };

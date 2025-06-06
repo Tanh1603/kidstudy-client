@@ -10,6 +10,7 @@ const WEBSOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL ?? "";
 
 interface Message {
   user_id: string;
+  user_name: string;
   content: string;
   created_at: string;
 }
@@ -86,7 +87,8 @@ export default function Chat() {
     if (!content.trim() || !wsRef.current) return;
 
     const messageData: Message = {
-      user_id: user?.fullName ?? "Ẩn danh",
+      user_id: user?.id ?? "Miss ID",
+      user_name: user?.fullName ?? "Ẩn danh",
       content,
       created_at: new Date().toISOString(),
     };
@@ -113,7 +115,7 @@ export default function Chat() {
             {messages.length > 0 ? (
               messages.map((msg, index) => (
                 <div key={index} className="mb-2">
-                  <span className="font-bold">{msg.user_id}</span>:{" "}
+                  <span className="font-bold">{msg.user_name}</span>:{" "}
                   <span>{msg.content}</span>
                   <div className="text-xs text-gray-500">
                     {new Date(msg.created_at).toLocaleString()}
