@@ -11,8 +11,8 @@ import { FeedWrapper } from "@/components/feed-wrapper";
 import { FriendProgres } from "@/components/friend-progres";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
-import { UserProgress } from "@/components/user-progress";
 import { Button } from "@/components/ui/button";
+import { UserProgress } from "@/components/user-progress";
 
 const API = process.env.NEXT_PUBLIC_BASE_API_URL;
 
@@ -40,28 +40,35 @@ export default function UserProfile() {
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgressDTO>();
   const [friendsProgress, setFriendsProgress] = useState<Record<string, UserProgressDTO>>({});
-  const sendHeart = async (receiverEmail: string) => {
-  try {
-    const senderEmail = user?.emailAddresses[0].emailAddress; // Thay bằng email người dùng hiện tại
-
-    const response = await fetch(`${API}/user/friends/gift`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ senderEmail, receiverEmail }),
-    });
-    const data = await response.json();
-    if (response.ok) {
-      alert("Đã tặng tim thành công!");
-      window.location.reload();
-    } else {
-      alert(`Lỗi: ${data.error}`);
-    }
-  } catch (error) {
-    alert("Có lỗi xảy ra, vui lòng thử lại!");
+  interface GiftResponse {
+    message?: string;
+    error?: string;
   }
-};
+
+  const sendHeart = async (receiverEmail: string) => {
+    try {
+      const senderEmail = user?.emailAddresses[0].emailAddress;
+
+      const response = await fetch(`${API}/user/friends/gift`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ senderEmail, receiverEmail }),
+      });
+
+      const data = (await response.json()) as GiftResponse;
+
+      if (response.ok) {
+        alert(data.message || "Đã tặng tim thành công!");
+      } else {
+        alert(`Lỗi: ${data.error || "Có lỗi xảy ra!"}`);
+      }
+    } catch (error) {
+      alert("Có lỗi xảy ra, vui lòng thử lại!");
+    }
+  };
+
 
   // Fetch friends and friend requests
   useEffect(() => {
@@ -316,7 +323,7 @@ export default function UserProfile() {
                           points={friendsProgress[friend.sender_email]?.points }
                           hasActiveSubscription={false}
                     />
-                    <Button variant="ghost" className="text-red-500" onClick={() => sendHeart(friend.sender_email)}>
+                    <Button variant="ghost" className="text-red-500" onClick={() => {void sendHeart(friend.sender_email)}}>
                       <Image
                         src="/gift.png"
                         height={28}
