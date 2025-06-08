@@ -12,6 +12,7 @@ import { FriendProgres } from "@/components/friend-progres";
 import { Quests } from "@/components/quests";
 import { StickyWrapper } from "@/components/sticky-wrapper";
 import { UserProgress } from "@/components/user-progress";
+import { Button } from "@/components/ui/button";
 
 const API = process.env.NEXT_PUBLIC_BASE_API_URL;
 
@@ -39,6 +40,28 @@ export default function UserProfile() {
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgressDTO>();
   const [friendsProgress, setFriendsProgress] = useState<Record<string, UserProgressDTO>>({});
+  const sendHeart = async (receiverEmail: string) => {
+  try {
+    const senderEmail = user?.emailAddresses[0].emailAddress; // Thay bằng email người dùng hiện tại
+
+    const response = await fetch(`${API}/user/friends/gift`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ senderEmail, receiverEmail }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      alert("Đã tặng tim thành công!");
+      window.location.reload();
+    } else {
+      alert(`Lỗi: ${data.error}`);
+    }
+  } catch (error) {
+    alert("Có lỗi xảy ra, vui lòng thử lại!");
+  }
+};
 
   // Fetch friends and friend requests
   useEffect(() => {
@@ -110,13 +133,13 @@ export default function UserProfile() {
           return acc;
         }, {} as Record<string, UserProgressDTO>));
       } catch (error) {
-        console.error("❌ Lỗi khi lấy dữ liệu:", error);
+        console.error("Lỗi khi lấy dữ liệu:", error);
       }
     };
 
     fetchFriendsProgress()
-    .then(() => console.log("✅ Fetch thành công"))
-    .catch((error) => console.error("❌ Lỗi khi fetch:", error));
+    .then(() => console.log("Fetch thành công"))
+    .catch((error) => console.error("Lỗi khi fetch:", error));
 
   }, [friends]);
 
@@ -293,6 +316,16 @@ export default function UserProfile() {
                           points={friendsProgress[friend.sender_email]?.points }
                           hasActiveSubscription={false}
                     />
+                    <Button variant="ghost" className="text-red-500" onClick={() => sendHeart(friend.sender_email)}>
+                      <Image
+                        src="/gift.png"
+                        height={28}
+                        width={28}
+                        alt="Tặng tim"
+                        className="mr-2"
+                      />
+                    </Button>
+
                   </li>
                 ))}
               </ul>

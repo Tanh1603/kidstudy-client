@@ -30,16 +30,16 @@ export default function Chat() {
         const data = (await response.json()) as Message[];
         setMessages(data);
       } catch (error) {
-        console.error("❌ Lỗi tải tin nhắn:", error);
+        console.error(" Lỗi tải tin nhắn:", error);
       }
     };
 
-    void fetchMessages(); // ✅ Đánh dấu Promise để ESLint không cảnh báo
+    void fetchMessages(); // Đánh dấu Promise để ESLint không cảnh báo
   }, []);
 
   useEffect(() => {
     if (!WEBSOCKET_URL) {
-      console.error("⚠️ WEBSOCKET_URL không được cấu hình!");
+      console.error("WEBSOCKET_URL không được cấu hình!");
       return;
     }
 
@@ -62,20 +62,20 @@ export default function Chat() {
             });
         }, 100);
         } else {
-        console.error("⚠️ Dữ liệu WebSocket không phải là chuỗi hợp lệ:", event.data);
+        console.error("Dữ liệu WebSocket không phải là chuỗi hợp lệ:", event.data);
         }
     } catch (error) {
-        console.error("❌ Lỗi xử lý tin nhắn WebSocket:", error);
+        console.error("Lỗi xử lý tin nhắn WebSocket:", error);
     }
     });
 
 
     wsRef.current.addEventListener("close", () => {
-      console.log("❌ Mất kết nối WebSocket!");
+      console.log(" Mất kết nối WebSocket!");
     });
 
     wsRef.current.addEventListener("error", (error) => {
-      console.error("⚠️ Lỗi WebSocket:", error);
+      console.error(" Lỗi WebSocket:", error);
     });
 
     return () => {
@@ -97,7 +97,7 @@ export default function Chat() {
       wsRef.current.send(JSON.stringify(messageData));
       setContent("");
     } catch (error) {
-      console.error("⚠️ Lỗi gửi tin nhắn:", error);
+      console.error("Lỗi gửi tin nhắn:", error);
     }
   };
 
