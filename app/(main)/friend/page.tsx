@@ -276,12 +276,15 @@ export default function UserProfile() {
       alert("Có lỗi xảy ra, vui lòng thử lại!");
     }
   };
-
+  interface CheckEmailResponse {
+    valid: boolean;
+    message: string;
+  }
   const validateReceiver = async (receiverEmail: string, senderEmail: string): Promise<boolean> => {
 
   // 1. Kiểm tra email có tồn tại
   const existsRes = await fetch(`${API}/user/friends/check-email/${receiverEmail}`);
-  const existsData = await existsRes.json();
+  const existsData = await existsRes.json() as CheckEmailResponse;
   if (!existsData.valid) {
     alert("Email người nhận không tồn tại.");
     return false;
@@ -289,7 +292,7 @@ export default function UserProfile() {
 
   // 2. Kiểm tra đã là bạn bè chưa và khác chính mình
   const friendRes = await fetch(`${API}/user/friends/validate/${senderEmail}/${receiverEmail}`);
-  const friendData = await friendRes.json();
+  const friendData = await friendRes.json() as CheckEmailResponse;
   if (!friendData.valid) {
     alert(friendData.message || "Không thể gửi tim.");
     return false;
