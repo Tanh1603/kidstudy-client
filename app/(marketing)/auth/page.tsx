@@ -50,6 +50,7 @@ export default function AuthCallback() {
               user?.emailAddresses[0].emailAddress ||
               "",
             userImageSrc: user?.imageUrl || "/boy.svg",
+            userEmail: user?.emailAddresses[0].emailAddress,
           };
           await upsertUserProgress(token, newUserProgress);
         } catch (error) {

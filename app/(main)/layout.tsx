@@ -56,6 +56,16 @@ const data = [
     href: "/shop",
     iconSrc: "/shop.svg",
   },
+    {
+    label: "Friend",
+    href: "/friend",
+    iconSrc: "/friend.svg",
+  },
+  {
+    label: "Chat",
+    href: "/chat",
+    iconSrc: "/chat.svg",
+  },
   {
     label: "Mini games",
     href: "/mini-games",

@@ -6,6 +6,7 @@ type UserProgressDTO = {
   tickets: number;
   userName: string;
   userImageSrc: string;
+  userEmail: string;
 };
 
 type UserProgressDTOCreate = Omit<UserProgressDTO, "id">;
