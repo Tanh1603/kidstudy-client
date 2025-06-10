@@ -1,16 +1,22 @@
-/* eslint-disable import/order */
 "use client";
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { LucideImageOff } from "lucide-react";
+
+import Image from "next/image";
+
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import { shuffleArray } from "@/lib/utils";
-import { useMatchUpStore } from "@/store/use-game-matchup";
-import { ResultModal } from "./results";
-import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
+
+import { LucideImageOff } from "lucide-react";
+
+
 import { GameTypeEnum, GameQuestion, MatchUpGameQuestion } from "@/app/models/Game";
 import Loading from "@/components/loading";
-import Image from "next/image";
 import { Header } from "@/components/ui/header-game";
+import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
+import { shuffleArray } from "@/lib/utils";
+import { useMatchUpStore } from "@/store/use-game-matchup";
+
+import { ResultModal } from "./results";
+
 
 const NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME = 8;
 

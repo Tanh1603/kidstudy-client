@@ -131,7 +131,7 @@ export const ActionCellHelper = ({ row, type }: { row: any; type: string }) => {
         type === "spelling-bee" ||
         type === "memory"
       ) {
-        const id = row?.original?.id;
+        const id = row?.original?.id as number;
         if (!id) {
           toast.error("Error id");
           return;

@@ -2,14 +2,18 @@
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@clerk/nextjs";
+
 import { useParams } from "next/navigation";
 
-import { Quiz } from "./quiz";
+import Loading from "@/components/loading";
+
 import LessonDTO from "../../models/Lesson";
 import UserProgressDTO from "../../models/UserProgressDTO";
 import { getUserLessonById } from "../../services/lesson-service";
 import { getUserProgress } from "../../services/user-progress";
-import Loading from "@/components/loading";
+
+import { Quiz } from "./quiz";
+
 
 const LessonPage = () => {
   const { userId, getToken } = useAuth();

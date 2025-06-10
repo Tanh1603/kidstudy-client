@@ -1,10 +1,12 @@
-/* eslint-disable import/order */
 "use client";
+import React, { useEffect } from "react";
+
+import { useAuth } from "@clerk/nextjs";
+
 import { updateUserPoints } from "@/app/services/user-progress";
 import { useAddPointToQuest } from "@/hooks/use-quest-hook";
 import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
-import { useAuth } from "@clerk/nextjs";
-import React, { useEffect } from "react";
+
 
 export const ResultModal: React.FC = () => {
   const {

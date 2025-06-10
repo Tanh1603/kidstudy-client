@@ -1,7 +1,9 @@
 'use client';
 
-import { X } from "lucide-react";
 import { useRouter } from "next/navigation"; // Import useRouter
+
+import { X } from "lucide-react";
+
 import { Progress } from "@/components/ui/progress";
 
 interface HeaderProps {

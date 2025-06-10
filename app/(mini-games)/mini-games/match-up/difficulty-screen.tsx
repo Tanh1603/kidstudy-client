@@ -1,11 +1,11 @@
 /* eslint-disable import/order */
 "use client";
-import { useAnagramStore } from "@/store/use-game-anagram";
+import { useMatchUpStore } from "@/store/use-game-matchup";
 import React from "react";
-import { DifficultyEnum } from "../../models/Game";
+import { DifficultyEnum } from "@/app/models/Game";
 
 export const DifficultyScreen: React.FC = () => {
-  const { setSelectedDifficulty, setCurrentScreen } = useAnagramStore();
+  const { setSelectedDifficulty, setCurrentScreen } = useMatchUpStore();
 
   return (
     <div
@@ -19,7 +19,7 @@ export const DifficultyScreen: React.FC = () => {
       <div className="w-full max-w-md text-center">
         <div className="mb-4 rounded-3xl border-4 border-gray-300 bg-white/90 p-4 shadow-xl backdrop-blur-sm transition-all duration-300 hover:shadow-2xl sm:mb-6 sm:p-6">
           <h1 className="bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-3xl font-bold text-transparent drop-shadow-lg sm:text-4xl md:text-5xl">
-            Anagram
+            Match Up
           </h1>
         </div>
 

@@ -4,7 +4,7 @@
 import TopicPage from "./topic/topic-page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GameQuestionTab from "./game-tab";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { SortableHeader } from "../column-helpers";
 import {
   AnagramGameQuestion,
@@ -13,15 +13,75 @@ import {
   MemoryEnum,
   MemoryGameQuestion,
   MemoryGameQuestionWithAudio,
+  MemoryGameQuestionWithImage,
   MemoryGameQuestionWithImageAndAudio,
-  MemoryGameQuestionWithWord,
+  // MemoryGameQuestionWithWord
   SpellingBeeGameQuestion,
 } from "@/app/models/Game";
-import Image from "next/image";
-import AddAnagramQuestion from "./upsert-anagrm";
+//import Image from "next/image";
+//import AddAnagramQuestion from "./upsert-anagrm";
 import { ActionCellHelper } from "../dropdown-helper";
 import { ImageColumnHelper } from "../imag-column-helper";
 import { AudioColumnHelper } from "../audio-column-helper";
+
+// --- Type Guards ---
+// These functions help TypeScript understand the specific type of MemoryGameQuestion
+function isMemoryQuestionWithAudioOnly(
+  question: MemoryGameQuestion
+): question is MemoryGameQuestionWithAudio {
+  return question.memoryType === MemoryEnum.WORD_AUDIO;
+}
+
+function isMemoryQuestionWithImageOnly(
+  question: MemoryGameQuestion
+): question is MemoryGameQuestionWithImage {
+  return question.memoryType === MemoryEnum.WORD_IMAGE;
+}
+
+function isMemoryQuestionWithImageAndAudio(
+  question: MemoryGameQuestion
+): question is MemoryGameQuestionWithImageAndAudio {
+  return question.memoryType === MemoryEnum.IMAGE_AUDIO;
+}
+
+
+const spellingBeeColumns: ColumnDef<SpellingBeeGameQuestion>[] = [
+  {
+    accessorKey: "id",
+    header: ({ column }) => <SortableHeader column={column} title="id" />,
+  },
+  {
+    accessorKey: "topicId",
+    header: ({ column }) => <SortableHeader column={column} title="topicId" />,
+  },
+  {
+    accessorKey: "difficulty",
+    header: ({ column }) => (
+      <SortableHeader column={column} title="difficulty" />
+    ),
+  },
+  {
+    accessorKey: "word",
+    header: ({ column }) => <SortableHeader column={column} title="word" />,
+  },
+
+  {
+    accessorKey: "audioSrc",
+    header: ({ column }) => <SortableHeader column={column} title="audioSrc" />,
+    cell: ({ row }) => <AudioColumnHelper row={row} />, // Assuming AudioColumnHelper accepts this row type
+  },
+
+  {
+    accessorKey: "imageSrc",
+    header: ({ column }) => <SortableHeader column={column} title="imageSrc" />,
+    cell: ({ row }) => <ImageColumnHelper row={row} />, // Assuming ImageColumnHelper accepts this row type
+  },
+
+  {
+    id: "actions",
+    cell: ({ row }) => <ActionCellHelper row={row} type="spelling-bee" />,
+  },
+];
 
 const anagramColumns: ColumnDef<AnagramGameQuestion>[] = [
   {
@@ -84,7 +144,7 @@ const matchUpColumns: ColumnDef<MatchUpGameQuestion>[] = [
 ];
 
 const memoryColumns: ColumnDef<MemoryGameQuestion>[] = [
-  {
+ {
     accessorKey: "id",
     header: ({ column }) => <SortableHeader column={column} title="ID" />,
   },
@@ -111,7 +171,18 @@ const memoryColumns: ColumnDef<MemoryGameQuestion>[] = [
   {
     id: "audioSrc",
     header: ({ column }) => <SortableHeader column={column} title="audioSrc" />,
-    cell: ({ row }) => <AudioColumnHelper row={row} />,
+    cell: ({ row }) => {
+      // Check if this specific row has the audioSrc property, based on memoryType
+      if (
+        isMemoryQuestionWithAudioOnly(row.original) ||
+        isMemoryQuestionWithImageAndAudio(row.original)
+      ) {
+        // TypeScript now knows row.original has audioSrc.
+        // We cast `row` to ensure the AudioColumnHelper receives a row of the expected specific type.
+        return <AudioColumnHelper row={row as Row<MemoryGameQuestionWithAudio>} />;
+      }
+      return <span>—</span>; // Display a dash if no audioSrc
+    },
   },
   {
     id: "matchText",
@@ -119,57 +190,31 @@ const memoryColumns: ColumnDef<MemoryGameQuestion>[] = [
       <SortableHeader column={column} title="Match Text" />
     ),
     cell: ({ row }) => {
-      const matchText = (row.original as MemoryGameQuestionWithWord).matchText;
-      return matchText ? <span>{matchText}</span> : <span>—</span>;
+      // Check if this specific row is a MemoryGameQuestionWithWord
+      if (row.original.memoryType === MemoryEnum.WORD_WORD) {
+        return <span>{(row.original).matchText}</span>;
+      }
+      return <span>—</span>;
     },
   },
   {
     id: "imageSrc",
     header: ({ column }) => <SortableHeader column={column} title="Image" />,
-    cell: ({ row }) => <ImageColumnHelper row={row} />,
+    cell: ({ row }) => {
+      // Check if this specific row has the imageSrc property, based on memoryType
+      if (
+        isMemoryQuestionWithImageOnly(row.original) ||
+        isMemoryQuestionWithImageAndAudio(row.original)
+      ) {
+        // TypeScript now knows row.original has imageSrc.
+        return <ImageColumnHelper row={row as Row<MemoryGameQuestionWithImage>} />;
+      }
+      return <span>—</span>; // Display a dash if no imageSrc
+    },
   },
-
   {
     id: "actions",
     cell: ({ row }) => <ActionCellHelper row={row} type="memory" />,
-  },
-];
-
-const spellingBeeColumns: ColumnDef<SpellingBeeGameQuestion>[] = [
-  {
-    accessorKey: "id",
-    header: ({ column }) => <SortableHeader column={column} title="id" />,
-  },
-  {
-    accessorKey: "topicId",
-    header: ({ column }) => <SortableHeader column={column} title="topicId" />,
-  },
-  {
-    accessorKey: "difficulty",
-    header: ({ column }) => (
-      <SortableHeader column={column} title="difficulty" />
-    ),
-  },
-  {
-    accessorKey: "word",
-    header: ({ column }) => <SortableHeader column={column} title="word" />,
-  },
-
-  {
-    accessorKey: "audioSrc",
-    header: ({ column }) => <SortableHeader column={column} title="audioSrc" />,
-    cell: ({ row }) => <AudioColumnHelper row={row} />,
-  },
-
-  {
-    accessorKey: "imageSrc",
-    header: ({ column }) => <SortableHeader column={column} title="imageSrc" />,
-    cell: ({ row }) => <ImageColumnHelper row={row} />,
-  },
-
-  {
-    id: "actions",
-    cell: ({ row }) => <ActionCellHelper row={row} type="spelling-bee" />,
   },
 ];
 

@@ -1,21 +1,22 @@
-/* eslint-disable import/order */
 "use client";
+import React, { useEffect } from "react";
+
+import { useAuth } from "@clerk/nextjs";
+
 import { updateUserPoints } from "@/app/services/user-progress";
 import { useAddPointToQuest } from "@/hooks/use-quest-hook";
-import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
-import { useAuth } from "@clerk/nextjs";
-import React, { useEffect } from "react";
+import { useMemoryStore } from "@/store/use-game-memory";
+
 
 export const ResultModal: React.FC = () => {
   const {
     showResultModal,
     gameEndReason,
     score,
-    wrongAnswers,
     setShowResultModal,
     setCurrentScreen,
     resetGame,
-  } = useSpellingBeeStore();
+  } = useMemoryStore();
 
   const addPoint = useAddPointToQuest();
 
@@ -87,14 +88,6 @@ export const ResultModal: React.FC = () => {
                   </div>
                   <div className="text-xs font-semibold text-green-700 sm:text-sm">
                     Correct
-                  </div>
-                </div>
-                <div className="rounded-xl border-2 border-red-300 bg-gradient-to-br from-red-100 to-red-200 p-2 shadow-md transition-all duration-300 hover:shadow-lg sm:p-3 md:p-4">
-                  <div className="text-2xl font-bold text-red-600 sm:text-3xl">
-                    {wrongAnswers}
-                  </div>
-                  <div className="text-xs font-semibold text-red-700 sm:text-sm">
-                    Wrong
                   </div>
                 </div>
               </div>

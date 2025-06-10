@@ -1,6 +1,7 @@
-import api from "./api";
 import LessonDTO from "../models/Lesson";
 import FirstIncompleteLessonDTO from "../models/UnitProgressDTO";
+
+import api from "./api";
 
 const getLessonPercentage = async (
   token: string,

@@ -2,8 +2,10 @@
 "use client"; // Important for client-side interactivity and hooks
 
 import React from "react";
-import { Button } from "@/components/ui/button"; // Assuming you have a Button component
+
 import { motion } from "framer-motion"; // For animations
+
+import { Button } from "@/components/ui/button"; // Assuming you have a Button component
 
 interface Topic {
   id: number;

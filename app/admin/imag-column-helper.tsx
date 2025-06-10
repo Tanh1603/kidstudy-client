@@ -1,10 +1,20 @@
 "use client";
-import Loading from "@/components/loading";
-import { LucideImageOff } from "lucide-react";
-import Image from "next/image";
 import { useState } from "react";
 
-export const ImageColumnHelper = ({ row }: { row: any }) => {
+import Image from "next/image";
+
+import { LucideImageOff } from "lucide-react";
+
+import Loading from "@/components/loading";
+
+
+interface Row {
+  original: {
+    imageSrc: string | File | null; // Adjust the type based on your actual data structure
+  };
+}
+
+export const ImageColumnHelper = ({ row }: { row: Row }) => {
   const imageSrc = row.original.imageSrc;
   const [hasError, setHasError] = useState(false);
   const [loading, setLoading] = useState(true);

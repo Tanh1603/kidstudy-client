@@ -1,102 +1,122 @@
-/* eslint-disable import/order */
+// store/use-memory-game-store.ts
 import { create } from "zustand";
-import { DifficultyEnum, MemoryEnum, MemoryGameQuestion } from "@/app/models/Game";
+
+import { DifficultyEnum } from "@/app/models/Game"; // Only DifficultyEnum is relevant from Game.ts for meta-state
 import TopicDTO from "@/app/models/TopicDTO";
 
-// Define the structure for a single card in the memory game
-export type MemoryCard = {
-  id: number; // Unique ID for this specific card instance (not the question ID)
-  questionId: number; // The ID of the original MemoryGameQuestion this card is derived from
-  pairId: number; // A unique ID for the pair this card belongs to
-  type: 'word' | 'image' | 'audio' | 'matchText'; // What type of content this card displays
-  content: string | File; // The actual content (word string, image URL/File, audio URL/File)
+// Define the shape of a single memory card
+export type MemoryCardState = {
+  id: string; // Unique ID for each card instance (e.g., generated UUID or combined ID)
+  pairId: number; // ID of the original question/pair it belongs to
+  contentType: "word" | "image" | "audio" | "text"; // What type of content this card shows
+  content: string | File; // The actual content (word string, URL string, or File object)
+  memoryType: string; // The original MemoryEnum type (e.g., "WORD_IMAGE")
   isFlipped: boolean;
   isMatched: boolean;
-  audioSrc?: string | File; // Optional: for cards that might play audio on flip (e.g., WORD_IMAGE where word is shown, audio plays)
 };
 
-export type GameState = {
-  currentScreen: "difficulty" | "memoryType" | "topics" | "game" | "results"; // Added 'memoryType' screen
+// Define the state for the Memory Game
+export type MemoryGameState = {
+  currentScreen: "difficulty" | "topics" | "game"; // Similar screen flow
   selectedDifficulty: DifficultyEnum;
   selectedTopic: TopicDTO | null;
-  memoryType: MemoryEnum | null; // New: To specify the type of memory game (word-image, word-word, etc.)
-  cards: MemoryCard[]; // New: Array of all cards in the game
-  flippedCards: number[]; // New: Array of IDs of currently flipped cards (max 2)
-  matchedPairs: number; // New: Count of successfully matched pairs
-  moves: number; // New: Count of total moves (two cards flipped = 1 move)
   score: number;
-  wrongAttempts: number; // Renamed from wrongAnswers for clarity in memory game context
-  showFeedback: string;
-  gameQuestions: MemoryGameQuestion[]; // Now stores MemoryGameQuestion
-  totalQuestions: number; // Total unique questions (pairs)
   timeLeft: number;
   isGameActive: boolean;
   showResultModal: boolean;
   gameEndReason: string;
+
+  // Memory Game Specific State
+  cards: MemoryCardState[];
+  flippedCards: string[]; // IDs of currently flipped cards (max 2)
+  matchesFound: number; // Count of successfully matched pairs
+  turnsTaken: number; // Count of pairs of cards flipped
 };
 
-const initialState: GameState = {
+const initialState: MemoryGameState = {
   currentScreen: "difficulty",
   selectedDifficulty: DifficultyEnum.EASY,
   selectedTopic: null,
-  memoryType: null,
-  cards: [],
-  flippedCards: [],
-  matchedPairs: 0,
-  moves: 0,
   score: 0,
-  wrongAttempts: 0,
-  showFeedback: "",
-  gameQuestions: [],
-  totalQuestions: 0,
-  timeLeft: 600, // 10 minutes
+  timeLeft: 600, // Example: 10 minutes for memory game
   isGameActive: false,
   showResultModal: false,
   gameEndReason: "",
+
+  cards: [],
+  flippedCards: [],
+  matchesFound: 0,
+  turnsTaken: 0,
 };
 
-export type GameActions = {
-  setCurrentScreen: (screen: GameState["currentScreen"]) => void;
+// Define actions for the Memory Game
+export type MemoryGameActions = {
+  setCurrentScreen: (screen: MemoryGameState["currentScreen"]) => void;
   setSelectedDifficulty: (difficulty: DifficultyEnum) => void;
   setSelectedTopic: (topic: TopicDTO | null) => void;
-  setMemoryType: (type: MemoryEnum | null) => void; // New action
-  setCards: (cards: MemoryCard[]) => void; // New action
-  setFlippedCards: (cardIds: number[]) => void; // New action
-  setMatchedPairs: (count: number) => void; // New action
-  setMoves: (count: number) => void; // New action
   setScore: (score: number) => void;
-  setWrongAttempts: (count: number) => void; // Updated action
-  setShowFeedback: (feedback: string) => void;
-  setGameQuestions: (questions: MemoryGameQuestion[]) => void; // Updated type
-  setTotalQuestions: (count: number) => void;
   setTimeLeft: (time: number) => void;
   setIsGameActive: (active: boolean) => void;
   setShowResultModal: (show: boolean) => void;
   setGameEndReason: (reason: string) => void;
+
+  // Memory Game Specific Actions
+  setCards: (cards: MemoryCardState[]) => void;
+  flipCard: (cardId: string) => void;
+  resetFlippedCards: () => void;
+  markCardsAsMatched: (cardIds: string[]) => void;
+  incrementTurns: () => void;
+  incrementMatches: () => void;
+
   resetGame: () => void;
 };
 
-export const useMemoryStore = create<GameState & GameActions>((set) => ({
-  ...initialState,
+// Create the Zustand store
+export const useMemoryStore = create<MemoryGameState & MemoryGameActions>(
+  (set) => ({
+    ...initialState,
 
-  setCurrentScreen: (screen) => set({ currentScreen: screen }),
-  setSelectedDifficulty: (difficulty: DifficultyEnum) =>
-    set({ selectedDifficulty: difficulty }),
-  setSelectedTopic: (topic) => set({ selectedTopic: topic }),
-  setMemoryType: (type) => set({ memoryType: type }),
-  setCards: (cards) => set({ cards }),
-  setFlippedCards: (cardIds) => set({ flippedCards: cardIds }),
-  setMatchedPairs: (count) => set({ matchedPairs: count }),
-  setMoves: (count) => set({ moves: count }),
-  setScore: (score) => set({ score }),
-  setWrongAttempts: (count) => set({ wrongAttempts: count }),
-  setShowFeedback: (feedback) => set({ showFeedback: feedback }),
-  setGameQuestions: (questions) => set({ gameQuestions: questions }),
-  setTotalQuestions: (count) => set({ totalQuestions: count }),
-  setTimeLeft: (time) => set({ timeLeft: time }),
-  setIsGameActive: (active) => set({ isGameActive: active }),
-  setShowResultModal: (show) => set({ showResultModal: show }),
-  setGameEndReason: (reason) => set({ gameEndReason: reason }),
+    // Common actions
+    setCurrentScreen: (screen) => set({ currentScreen: screen }),
+    setSelectedDifficulty: (difficulty) =>
+      set({ selectedDifficulty: difficulty }),
+    setSelectedTopic: (topic) => set({ selectedTopic: topic }),
+    setScore: (score) => set({ score }),
+    setTimeLeft: (time) => set({ timeLeft: time }),
+    setIsGameActive: (active) => set({ isGameActive: active }),
+    setShowResultModal: (show) => set({ showResultModal: show }),
+    setGameEndReason: (reason) => set({ gameEndReason: reason }),
 
-  resetGame: () => set(initialState),
-}));
+    // Memory Game Specific Actions
+    setCards: (cards) => set({ cards: cards }),
+    flipCard: (cardId) =>
+      set((state) => ({
+        cards: state.cards.map((card) =>
+          card.id === cardId ? { ...card, isFlipped: true } : card
+        ),
+        flippedCards: [...state.flippedCards, cardId],
+      })),
+    resetFlippedCards: () =>
+      set((state) => ({
+        cards: state.cards.map((card) =>
+          state.flippedCards.includes(card.id) && !card.isMatched
+            ? { ...card, isFlipped: false }
+            : card
+        ),
+        flippedCards: [],
+      })),
+    markCardsAsMatched: (cardIds) =>
+      set((state) => ({
+        cards: state.cards.map((card) =>
+          cardIds.includes(card.id) ? { ...card, isMatched: true } : card
+        ),
+        flippedCards: [], // Clear flipped cards after marking match
+      })),
+    incrementTurns: () =>
+      set((state) => ({ turnsTaken: state.turnsTaken + 1 })),
+    incrementMatches: () =>
+      set((state) => ({ matchesFound: state.matchesFound + 1 })),
+
+    resetGame: () => set(initialState),
+  })
+);

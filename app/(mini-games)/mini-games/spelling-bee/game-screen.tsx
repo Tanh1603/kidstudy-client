@@ -1,15 +1,19 @@
-/* eslint-disable import/order */
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+
+import Image from "next/image";
+
 import { LucideImageOff, Volume2 } from "lucide-react";
 
-import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
-import { ResultModal } from "./results";
-import { Keyboard } from "./keyboard";
-import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
+
 import { GameTypeEnum, SpellingBeeGameQuestion } from "@/app/models/Game";
 import Loading from "@/components/loading";
-import Image from "next/image";
+import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
+import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
+
+import { Keyboard } from "./keyboard";
+import { ResultModal } from "./results";
+
 
 export const GameScreen: React.FC = () => {
   const {

@@ -2,7 +2,7 @@
 "use client";
 import { useAnagramStore } from "@/store/use-game-anagram";
 import React from "react";
-import TopicDTO from "../../models/TopicDTO";
+import TopicDTO from "../../../models/TopicDTO";
 import Image from "next/image";
 import { useGetTopicUser } from "@/hooks/use-topic-hook";
 import Loading from "@/components/loading";
