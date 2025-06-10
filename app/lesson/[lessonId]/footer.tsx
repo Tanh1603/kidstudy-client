@@ -1,15 +1,18 @@
+/* eslint-disable import/order */
 import { useKey, useMedia } from "react-use";
 
 import { CheckCircle, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Loading from "@/components/loading";
 
 type FooterProps = {
   onCheck: () => void;
   status: "correct" | "wrong" | "none" | "completed";
   disabled?: boolean;
   lessonId?: number;
+  isProcessing?: boolean;
 };
 
 export const Footer = ({
@@ -17,6 +20,7 @@ export const Footer = ({
   status,
   disabled,
   lessonId,
+  isProcessing = false,
 }: FooterProps) => {
   useKey("Enter", onCheck, {}, [onCheck]);
   const isMobile = useMedia("(max-width: 1024px)");
@@ -55,17 +59,23 @@ export const Footer = ({
         )}
 
         <Button
-          disabled={disabled}
-          aria-disabled={disabled}
+          disabled={disabled || isProcessing}
+          aria-disabled={disabled || isProcessing}
           className="ml-auto"
           onClick={onCheck}
           size={isMobile ? "sm" : "lg"}
           variant={status === "wrong" ? "danger" : "secondary"}
         >
-          {status === "none" && "Check"}
-          {status === "correct" && "Next"}
-          {status === "wrong" && "Retry"}
-          {status === "completed" && "Continue"}
+          {isProcessing ? (
+            <Loading />
+          ) : (
+            <>
+              {status === "none" && "Check"}
+              {status === "correct" && "Next"}
+              {status === "wrong" && "Retry"}
+              {status === "completed" && "Continue"}
+            </>
+          )}
         </Button>
       </div>
     </footer>

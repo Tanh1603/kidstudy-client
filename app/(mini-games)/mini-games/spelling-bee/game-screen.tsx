@@ -5,7 +5,6 @@ import Image from "next/image";
 
 import { LucideImageOff, Volume2 } from "lucide-react";
 
-
 import { GameTypeEnum, SpellingBeeGameQuestion } from "@/app/models/Game";
 import Loading from "@/components/loading";
 import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
@@ -13,7 +12,6 @@ import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
 
 import { Keyboard } from "./keyboard";
 import { ResultModal } from "./results";
-
 
 export const GameScreen: React.FC = () => {
   const {
@@ -43,7 +41,7 @@ export const GameScreen: React.FC = () => {
     GameTypeEnum.SPELLING_BEE,
     selectedDifficulty,
     selectedTopic?.id ?? 0,
-    2
+    20
   );
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -56,6 +54,7 @@ export const GameScreen: React.FC = () => {
       : null;
 
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
 
   useEffect(() => {
     if (data && data.length > 0) {
@@ -123,6 +122,7 @@ export const GameScreen: React.FC = () => {
       } else {
         setWrongAnswers(wrongAnswers + 1);
         setShowFeedback("incorrect");
+        setShowCorrectAnswer(true);
         incorrectSoundRef.current?.play().catch((err) => console.error(err));
       }
 
@@ -133,6 +133,7 @@ export const GameScreen: React.FC = () => {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
             setUserAnswer("");
             setShowFeedback("");
+            setShowCorrectAnswer(false);
             setIsTransitioning(false);
           } else {
             setIsGameActive(false);
@@ -163,13 +164,13 @@ export const GameScreen: React.FC = () => {
 
   return (
     <div
-    className="flex flex-col items-center w-full min-h-screen relative"
-        style={{
-          backgroundImage: "url('/animation/anagram-bg.jpg')",
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
+      className="relative flex min-h-screen w-full flex-col items-center"
+      style={{
+        backgroundImage: "url('/animation/anagram-bg.jpg')",
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
       }}
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-4">
@@ -218,7 +219,7 @@ export const GameScreen: React.FC = () => {
                   alt={currentQuestion.word}
                   width={80}
                   height={80}
-                  className={`h-30 w-30 transform transition-all duration-500 hover:scale-110 sm:h-40 sm:w-40 md:h-50 md:w-32 ${
+                  className={`h-30 w-30 md:h-50 transform transition-all duration-500 hover:scale-110 sm:h-40 sm:w-40 md:w-32 ${
                     isTransitioning
                       ? "rotate-180 scale-0"
                       : "rotate-0 scale-100"
@@ -256,9 +257,15 @@ export const GameScreen: React.FC = () => {
                 (_, index) => (
                   <div
                     key={index}
-                    className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-gray-300 bg-white/90 text-center text-2xl font-bold shadow-md backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg sm:h-16 sm:w-16 sm:text-3xl"
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 ${
+                      showCorrectAnswer && showFeedback === "incorrect"
+                        ? "border-red-500 bg-red-100/90"
+                        : "border-gray-300 bg-white/90"
+                    } text-center text-2xl font-bold shadow-md backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg sm:h-16 sm:w-16 sm:text-3xl`}
                   >
-                    {userAnswer[index] || ""}
+                    {showCorrectAnswer && showFeedback === "incorrect"
+                      ? currentQuestion.word[index].toUpperCase()
+                      : (userAnswer[index] || "").toUpperCase()}
                   </div>
                 )
               )}

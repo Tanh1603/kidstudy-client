@@ -85,6 +85,7 @@ export const Quiz = ({
 
   const [selectedOption, setSelectedOption] = useState<number>();
   const [status, setStatus] = useState<"none" | "wrong" | "correct">("none");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const challenge = challenges[activeIndex];
   const options = challenge?.challengeOptions ?? [];
@@ -100,7 +101,7 @@ export const Quiz = ({
   };
 
   const onContinue = () => {
-    if (!selectedOption) return;
+    if (!selectedOption || isProcessing) return;
 
     if (status === "wrong") {
       setStatus("none");
@@ -116,8 +117,9 @@ export const Quiz = ({
     }
 
     const correctOption = options.find((option) => option.correct);
-
     if (!correctOption) return;
+
+    setIsProcessing(true);
 
     if (correctOption.id === selectedOption) {
       startTransition(async () => {
@@ -138,11 +140,21 @@ export const Quiz = ({
               setHearts((prev) => Math.min(prev + 1, MAX_HEARTS));
             }
           })
-          .catch(() => toast.error("Something went wrong. Please try again."));
-        addPoint.mutateAsync(10).then(() => {}).catch((error) => {
-          const message = typeof (error as { message?: string })?.message === 'string' ? (error as { message: string }).message : 'An error occurred.';
-          toast.error(message);
-        });
+          .catch(() => toast.error("Something went wrong. Please try again."))
+          .finally(() => {
+            setIsProcessing(false);
+          });
+
+        addPoint
+          .mutateAsync(10)
+          .then(() => {})
+          .catch((error) => {
+            const message =
+              typeof (error as { message?: string })?.message === "string"
+                ? (error as { message: string }).message
+                : "An error occurred.";
+            toast.error(message);
+          });
       });
     } else {
       startTransition(async () => {
@@ -158,7 +170,10 @@ export const Quiz = ({
             setStatus("wrong");
             if (!response?.error) setHearts((prev) => Math.max(prev - 1, 0));
           })
-          .catch(() => toast.error("Something went wrong. Please try again."));
+          .catch(() => toast.error("Something went wrong. Please try again."))
+          .finally(() => {
+            setIsProcessing(false);
+          });
       });
     }
   };
@@ -259,6 +274,7 @@ export const Quiz = ({
         disabled={pending || !selectedOption}
         status={status}
         onCheck={onContinue}
+        isProcessing={isProcessing}
       />
     </>
   );

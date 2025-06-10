@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable import/order */
 "use client";
 import { updateUserPoints } from "@/app/services/user-progress";
@@ -35,7 +36,7 @@ export const ResultModal: React.FC = () => {
     };
 
     void updatePoints();
-  }, [showResultModal, addPoint, getToken, score, userId]);
+  }, [showResultModal]);
 
   if (!showResultModal) return null;
 

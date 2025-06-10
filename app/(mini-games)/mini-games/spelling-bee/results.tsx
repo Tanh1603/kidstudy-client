@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import React, { useEffect } from "react";
 
@@ -37,7 +38,7 @@ export const ResultModal: React.FC = () => {
     };
 
     void updatePoints();
-  }, [showResultModal, addPoint, getToken, score, userId]);
+  }, [showResultModal]);
 
   if (!showResultModal) return null;
 

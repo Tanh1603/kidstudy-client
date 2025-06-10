@@ -18,7 +18,7 @@ import { useMatchUpStore } from "@/store/use-game-matchup";
 import { ResultModal } from "./results";
 
 
-const NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME = 8;
+const NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME = 10;
 
 function isSpellingBeeGameQuestion(question: GameQuestion): question is MatchUpGameQuestion {
   return question.gameType === GameTypeEnum.ANAGRAM && typeof (question as unknown as MatchUpGameQuestion).word === 'string';

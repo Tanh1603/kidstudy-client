@@ -33,7 +33,7 @@ const MiniGamePage = () => {
       color: "from-purple-400 to-purple-600",
       bgColor: "bg-purple-50",
       iconColor: "text-purple-600",
-      href: "/anagram",
+      href: "/mini-games/anagram",
       requiredTickets: 1,
     },
     {
@@ -44,7 +44,7 @@ const MiniGamePage = () => {
       color: "from-green-400 to-green-600",
       bgColor: "bg-green-50",
       iconColor: "text-green-600",
-      href: "/match-up",
+      href: "/mini-games/match-up",
       requiredTickets: 1,
     },
     {
@@ -55,7 +55,7 @@ const MiniGamePage = () => {
       color: "from-yellow-400 to-yellow-600",
       bgColor: "bg-blue-50",
       iconColor: "text-blue-600",
-      href: "/memory",
+      href: "/mini-games/memory",
       requiredTickets: 1,
     },
     {
