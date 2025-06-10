@@ -45,31 +45,6 @@ export default function UserProfile() {
     error?: string;
   }
 
-  const sendHeart = async (receiverEmail: string) => {
-    try {
-      const senderEmail = user?.emailAddresses[0].emailAddress;
-
-      const response = await fetch(`${API}/user/friends/gift`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ senderEmail, receiverEmail }),
-      });
-
-      const data = (await response.json()) as GiftResponse;
-
-      if (response.ok) {
-        alert(data.message || "Đã tặng tim thành công!");
-      } else {
-        alert(`Lỗi: ${data.error || "Có lỗi xảy ra!"}`);
-      }
-    } catch (error) {
-      alert("Có lỗi xảy ra, vui lòng thử lại!");
-    }
-  };
-
-
   // Fetch friends and friend requests
   useEffect(() => {
     if (!user?.emailAddresses[0]?.emailAddress) return;
@@ -154,7 +129,8 @@ export default function UserProfile() {
 
   const handleSendRequest = useCallback(async () => {
     const userEmail = user?.emailAddresses[0]?.emailAddress;
-    
+
+
     if (!userEmail) {
       setMessage("Bạn chưa đăng nhập!");
       return;
@@ -164,7 +140,15 @@ export default function UserProfile() {
       setMessage("Vui lòng nhập email người nhận!");
       return;
     }
-
+    // Kiểm tra điều kiện nâng cao (không tự gửi & chưa là bạn bè)
+    const isValid = await validateReceiver(userEmail, receiverEmail.trim());
+    if (!isValid)
+    {
+      return;
+    }
+      
+      
+    
     setLoading(true);
     setMessage("");
 
@@ -263,6 +247,57 @@ export default function UserProfile() {
     return <div>Đang tải thông tin người dùng...</div>;
   }
 
+  const sendHeart = async (receiverEmail: string) => {
+
+    try {
+      if(userProgress.hearts <= 0)
+      {
+        alert("Bạn không còn tim để tặng!");
+        return;
+      }
+      const senderEmail = user?.emailAddresses[0].emailAddress;
+
+      const response = await fetch(`${API}/user/friends/gift`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ senderEmail, receiverEmail }),
+      });
+
+      const data = (await response.json()) as GiftResponse;
+
+      if (response.ok) {
+        window.location.reload(); // làm mới cửa sổ
+      } else {
+        alert(`Lỗi: ${data.error || "Có lỗi xảy ra!"}`);
+      }
+    } catch (error) {
+      alert("Có lỗi xảy ra, vui lòng thử lại!");
+    }
+  };
+
+  const validateReceiver = async (receiverEmail: string, senderEmail: string): Promise<boolean> => {
+
+  // 1. Kiểm tra email có tồn tại
+  const existsRes = await fetch(`${API}/user/friends/check-email/${receiverEmail}`);
+  const existsData = await existsRes.json();
+  if (!existsData.valid) {
+    alert("Email người nhận không tồn tại.");
+    return false;
+  }
+
+  // 2. Kiểm tra đã là bạn bè chưa và khác chính mình
+  const friendRes = await fetch(`${API}/user/friends/validate/${senderEmail}/${receiverEmail}`);
+  const friendData = await friendRes.json();
+  if (!friendData.valid) {
+    alert(friendData.message || "Không thể gửi tim.");
+    return false;
+  }
+
+  return true;
+};
+
   return (
     <div className="flex flex-row-reverse gap-[48px] px-6">
       <StickyWrapper>
@@ -323,7 +358,9 @@ export default function UserProfile() {
                           points={friendsProgress[friend.sender_email]?.points }
                           hasActiveSubscription={false}
                     />
-                    <Button variant="ghost" className="text-red-500" onClick={() => {void sendHeart(friend.sender_email)}}>
+                    <Button variant="ghost" className="text-red-500" onClick={() => {
+                      void sendHeart(friend.sender_email);
+                    }}>
                       <Image
                         src="/gift.png"
                         height={28}
@@ -332,7 +369,6 @@ export default function UserProfile() {
                         className="mr-2"
                       />
                     </Button>
-
                   </li>
                 ))}
               </ul>
