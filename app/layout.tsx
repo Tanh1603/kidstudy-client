@@ -16,7 +16,7 @@ import { QueryClientProviders } from "@/components/providers/query-client-provid
 const font = Nunito({ subsets: ["latin"] });
 
 export const viewport: Viewport = {
-  themeColor: "#22C55E",
+  themeColor: "#FBBF24",
 };
 
 export const metadata: Metadata = siteConfig;
@@ -34,7 +34,7 @@ export default function RootLayout({
             logoImageUrl: "/bee.png",
           },
           variables: {
-            colorPrimary: "#22C55E",
+            colorPrimary: "#FBBF24",
           },
         }}
       >
