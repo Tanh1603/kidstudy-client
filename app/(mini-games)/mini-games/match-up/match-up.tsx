@@ -20,7 +20,7 @@ import { ResultModal } from "./results";
 
 const NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME = 8;
 
-function isSpellingBeeGameQuestion(question: GameQuestion): question is MatchUpGameQuestion {
+function isMatchUpQuestion(question: GameQuestion): question is MatchUpGameQuestion {
   return question.gameType === GameTypeEnum.ANAGRAM && typeof (question as unknown as MatchUpGameQuestion).word === 'string';
 }
 
@@ -75,15 +75,15 @@ export const GameScreen: React.FC = () => {
 
   useEffect(() => {
     if (data && data.length === NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME && gameQuestions.length === 0) {
-      const spellingBeeQuestions = data.filter(isSpellingBeeGameQuestion);
+      const matchupQuestions = data.filter(isMatchUpQuestion);
 
-      if (spellingBeeQuestions.length === NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME) {
-        setGameQuestions(spellingBeeQuestions);
+      if (matchupQuestions.length === NUMBER_OF_QUESTIONS_FOR_MATCHING_GAME) {
+        setGameQuestions(matchupQuestions);
 
         questionsMap.current.clear();
-        spellingBeeQuestions.forEach(q => questionsMap.current.set(q.id, q));
+        matchupQuestions.forEach(q => questionsMap.current.set(q.id, q));
 
-        const allCorrectWords = spellingBeeQuestions.map(q => q.word);
+        const allCorrectWords = matchupQuestions.map(q => q.word);
         setWordOptions(shuffleArray(allCorrectWords));
         setUserMatches(new Map());
         setTimeLeft(600);
@@ -145,7 +145,7 @@ export const GameScreen: React.FC = () => {
   const getCorrectMatchesCount = useCallback((currentMap: Map<number, string>) => {
     let count = 0;
     gameQuestions.forEach(q => {
-      if (isSpellingBeeGameQuestion(q)) {
+      if (isMatchUpQuestion(q)) {
         if (currentMap.get(q.id)?.toLocaleLowerCase() === q.word.toLocaleLowerCase()) {
           count++;
         }
@@ -161,7 +161,7 @@ export const GameScreen: React.FC = () => {
 
     const targetQuestion = questionsMap.current.get(targetQuestionId);
 
-    if (targetQuestion && isSpellingBeeGameQuestion(targetQuestion)) {
+    if (targetQuestion && isMatchUpQuestion(targetQuestion)) {
       if (attemptedWord.toLocaleLowerCase() === targetQuestion.word.toLocaleLowerCase()) {
         let currentCorrectMatches = 0; // Initialize here
 
@@ -402,7 +402,7 @@ export const GameScreen: React.FC = () => {
                 transition={{ duration: 0.3 }}
                 className={`relative flex flex-col items-center p-3 sm:p-4 rounded-3xl shadow-lg transition-all duration-300 transform
                   ${isDragging ? 'scale-105 shadow-xl' : ''}
-                  ${userMatches.has(question.id) && userMatches.get(question.id) === (isSpellingBeeGameQuestion(question) ? question.word : null)
+                  ${userMatches.has(question.id) && userMatches.get(question.id) === (isMatchUpQuestion(question) ? question.word : null)
                       ? 'bg-green-100/70 border-green-400' // Correctly matched
                       : userMatches.has(question.id)
                         ? 'bg-red-100/70 border-red-400' // Assigned (potentially incorrect if it gets here)
@@ -420,7 +420,7 @@ export const GameScreen: React.FC = () => {
                           ? question.imageSrc
                           : URL.createObjectURL(question.imageSrc)
                       }
-                      alt={isSpellingBeeGameQuestion(question) ? question.word : "Question Image"}
+                      alt={isMatchUpQuestion(question) ? question.word : "Question Image"}
                       width={100}
                       height={100}
                       className="object-contain h-24 w-24 sm:h-28 sm:w-28 rounded-lg shadow-sm"

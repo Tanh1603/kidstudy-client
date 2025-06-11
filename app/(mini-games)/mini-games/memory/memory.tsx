@@ -74,29 +74,29 @@ const Card: React.FC<CardProps> = ({
                   ${isMatched ? 'opacity-0 scale-90 pointer-events-none' : 'scale-100'}` // Fade out and shrink matched cards
                 }
       onClick={() => onClick(id)}
-      style={{ perspective: 1000 }} // Required for 3D transforms
+      style={{ perspective: 1000 }}
       whileHover={{ scale: isMatched ? 0.9 : 1.05 }} // Slight scale on hover, but not if matched
-      initial={{ opacity: 0, scale: 0.8 }} // Initial state for entry animation
+      initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }} // Animate to visible state
-      exit={{ opacity: 0, scale: 0.8 }} // Exit animation for matched cards (handled by AnimatePresence in parent)
-      transition={{ duration: 0.3 }} // Transition for initial/exit opacity/scale
+      exit={{ opacity: 0, scale: 0.8 }}
+      transition={{ duration: 0.3 }}
     >
       {/* Card Front (Content) */}
       <motion.div
         className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl backface-hidden border-2 border-blue-300 overflow-hidden p-1 sm:p-2" // Added overflow-hidden and responsive padding
         animate={{ rotateY: isFlipped ? 0 : 180 }}
         transition={flipTransition}
-        style={{ zIndex: isFlipped ? 2 : 1 }} // Ensure flipped card is on top
+        style={{ zIndex: isFlipped ? 2 : 1 }}
       >
         {contentType === 'image' ? (
           // Using next/image for optimized images
           <Image
-            src={content as string} // content is string for image paths
+            src={content as string}
             alt={getImageAltText()}
-            width={96} // Base width, actual size controlled by parent and objectFit
-            height={96} // Base height, actual size controlled by parent and objectFit
+            width={96}
+            height={96}
             objectFit="contain"
-            className="w-full h-full rounded-lg" // Make image fill its container
+            className="w-full h-full rounded-lg"
           />
         ) : contentType === 'word' || contentType === 'text' ? (
           <span className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-bold text-blue-800 uppercase text-center p-1 break-words leading-tight flex-grow flex items-center justify-center min-w-0">
@@ -108,7 +108,7 @@ const Card: React.FC<CardProps> = ({
             {/* Audio icon that plays the audio */}
             <Volume2
               className="w-1/2 h-1/2 text-blue-600 cursor-pointer hover:text-blue-800 transition-colors"
-              onClick={playAudio} // Play audio on click
+              onClick={playAudio}
             />
             {/* Hidden audio element for playback */}
             <audio ref={audioRef} className="hidden">
@@ -124,7 +124,7 @@ const Card: React.FC<CardProps> = ({
         className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl text-white font-bold text-3xl backface-hidden border-2 border-yellow-700"
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={flipTransition}
-        style={{ zIndex: isFlipped ? 1 : 2 }} // Ensure back is on top when not flipped
+        style={{ zIndex: isFlipped ? 1 : 2 }}
       >
         <Lightbulb className="w-12 h-12 text-yellow-100 drop-shadow-md" />
       </motion.div>
@@ -135,7 +135,6 @@ const Card: React.FC<CardProps> = ({
 
 
 // --- Helper for creating Memory Cards from fetched data ---
-// This logic processes the raw API questions into the MemoryCardState format
 const generateMemoryCards = (
   questions: Game.MemoryGameQuestion[]
 ): Array<MemoryCardState> => {
@@ -146,7 +145,7 @@ const generateMemoryCards = (
     if (question.memoryType === Game.MemoryEnum.WORD_IMAGE) {
       const q = question as unknown as Game.MemoryGameQuestionWithImage;
       newCards.push({
-        id: `${pairId}-word`, // Unique ID for card 1 (e.g., "123-word")
+        id: `${pairId}-word`,
         pairId: pairId,
         contentType: "word",
         content: q.word,
@@ -155,7 +154,7 @@ const generateMemoryCards = (
         isMatched: false,
       });
       newCards.push({
-        id: `${pairId}-image`, // Unique ID for card 2 (e.g., "123-image")
+        id: `${pairId}-image`,
         pairId: pairId,
         contentType: "image",
         content: q.imageSrc,
@@ -217,7 +216,7 @@ const generateMemoryCards = (
       newCards.push({
         id: `${pairId}-word2`,
         pairId: pairId,
-        contentType: "text", // Use 'text' to differentiate from original 'word' if needed
+        contentType: "text",
         content: q.matchText,
         memoryType: Game.MemoryEnum.WORD_WORD,
         isFlipped: false,
@@ -225,7 +224,7 @@ const generateMemoryCards = (
       });
     }
   });
-  return newCards.sort(() => Math.random() - 0.5); // Shuffle cards randomly
+  return newCards.sort(() => Math.random() - 0.5);
 };
 
 const MemoryGameScreen: React.FC = () => {
@@ -257,7 +256,7 @@ const MemoryGameScreen: React.FC = () => {
     Game.GameTypeEnum.MEMORY, // Explicitly request MEMORY game questions
     selectedDifficulty,
     selectedTopic?.id ?? 0,
-    10 // Request 10 unique questions (which will generate 20 cards)
+    10
   );
 
   // Refs for sound effects
@@ -443,4 +442,3 @@ const MemoryGameScreen: React.FC = () => {
 };
 
 export default MemoryGameScreen;
-  
