@@ -10,6 +10,7 @@ import { Lightbulb, Volume2 } from 'lucide-react'; // Import Lightbulb and Volum
 
 import * as Game from "@/app/models/Game";
 import Loading from "@/components/loading";
+import { Header } from "@/components/ui/header-game";
 import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook"; // Your existing hook
 import { useMemoryStore, MemoryCardState } from "@/store/use-game-memory"; // Use the NEW Memory Game store
 
@@ -110,8 +111,8 @@ const Card: React.FC<CardProps> = ({
               onClick={playAudio} // Play audio on click
             />
             {/* Hidden audio element for playback */}
-            <audio ref={audioRef} className="hidden"> {/* Added ref and hidden class */}
-              <source src={content as string} type="audio/mpeg" />
+            <audio ref={audioRef} className="hidden">
+              <source src={content as string} type="audio/wav" /> {/* Changed type to audio/wav */}
               Your browser does not support the audio element.
             </audio>
           </div>
@@ -340,7 +341,6 @@ const MemoryGameScreen: React.FC = () => {
         incrementTurns();
 
         const [card1Id, card2Id] = newFlippedCards;
-        // Access state directly from `useMemoryGameStore.getState()` for freshest values
         const currentCards = useMemoryStore.getState().cards;
         const card1 = currentCards.find((c) => c.id === card1Id);
         const card2 = currentCards.find((c) => c.id === card2Id);
@@ -348,12 +348,10 @@ const MemoryGameScreen: React.FC = () => {
         if (card1 && card2 && card1.pairId === card2.pairId) {
           // Match found!
           correctSoundRef.current?.play().catch((err) => console.error(err));
-          markCardsAsMatched([card1.id, card2.id]); // Mark as matched in store
-          incrementMatches(); // Increment matched pairs count
+          markCardsAsMatched([card1.id, card2.id]);
+          incrementMatches();
           setScore(score + 10); // Example scoring: +10 points per match
 
-          // The game completion check is now handled by the separate useEffect
-          // to ensure it reacts to the `matchesFound` state update
         } else {
           // No match
           incorrectSoundRef.current?.play().catch((err) => console.error(err));
@@ -393,6 +391,10 @@ const MemoryGameScreen: React.FC = () => {
         backgroundAttachment: "fixed",
       }}
     >
+      <Header
+        currentWordIndex={score/10} // Placeholder, not used in Memory Game
+        totalWords={totalPairs} // Placeholder, not used in Memory Game
+        />
       <div className="mx-auto flex max-w-6xl flex-col gap-4 p-4 w-full">
         {/* Header for Memory Game */}
         <div className="flex flex-col items-center justify-between gap-2 sm:mb-2 sm:flex-row sm:gap-4">

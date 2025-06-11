@@ -8,6 +8,7 @@ import { LucideImageOff, Volume2 } from "lucide-react";
 
 import { GameTypeEnum, SpellingBeeGameQuestion } from "@/app/models/Game";
 import Loading from "@/components/loading";
+import { Header } from "@/components/ui/header-game";
 import { useGetRandomGameQuestionByGameType } from "@/hooks/use-game-question-hook";
 import { useSpellingBeeStore } from "@/store/use-game-spellingbee";
 
@@ -172,6 +173,11 @@ export const GameScreen: React.FC = () => {
           backgroundAttachment: "fixed",
       }}
     >
+      <Header
+        currentWordIndex={currentQuestionIndex + 1}
+        totalWords={gameQuestions.length}
+      />
+
       <div className="mx-auto flex max-w-4xl flex-col gap-4">
         {/* Header */}
         <div className="flex flex-col items-center justify-between gap-2 sm:mb-2 sm:flex-row sm:gap-4">
