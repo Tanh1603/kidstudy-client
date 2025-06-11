@@ -14,6 +14,13 @@ https://github.com/Tanh1603/kidstudy-server
 ## 🗺️Mindmap
 ![z6443560995185_b094ca72515749ad56fb8ec3a643138d](https://github.com/user-attachments/assets/fa2a4f5f-87eb-4bea-b6cd-056dbb33dce6)
 
+## 🔒Connection is secure
+![connection_is_secure](https://github.com/user-attachments/assets/1075dc8a-f691-4987-bea0-d55a61576cbc)
+
+## 🏎️PageSpeed Insights
+![gg_page_speed_mobile](https://github.com/user-attachments/assets/d26ec372-b079-4e00-aba1-dd5ec02028ba)
+
+
 ## 👶User
 
 ### 🚀Landing page
